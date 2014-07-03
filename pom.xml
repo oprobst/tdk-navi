@@ -41,6 +41,11 @@
 			<artifactId>jfreechart</artifactId>
 			<version>1.0.14</version>
 		</dependency>
+		<dependency>
+			<groupId>com.pi4j</groupId>
+			<artifactId>pi4j-core</artifactId>
+			<version>0.0.5</version>
+		</dependency>
 
 	</dependencies>
 	<build>
@@ -48,38 +53,45 @@
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.4</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>de.oliverprobst.tdk.navi.App</mainClass>
-						</manifest>
-					</archive>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-				</configuration>
+
 				<executions>
 					<execution>
 						<id>Define-Startup-Mainclass</id>
-						<phase>compile</phase>
+						<phase>package</phase>
 						<goals>
 							<goal>assembly</goal>
 						</goals>
 						<inherited>false</inherited>
 						<configuration>
-						<archive>
-						<manifest>
-							<mainClass>de.oliverprobst.tdk.navi.App</mainClass>
-						</manifest>
-					</archive>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
+							<archive>
+								<manifest>
+									<mainClass>de.oliverprobst.tdk.navi.App</mainClass>
+								</manifest>
+							</archive>
+							<descriptors>
+								<descriptor>src/main/assembly/src.xml</descriptor>
+							</descriptors>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 		</plugins>
 	</build>
+
+	<repositories>
+		<repository>
+			<id>oss-snapshots-repo</id>
+			<name>Sonatype OSS Maven Repository</name>
+			<url>https://oss.sonatype.org/content/groups/public</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>central</id>
+			<url>http://repo1.maven.org/maven2/</url>
+		</repository>
+	</repositories>
 
 </project>
