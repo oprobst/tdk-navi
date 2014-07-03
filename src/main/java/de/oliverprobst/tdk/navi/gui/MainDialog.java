@@ -1,0 +1,310 @@
+package de.oliverprobst.tdk.navi.gui;
+
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.oliverprobst.tdk.navi.controller.DefaultController;
+import de.oliverprobst.tdk.navi.dto.DiveData;
+
+public class MainDialog extends JFrame {
+
+	private static Logger log = LoggerFactory.getLogger(MainDialog.class);
+	/**
+	 * sid
+	 */
+	private static final long serialVersionUID = -2892164373355188397L;
+
+	private final DefaultController dc;
+	protected Layouter layouter = new Layouter();
+	private Insets defInsets = new Insets(0, 0, 0, 0);
+
+	/**
+	 * ctor
+	 */
+	public MainDialog(DefaultController dc) {
+		super();
+		this.dc = dc;
+		this.setSize(640, 480);
+		this.setLocation(100, 100);
+		this.layouter.layout(this.getContentPane());
+		this.setResizable(false);
+		this.setUndecorated(true);
+		this.setVisible(true);
+		createMainGridLayout();
+		registerKeyListener();
+	}
+
+	private void createMainGridLayout() {
+		GridBagLayout gbl = new GridBagLayout();
+		this.setLayout(gbl);
+
+		GridBagConstraints gbc = new GridBagConstraints(0, 0, 2, 1, 1.0d, 0.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+				new Insets(0, 0, 0, 0), 2, 2);
+
+		JPanel topPanel = new JPanel();
+		layouter.layout(topPanel);
+		gbl.setConstraints(topPanel, gbc);
+		this.add(topPanel, gbc);
+
+		gbc = new GridBagConstraints(0, 1, 1, 1, 1.0d, 1.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
+						0, 0, 0, 0), 1, 1);
+
+		JPanel mapPanel = new JPanel();
+		layouter.layout(mapPanel);
+		gbl.setConstraints(mapPanel, gbc);
+		this.add(mapPanel, gbc);
+
+		gbc = new GridBagConstraints(1, 1, 1, 1, 0.0d, 0.8d,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
+						0, 0, 0, 0), 1, 1);
+
+		JPanel paramPanel = new JPanel();
+		layouter.layout(paramPanel);
+		gbl.setConstraints(paramPanel, gbc);
+		this.add(paramPanel, gbc);
+
+		gbc = new GridBagConstraints(0, 2, 2, 1, 0.0d, 0.15d,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
+						0, 0, 0, 0), 2, 2);
+
+		JPanel bottomPanel = new JPanel();
+		layouter.layout(bottomPanel);
+		gbl.setConstraints(bottomPanel, gbc);
+		this.add(bottomPanel, gbc);
+
+		createTopPanel(topPanel);
+		createMapPanel(mapPanel);
+		createParamPanel(paramPanel);
+		createBottomPanel(bottomPanel);
+
+	}
+
+	private void createBottomPanel(JPanel panel) {
+		GridBagLayout gbl = new GridBagLayout();
+		panel.setLayout(gbl);
+
+		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0d, 1.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
+				2, 2);
+
+		DiveProfilePanel profilePanel = new DiveProfilePanel(layouter);
+
+		gbl.setConstraints(profilePanel, gbc);
+		panel.add(profilePanel, gbc);
+		dc.registerControllerPropertyChangeListener(profilePanel);
+
+		// gbc = new GridBagConstraints(1, 0, 1, 1, 0.5d, 1.0d,
+		// GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
+		// 2, 2);
+
+		// CompassPanel compassPanel = new CompassPanel(layouter);
+
+		// gbl.setConstraints(compassPanel, gbc);
+		// panel.add(compassPanel, gbc);
+		// dc.registerPropertyListener(compassPanel);
+
+	}
+
+	private void createParamPanel(JPanel panel) {
+		GridBagLayout gbl = new GridBagLayout();
+		panel.setLayout(gbl);
+
+		GridBagConstraints gbc = new GridBagConstraints(0, 0, 2, 1, 1.0d, 0.2d,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
+				2, 2);
+
+		GpsCoordPanel gpsPanel = new GpsCoordPanel(layouter);
+
+		gbl.setConstraints(gpsPanel, gbc);
+		panel.add(gpsPanel, gbc);
+		dc.registerModelPropertyListener(gpsPanel);
+
+		gbc = new GridBagConstraints(0, 1, 1, 1, 1.0d, 1.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
+				defInsets, 2, 2);
+
+		MaxDepthPanel maxDepthPanel = new MaxDepthPanel(layouter);
+
+		gbl.setConstraints(maxDepthPanel, gbc);
+		panel.add(maxDepthPanel, gbc);
+		dc.registerModelPropertyListener(maxDepthPanel);
+
+		gbc = new GridBagConstraints(1, 1, 1, 1, 1.0d, 1.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
+				defInsets, 2, 2);
+
+		LastFixPanel lastFixPanel = new LastFixPanel(layouter);
+
+		gbl.setConstraints(lastFixPanel, gbc);
+		panel.add(lastFixPanel, gbc);
+		dc.registerModelPropertyListener(lastFixPanel);
+		
+
+		gbc = new GridBagConstraints(0, 2, 1, 1, 1.0d, 1.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
+				defInsets, 2, 2);
+
+		TemperaturePanel temperaturePanel  = new TemperaturePanel(layouter);
+
+		gbl.setConstraints(temperaturePanel, gbc);
+		panel.add(temperaturePanel, gbc);
+		dc.registerModelPropertyListener(temperaturePanel);
+
+		gbc = new GridBagConstraints(1, 2, 1, 1, 1.0d, 1.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
+				defInsets, 2, 2);
+
+		AvgDiveDepthPanel averageDepthPanel = new AvgDiveDepthPanel(layouter);
+
+		gbl.setConstraints(averageDepthPanel, gbc);
+		panel.add(averageDepthPanel, gbc);
+		dc.registerModelPropertyListener(averageDepthPanel);
+
+	}
+
+	private void createMapPanel(JPanel panel) {
+
+		GridBagLayout gbl = new GridBagLayout();
+		panel.setLayout(gbl);
+
+		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0d, 1.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
+				0, 0);
+		MapPanel mapPanel = new MapPanel();
+		panel.add(mapPanel, gbc);
+		dc.registerModelPropertyListener(mapPanel);
+
+		layouter.layout(mapPanel);
+	}
+
+	private void createTopPanel(JPanel panel) {
+		GridBagLayout gbl = new GridBagLayout();
+		panel.setLayout(gbl);
+
+		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.25d,
+				1.0d, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				defInsets, 2, 2);
+
+		DepthPanel depthPanel = new DepthPanel(layouter);
+
+		gbl.setConstraints(depthPanel, gbc);
+		panel.add(depthPanel, gbc);
+		dc.registerModelPropertyListener(depthPanel);
+
+		gbc = new GridBagConstraints(1, 0, 1, 1, 0.5d, 1.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
+				15, 2);
+
+		CompassPanel compassPanel = new CompassPanel(layouter);
+
+		gbl.setConstraints(compassPanel, gbc);
+		panel.add(compassPanel, gbc);
+		dc.registerModelPropertyListener(compassPanel);
+
+		gbc = new GridBagConstraints(2, 0, 1, 1, 0.25d, 1.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
+				15, 2);
+
+		DiveTimePanel diveTimePanel = new DiveTimePanel(layouter);
+
+		gbl.setConstraints(diveTimePanel, gbc);
+		panel.add(diveTimePanel, gbc);
+		dc.registerModelPropertyListener(diveTimePanel);
+
+	}
+
+	/**
+	 * React on user input
+	 */
+	private void registerKeyListener() {
+		this.addKeyListener(new KeyListener() {
+
+			public void keyTyped(KeyEvent e) {
+			}
+
+			public void keyReleased(KeyEvent e) {
+
+				DiveData dd = dc.getCurrentRecordClone();
+
+				switch (e.getKeyCode()) {
+				case 81: // q
+
+					log.info("User input was 'Q', which means I've to leave... Good bye!");
+					System.exit(0);
+					break;
+				case 87: // w
+				case 38: // arr up
+					float depth = dd.getDepth();
+					depth -= .25;
+					if (depth < 0) {
+						depth = 0;
+					}
+					dc.setDepth(depth);
+					break;
+				case 83: // s
+				case 40: // arr down
+					depth = dd.getDepth();
+					depth += .25;
+					dc.setDepth(depth);
+					break;
+
+				case 69: // e
+				case 39: // arr right
+					int course = dd.getCourse();
+					course += 2;
+					if (course > 359){
+						course = 0;
+					}
+					dc.setCourse(course);
+					break;
+				case 68: // d
+				case 37: // arr left
+					course = dd.getCourse();
+					course -= 2;
+					if (course < 0){
+						course = 359;
+					}
+					dc.setCourse(course);
+					break;
+				case 32: // space
+				case 82: // r
+					SimpleDateFormat dateFormatGmt = new SimpleDateFormat(
+							"HH:mm:ss.00");
+					dateFormatGmt.setTimeZone(TimeZone.getTimeZone("GMT"));
+					String time = dateFormatGmt.format(new Date());
+					String message = "$GPGGA,"
+							+ time
+							// ,BBBB.BBBB,b,LLLLL.LLLL,l,Q,NN,D.D,H.H,h,G.G,g,A.A,RRRR*PP
+							+ ",4900.5214,N,00825.1829,E,1,03,2.4,1.3,1,2.2,1,0.2,1023*92";
+					// (checksum invalid)
+					dc.setGGA(message);
+
+					break;
+
+				default:
+					// nada
+					log.debug("Unknown key: " + e.getKeyCode());
+				}
+
+			}
+
+			public void keyPressed(KeyEvent e) {
+			}
+		});
+
+	}
+}
