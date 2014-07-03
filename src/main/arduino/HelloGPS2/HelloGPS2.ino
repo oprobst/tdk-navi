@@ -10,10 +10,21 @@ SoftwareSerial gpsSerial =  SoftwareSerial(RXPIN, TXPIN);
 
 #include <LiquidCrystal.h>
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+#include <Wire.h>
+
+#define SLAVE_ADDRESS 0x04
+int number = 0;
+int state = 0;
 
 void setup()
 {
+pinMode(12, OUTPUT);
 
+    Wire.begin(SLAVE_ADDRESS);
+    // define callbacks for i2c communication
+    Wire.onReceive(receiveData);
+    Wire.onRequest(sendData);
+pinMode(6,OUTPUT);
     pinMode(6,OUTPUT);
    digitalWrite(10, LOW);
     digitalWrite(6, HIGH);
@@ -305,3 +316,34 @@ void setBaud(byte baudSetting) {
   if (baudSetting == 0x84) gpsSerial.begin(230400);
 }
 
+
+//
+//  I2C
+//
+
+// callback for received data
+void receiveData(int byteCount){
+
+    while(Wire.available()) {
+        number = Wire.read();
+        Serial.print("data received: ");
+        Serial.println(number);
+
+        if (number == 1){
+
+            if (state == 0){
+                digitalWrite(12, HIGH); // set the LED on
+                state = 1;
+            }
+            else{
+                digitalWrite(12, LOW); // set the LED off
+                state = 0;
+            }
+         }
+     }
+}
+
+// callback for sending data
+void sendData(){
+    Wire.write(number);
+}
