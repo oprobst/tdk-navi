@@ -56,10 +56,7 @@ public class DemoDataCollectThread extends Thread {
 
 				// $GPGGA,HHMMSS.ss,BBBB.BBBB,b,LLLLL.LLLL,l,Q,NN,D.D,H.H,h,G.G,g,A.A,RRRR*PP
 
-				String message = "$GPGGA,"
-						+ time
-						// ,BBBB.BBBB,b,LLLLL.LLLL,l,Q,NN,D.D,H.H,h,G.G,g,A.A,RRRR*PP
-						+ ",4900.3400,N,00824.1500,E,1,05,2.4,1.3,1,2.2,1,0.2,1023*92";
+				String message = "$GPGGA,161725.62,4846.13368,N,00819.92616,E,1,06,1.10,193.6,M,47.4,M,,*59";
 				// (checksum invalid)
 				dc.setGGA(message);
 			}

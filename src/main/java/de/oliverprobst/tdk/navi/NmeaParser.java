@@ -10,21 +10,21 @@ public class NmeaParser {
 	}
 
 	public String getLongitude() {
-		return gga.substring(19, 21) + "° " + getNSHemisphere() + " "
-				+ gga.substring(21, 27);
+		return gga.substring(17, 19) + "° " + getNSHemisphere() + " "
+				+ gga.substring(19, 25);
 
 		// gga.substring(19, 28);
 	}
 
 	public String getLatitude() {
-		return gga.substring(31, 34) + "° " + getEWHemisphere() + " "
-				+ gga.substring(34, 40);
+		return gga.substring(30, 33) + "° " + getEWHemisphere() + " "
+				+ gga.substring(33, 39);
 
 		// return gga.substring(31, 41);
 	}
 
 	public String getNSHemisphere() {
-		return gga.substring(29, 30);
+		return gga.substring(28, 29);
 	}
 
 	public String getEWHemisphere() {

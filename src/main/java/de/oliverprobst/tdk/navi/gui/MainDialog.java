@@ -235,8 +235,8 @@ public class MainDialog extends JFrame {
 
 			public void keyTyped(KeyEvent e) {
 			}
-
-			public void keyReleased(KeyEvent e) {
+			public void keyPressed(KeyEvent e) {
+			
 
 				DiveData dd = dc.getCurrentRecordClone();
 
@@ -286,10 +286,7 @@ public class MainDialog extends JFrame {
 							"HH:mm:ss.00");
 					dateFormatGmt.setTimeZone(TimeZone.getTimeZone("GMT"));
 					String time = dateFormatGmt.format(new Date());
-					String message = "$GPGGA,"
-							+ time
-							// ,BBBB.BBBB,b,LLLLL.LLLL,l,Q,NN,D.D,H.H,h,G.G,g,A.A,RRRR*PP
-							+ ",4900.5214,N,00825.1829,E,1,03,2.4,1.3,1,2.2,1,0.2,1023*92";
+					String message = "$GPGGA,161718.53,4846.13423,N,00819.92680,E,1,05,1.63,190.9,M,47.4,M,,*59";
 					// (checksum invalid)
 					dc.setGGA(message);
 
@@ -302,7 +299,7 @@ public class MainDialog extends JFrame {
 
 			}
 
-			public void keyPressed(KeyEvent e) {
+			public void keyReleased(KeyEvent e) {
 			}
 		});
 
