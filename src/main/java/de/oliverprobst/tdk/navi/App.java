@@ -33,7 +33,7 @@ public class App {
 		} else {
 			try {
 				startDataCollect(dc);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.error(
 						"Could not start data collection thread. Going to demo mode. Reason: "
 								+ e.getMessage(), e);
@@ -49,8 +49,6 @@ public class App {
 
 		collectorThread = new I2CDataCollectThread(incoming);
 		dataProcessingThread = new DataProcessingThread(incoming, dc);
-		collectorThread.run();
-		dataProcessingThread.run();
 
 		UncaughtExceptionHandler uch = new UncaughtExceptionHandler() {
 			public void uncaughtException(Thread t, Throwable e) {
@@ -70,6 +68,8 @@ public class App {
 		dataProcessingThread.setUncaughtExceptionHandler(uch);
 		collectorThread.setUncaughtExceptionHandler(uch);
 
+		collectorThread.run();
+		dataProcessingThread.run();
 	}
 
 	private static void runInDemoMode(DefaultController dc) {
