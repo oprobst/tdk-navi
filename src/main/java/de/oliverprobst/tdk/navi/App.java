@@ -1,5 +1,6 @@
 package de.oliverprobst.tdk.navi;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.slf4j.Logger;
@@ -41,21 +42,33 @@ public class App {
 		}
 	}
 
+	private static DataProcessingThread dataProcessingThread = null;
+	private static I2CDataCollectThread collectorThread = null;
+
 	private static void startDataCollect(DefaultController dc) throws Exception {
-		DataProcessingThread dataProcessingThread = null;
-		I2CDataCollectThread collectorThread = null;
-		try {
-			collectorThread = new I2CDataCollectThread(incoming);
-			dataProcessingThread = new DataProcessingThread(incoming, dc);
-		} catch (Exception e) {
-			if (dataProcessingThread != null) {
-				dataProcessingThread.end();
+
+		collectorThread = new I2CDataCollectThread(incoming);
+		dataProcessingThread = new DataProcessingThread(incoming, dc);
+		collectorThread.run();
+		dataProcessingThread.run();
+
+		UncaughtExceptionHandler uch = new UncaughtExceptionHandler() {
+			public void uncaughtException(Thread t, Throwable e) {
+				if (dataProcessingThread != null) {
+					dataProcessingThread.end();
+				}
+				if (collectorThread != null) {
+					collectorThread.end();
+				}
+				log.error("Thread "
+						+ t.getName()
+						+ " died. Exited the other Thread and ending data collection.");
+				throw new RuntimeException(e);
 			}
-			if (collectorThread != null) {
-				collectorThread.end();
-			}
-			throw e;
-		}
+		};
+
+		dataProcessingThread.setUncaughtExceptionHandler(uch);
+		collectorThread.setUncaughtExceptionHandler(uch);
 
 	}
 
