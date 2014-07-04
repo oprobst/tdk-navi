@@ -12,19 +12,19 @@
 		<dependencySet>
 			<outputDirectory>/</outputDirectory>
 			<useProjectArtifact>false</useProjectArtifact>
-			<unpack>false</unpack>
+			<unpack>true</unpack>
 			<scope>runtime</scope>
 			<excludes>
-				<exclude>navi-${project.version}.jar</exclude>
+				<exclude>*:so:*</exclude>
 			</excludes>
 		</dependencySet>
 		<dependencySet>
 			<outputDirectory>/</outputDirectory>
 			<useProjectArtifact>false</useProjectArtifact>
-			<unpack>true</unpack>
+			<unpack>false</unpack>
 			<scope>runtime</scope>
 			<includes>
-				<include>navi-${project.version}.jar</include>
+				<include>*:so:*</include>
 			</includes>
 		</dependencySet>
 	</dependencySets>
