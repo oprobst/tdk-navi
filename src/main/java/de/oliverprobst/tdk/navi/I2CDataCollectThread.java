@@ -1,7 +1,6 @@
 package de.oliverprobst.tdk.navi;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.slf4j.Logger;
@@ -41,29 +40,40 @@ public class I2CDataCollectThread extends Thread {
 			bus = I2CFactory.getInstance(I2CBus.BUS_1);
 			arduino = bus.getDevice(0x04);
 
+			int iteration = 0;
+			final byte[] buffer = new byte[maxLength];
+
 			while (!end) {
 
-				final byte[] buffer = new byte[maxLength];
-
-				byte b = 0;
-				int count = 0;
-				while (b != 0x2a) {
-					b = (byte) arduino.read();
-					buffer[count] = b;
-					if (count == 127) {
-						// invalid message. Discard
-						try {
-							log.warn("Discarded invalid message :'"
-									+ new String(buffer, "UTF-8") + "'.");
-						} catch (UnsupportedEncodingException e) {
-							throw new RuntimeException(e);
-						}
-
+				arduino.read(buffer, 0, maxLength);
+				int eom = 0;
+				for (int i = 0; i < maxLength; i++) {
+					if (buffer[i] == 0x2a) {
+						eom = i + 1;
 						break;
 					}
 				}
-				incoming.add(new I2CPackage(buffer));
+				if (eom != 0) {
+					final byte[] msgArr = new byte[eom + 1];
+					System.arraycopy(buffer, 0, msgArr, 0, eom + 1);
 
+					incoming.add(new I2CPackage(msgArr));
+
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+						log.info("Thread sleep interrupted", e);
+					}
+					iteration++;
+					if (iteration == 100) {
+						log.trace("Send 0.");
+						arduino.write((byte) 0x00);
+					} else if (iteration > 200) {
+						arduino.write((byte) 0xFF);
+						log.trace("Send FF.");
+						iteration = 0;
+					}
+				}
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("Could not connect to I2CBus.", e);

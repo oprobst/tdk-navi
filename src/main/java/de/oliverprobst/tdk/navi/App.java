@@ -68,8 +68,8 @@ public class App {
 		dataProcessingThread.setUncaughtExceptionHandler(uch);
 		collectorThread.setUncaughtExceptionHandler(uch);
 
-		collectorThread.run();
-		dataProcessingThread.run();
+		collectorThread.start();
+		dataProcessingThread.start();
 	}
 
 	private static void runInDemoMode(DefaultController dc) {

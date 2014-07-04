@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * <code>
  * <table border="1">
  * <tr>
- * <td> 0x54 0x44 0x4b </td><td>0x62 </td><td>0x31 0x32 0x33 0x34 0x35 0x36  </td> <td>0x31 0x32 0x36 0x37 0x38   </td> <td> 2a   </td><td> 34  </td>  
+ * <td> 0x54 0x44 0x4b </td><td>0x62 </td><td>0x31 0x32 0x33 0x34 0x35 0x36  </td> <td>0x31 0x32 0x36 0x37 0x38   </td> <td> 0x2a   </td><td> 0x34  </td>  
  * </tr>
  * <tr>
  * <td> header</td><td>typ</td><td colspan = "2"> payload</td>  <td>End</td><td>ChkSum</td>
@@ -49,7 +49,7 @@ public class I2CPackage {
 	private static Logger log = LoggerFactory.getLogger(I2CPackage.class);
 
 	private final byte[] message;
-
+    
 	public I2CPackage(byte b[]) {
 		if (b.length < 6) {
 			throw new IllegalArgumentException("Message size < 6 byte (= "
@@ -58,7 +58,11 @@ public class I2CPackage {
 			throw new IllegalArgumentException(
 					"Could not read received message, payload bigger than 120 bytes (="
 							+ b.length + " bytes).");
-		} else if (b[b.length - 2] != 0x2a) {
+		}
+		
+		
+		
+		else if (b[b.length - 2] != 0x2a) {
 			throw new IllegalArgumentException(
 					"Received byte did not contain any termination byte 0x2a.");
 		}
@@ -68,7 +72,7 @@ public class I2CPackage {
 
 	public byte getReceivedChecksum() throws IllegalArgumentException {
 
-		return message[message.length - 1];
+		return  message[message.length - 1];
 
 	}
 
@@ -81,10 +85,6 @@ public class I2CPackage {
 	}
 
 	public String getPayload() {
-
-		if (!isValid()) {
-			return "";
-		}
 
 		int i = 0;
 		for (i = message.length -1; i > 0; i--) {
