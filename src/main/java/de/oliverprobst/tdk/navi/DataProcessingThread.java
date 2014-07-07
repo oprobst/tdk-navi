@@ -60,19 +60,54 @@ public class DataProcessingThread extends Thread {
 	}
 
 	private void handle(I2CPackage message) {
+
+		String payload = message.getPayload();
 		// TODO
 		switch (message.getType()) {
+
+		case NMEA_GGA:
+			parseGga(payload);
+			break;
+
 		case COURSE:
-			
+
 			break;
 
 		case DEPTH:
+			parseDepth(payload);
 			break;
-			
+
+		case TEMPERATURE:
+			parseTemperature(payload);
+			break;
+
+		case HUMIDITY:
+			parseHumidity(payload);
 		default:
 			break;
 		}
 
+	}
+
+	private void parseGga(String payload) {
+		dc.setGGA(payload);
+	}
+
+	private void parseDepth(String payload) {
+		float depth = Float.parseFloat(payload);
+		depth = depth / 100;
+		dc.setDepth(depth);
+	}
+
+	private void parseTemperature(String payload) {
+		float temperature = Float.parseFloat(payload);
+		temperature = temperature / 10;
+		dc.setTemperature(temperature);
+	}
+
+	private void parseHumidity(String payload) {
+		float humidity = Float.parseFloat(payload);
+		dc.setHumidity(humidity);
 	}
 
 	private boolean end = false;
