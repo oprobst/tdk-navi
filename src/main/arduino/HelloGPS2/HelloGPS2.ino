@@ -69,8 +69,8 @@ void setup()
   configureUblox(settingsArray); 
 }
 
-byte lastFinishedGAA [84];
-byte currentGAA [84];
+byte * lastFinishedGAA [84];
+byte * currentGAA [84];
 
 void loop()
 {
@@ -84,12 +84,12 @@ void loop()
         pos = 0;
       } 
       else {
-        currentGAA [pos++] = in;
+        *currentGAA [pos++] = in;
       }    
       if (in == '*'){
-        byte * tmp = currentGAA;
-        *currentGAA = *lastFinishedGAA ;
-        *lastFinishedGAA = *tmp;         
+        byte * tmp  = &currentGAA ;
+        currentGAA = &lastFinishedGAA ;
+        * lastFinishedGAA =  tmp [0];         
         Serial.write(tmp, pos); 
         Serial.write("\ncurr");
         Serial.write(currentGAA, pos) ;
@@ -177,7 +177,7 @@ void configureUblox(byte *settingsArrayPointer) {
   if (gpsSetSuccess == 3) Serial.println("Data update mode configuration failed.");
   gpsSetSuccess = 0;
 
-
+return;
   while(gpsSetSuccess < 3 && settingsArrayPointer[6] == 0x00) {
     Serial.print("Deactivating NMEA GLL Messages ");
     sendUBX(setGLL, sizeof(setGLL));
@@ -362,9 +362,11 @@ void receiveData(int byteCount){
   while(Wire.available()) {
     int number = Wire.read();      
     if (number == 00){ 
+      Serial.println("Received HIGH signal on i2c");
       digitalWrite(12, HIGH); // set the LED on           
     }
     else{
+      Serial.println("Received LOW signal on i2c");
       digitalWrite(12, LOW); // set the LED off
     }
   }     
