@@ -54,7 +54,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		super.paintComponent(g);
 		g.drawImage(image, 0, 0, null);
 
-		g.setColor(new Color(255, 100, 100));
+		g.setColor(new Color(255, 150, 150));
 		Point lastLocation = null;
 
 		int stepSize = (int) (((double) (locations.size() + 26) / 50) + 0.5);
@@ -63,22 +63,20 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 			// last 10 records in red:
 			if (i > locations.size() - 11 * stepSize) {
-				g.setColor(new Color(255, 50, 50));
+				g.setColor(new Color(255, 100, 100));
 			}
 			// last 3 records in dark red:
 			if (i > locations.size() - 4 * stepSize) {
-				g.setColor(new Color(255, 000, 000));
+				g.setColor(new Color(255, 50, 50));
 			}
 			if (lastLocation != null) {
 				g.drawLine(lastLocation.x, lastLocation.y, location.x,
 						location.y);
 			}
-			if (i == locations.size() - 1) {
-				drawArrow(g, location.x, location.y);
-			}
-
 			lastLocation = location;
 		}
+		lastLocation = locations.get(locations.size() - 1);
+		drawArrow(g, lastLocation.x, lastLocation.y);
 	}
 
 	private void drawArrow(Graphics g, int x, int y) {
@@ -112,10 +110,15 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			offX = -5;
 		}
 		final int size = 4;
+		g.setColor(new Color(255, 255, 255));
+		g.drawArc(x - size, y - size, size * 2, size * 2, 0, 360);		
+		g.setColor(new Color(255, 0, 0));
 		g.drawLine(x - size, y - size, x + size, y + size);
 		g.drawLine(x - size, y + size, x + size, y - size);
+		
 		g.setColor(new Color(0, 0, 255));
 		g.drawLine(x, y, x + offX, y + offY);
+		g.drawArc(x + offX-1,  y + offY-1, 2, 2, 0, 360);
 
 	}
 

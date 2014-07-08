@@ -102,8 +102,8 @@ public class DemoDataCollectThread extends Thread {
 			// NS: 4739.018 - 4738.541  
 			// EW: 00913.672 - 00912.710
 
-			lastGPSLat = lastGPSLat + (double) ((Math.random() -.22) * .0010);
-			lastGPSLong = lastGPSLong + (double) ((Math.random() -.35) * .0012);
+			lastGPSLat = lastGPSLat + (double) ((Math.random() -.22) * .0045);
+			lastGPSLong = lastGPSLong + (double) ((Math.random() -.35) * .0045);
 			
 
 			DecimalFormat formatterLng = new DecimalFormat("#0000.0000");
