@@ -97,7 +97,7 @@ public class MainDialog extends JFrame {
 		GridBagLayout gbl = new GridBagLayout();
 		panel.setLayout(gbl);
 
-		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0d, 1.0d,
+		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 2, 1.0d, 1.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
 				2, 2);
 
@@ -107,15 +107,25 @@ public class MainDialog extends JFrame {
 		panel.add(profilePanel, gbc);
 		dc.registerControllerPropertyChangeListener(profilePanel);
 
-		// gbc = new GridBagConstraints(1, 0, 1, 1, 0.5d, 1.0d,
-		// GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
-		// 2, 2);
+		gbc = new GridBagConstraints(1, 0, 1, 1, 0.0d, 0.0d,
+				GridBagConstraints.EAST, GridBagConstraints.BOTH, defInsets,
+				2, 2);
 
-		// CompassPanel compassPanel = new CompassPanel(layouter);
+		VoltagePanel voltagePanel = new VoltagePanel(layouter);
 
-		// gbl.setConstraints(compassPanel, gbc);
-		// panel.add(compassPanel, gbc);
-		// dc.registerPropertyListener(compassPanel);
+		gbl.setConstraints(voltagePanel, gbc);
+		panel.add(voltagePanel, gbc);
+		dc.registerModelPropertyListener(voltagePanel);
+		
+		gbc = new GridBagConstraints(1, 1, 1, 1, 0.0d, 0.0d,
+				GridBagConstraints.EAST, GridBagConstraints.BOTH, defInsets,
+				2, 2);
+
+		HumidityPanel humidityPanel = new HumidityPanel(layouter);
+
+		gbl.setConstraints(humidityPanel, gbc);
+		panel.add(humidityPanel, gbc);
+		dc.registerModelPropertyListener(humidityPanel);
 
 	}
 
@@ -152,13 +162,12 @@ public class MainDialog extends JFrame {
 		gbl.setConstraints(lastFixPanel, gbc);
 		panel.add(lastFixPanel, gbc);
 		dc.registerModelPropertyListener(lastFixPanel);
-		
 
 		gbc = new GridBagConstraints(0, 2, 1, 1, 1.0d, 1.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
 				defInsets, 2, 2);
 
-		TemperaturePanel temperaturePanel  = new TemperaturePanel(layouter);
+		TemperaturePanel temperaturePanel = new TemperaturePanel(layouter);
 
 		gbl.setConstraints(temperaturePanel, gbc);
 		panel.add(temperaturePanel, gbc);
@@ -235,8 +244,8 @@ public class MainDialog extends JFrame {
 
 			public void keyTyped(KeyEvent e) {
 			}
+
 			public void keyPressed(KeyEvent e) {
-			
 
 				DiveData dd = dc.getCurrentRecordClone();
 
@@ -266,7 +275,7 @@ public class MainDialog extends JFrame {
 				case 39: // arr right
 					int course = dd.getCourse();
 					course += 2;
-					if (course > 359){
+					if (course > 359) {
 						course = 0;
 					}
 					dc.setCourse(course);
@@ -275,7 +284,7 @@ public class MainDialog extends JFrame {
 				case 37: // arr left
 					course = dd.getCourse();
 					course -= 2;
-					if (course < 0){
+					if (course < 0) {
 						course = 359;
 					}
 					dc.setCourse(course);

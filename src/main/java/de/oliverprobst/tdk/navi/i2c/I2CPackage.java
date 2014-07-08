@@ -18,6 +18,9 @@ import org.slf4j.LoggerFactory;
  * <ul>
  * <li>0x61 - NMEA String without $, * and checksum</li>
  * <li>0x62 - Depth: 6 bytes in Millimeter, 5 bytes in mbar</li>
+ * <li>0x63 - Temperature in Celcius, 1 byte sign, 2byte digits before and 1
+ * byte digit behind comma. Eg. TDKc+048* is + 4.8 Degree Celcius.</li>
+ * <li>0x65 - Humidity: 2byte digits Eg. TDKe55* is 55 % Humidity.</li>
  * </li></li>
  * </ul>
  * <li>Followed by a checksum byte similar calculated to the NMEA checksum.
@@ -49,7 +52,7 @@ public class I2CPackage {
 	private static Logger log = LoggerFactory.getLogger(I2CPackage.class);
 
 	private final byte[] message;
-    
+
 	public I2CPackage(byte b[]) {
 		if (b.length < 6) {
 			throw new IllegalArgumentException("Message size < 6 byte (= "
@@ -59,9 +62,7 @@ public class I2CPackage {
 					"Could not read received message, payload bigger than 120 bytes (="
 							+ b.length + " bytes).");
 		}
-		
-		
-		
+
 		else if (b[b.length - 2] != 0x2a) {
 			throw new IllegalArgumentException(
 					"Received byte did not contain any termination byte 0x2a.");
@@ -72,7 +73,7 @@ public class I2CPackage {
 
 	public byte getReceivedChecksum() throws IllegalArgumentException {
 
-		return  message[message.length - 1];
+		return message[message.length - 1];
 
 	}
 
@@ -87,7 +88,7 @@ public class I2CPackage {
 	public String getPayload() {
 
 		int i = 0;
-		for (i = message.length -1; i > 0; i--) {
+		for (i = message.length - 1; i > 0; i--) {
 			if (message[i] == 0x2a) {
 				break;
 			}

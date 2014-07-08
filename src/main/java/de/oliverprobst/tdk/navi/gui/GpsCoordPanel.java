@@ -54,14 +54,14 @@ public class GpsCoordPanel extends JPanel implements PropertyChangeListener {
 				GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0,
 						0, 0, 3), 2, 2);
 
-		layout.layoutSmallLabel(lblPrecision);
+		layout.layoutMicroLabel(lblPrecision);
 		this.add(lblPrecision, gbc);
 
 		gbc = new GridBagConstraints(1, 2, 1, 1, 0.0d, 0.0d,
 				GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0,
 						0, 0, 3), 2, 2);
 
-		layout.layoutSmallLabel(lblSat);
+		layout.layoutMicroLabel(lblSat);
 		this.add(lblSat, gbc);
 	}
 
@@ -73,8 +73,8 @@ public class GpsCoordPanel extends JPanel implements PropertyChangeListener {
 
 	private void updateLocation(String locationGgaString) {
 		NmeaParser p = new NmeaParser(locationGgaString);
-		lblNSHemisphere.setText(p.getLongitude());
-		lblEWHemisphere.setText(p.getLatitude());
+		lblNSHemisphere.setText(p.getFormattedLongitude());
+		lblEWHemisphere.setText(p.getFormattedLatitude());
 		lblSat.setText(p.getSatelliteCount() + " Sat");
 		lblPrecision.setText(p.getDiluentOfPrecision() + " DOP");
 	}

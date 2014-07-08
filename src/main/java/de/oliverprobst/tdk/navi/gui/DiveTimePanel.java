@@ -59,7 +59,7 @@ public class DiveTimePanel extends JPanel implements PropertyChangeListener {
 						2, 0, 0), 2, 2);
 
 		lblSurfacetime = new JLabel("⇝ 0:00");
-		layout.layoutSmallLabel(lblSurfacetime);
+		layout.layoutMicroLabel(lblSurfacetime);
 		this.add(lblSurfacetime, gbc);
 
 	}
@@ -81,7 +81,7 @@ public class DiveTimePanel extends JPanel implements PropertyChangeListener {
 						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
 								.toMinutes(newValue)));
 		lblDivetime.setText(divetime);
-		layout.layoutSmallLabel(lblSurfacetime);
+		layout.layoutMicroLabel(lblSurfacetime);
 	}
 
 	private void setSurfaceTime(Long newValue) {
