@@ -1,4 +1,4 @@
-package de.oliverprobst.tdk.navi;
+package de.oliverprobst.tdk.navi.threads;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -78,11 +78,12 @@ public class I2CDataCollectThread extends Thread {
 		} catch (IOException e) {
 			throw new RuntimeException("Could not connect to I2CBus.", e);
 		}
+		log.info("Ended Data Collector for I2C Bus");
 	}
 
 	private boolean end = false;
 
 	public void end() {
-		end = false;
+		end = true;
 	}
 }

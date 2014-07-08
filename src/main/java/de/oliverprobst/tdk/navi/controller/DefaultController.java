@@ -156,16 +156,16 @@ public class DefaultController {
 	 * @param humidity
 	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setHumidity(float)
 	 */
-	public void setHumidity(float humidity) {
+	public void setHumidity(int humidity) {
 		currentRecord.setHumidity(humidity);
 	}
 
 	/**
-	 * @param voltage
+	 * @param f
 	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setVoltage(int)
 	 */
-	public void setVoltage(int voltage) {
-		currentRecord.setVoltage(voltage);
+	public void setVoltage(float f) {
+		currentRecord.setVoltage(f);
 	}
 
 	public void setScooterSpeed(int speed) {

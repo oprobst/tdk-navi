@@ -1,4 +1,4 @@
-package de.oliverprobst.tdk.navi;
+package de.oliverprobst.tdk.navi.threads;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -55,8 +55,8 @@ public class DataProcessingThread extends Thread {
 			} else {
 				handle(incoming.remove());
 			}
-
 		}
+		log.info("Ended Data Processing Thread");
 	}
 
 	private void handle(I2CPackage message) {
@@ -106,13 +106,13 @@ public class DataProcessingThread extends Thread {
 	}
 
 	private void parseHumidity(String payload) {
-		float humidity = Float.parseFloat(payload);
+		int humidity = Integer.parseInt(payload);
 		dc.setHumidity(humidity);
 	}
 
 	private boolean end = false;
 
 	public void end() {
-		end = false;
+		end = true;
 	}
 }

@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.oliverprobst.tdk.navi.I2CDataCollectThread;
+import de.oliverprobst.tdk.navi.threads.I2CDataCollectThread;
 
 /**
  * This standalone application is for debugging purposes. It listens at the I2C

@@ -11,7 +11,6 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -80,14 +79,13 @@ public class Layouter implements Serializable {
 
 	public void layout(JPanel panel) {
 
-		//panel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+		// panel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
 		panel.setBackground(BACKGROUND);
-		
 
 	}
 
 	private void layoutLabel(JLabel label) {
-		//label.setBorder(BorderFactory.createLineBorder(Color.magenta));
+		// label.setBorder(BorderFactory.createLineBorder(Color.magenta));
 		label.setBackground(BACKGROUND);
 	}
 
@@ -103,8 +101,20 @@ public class Layouter implements Serializable {
 		label.setForeground(new Color(180, 180, 255));
 	}
 
-	public void layoutSmallLabel(JLabel label) {
+	public void layoutMicroLabel(JLabel label) {
 		this.layoutLabel(label);
+		label.setForeground(Color.WHITE);
+	}
+
+	public void layoutTinyDescriptionLabel(JLabel label) {
+		this.layoutLabel(label);
+		label.setFont(label.getFont().deriveFont(8.0f));
+		label.setForeground(new Color(180, 180, 255));
+	}
+	
+	public void layoutTinyLabel(JLabel label) {
+		this.layoutLabel(label);
+		label.setFont(label.getFont().deriveFont(8.0f));
 		label.setForeground(Color.WHITE);
 	}
 

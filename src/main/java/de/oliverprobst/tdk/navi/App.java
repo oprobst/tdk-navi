@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.gui.MainDialog;
 import de.oliverprobst.tdk.navi.i2c.I2CPackage;
+import de.oliverprobst.tdk.navi.threads.DataProcessingThread;
+import de.oliverprobst.tdk.navi.threads.DemoDataCollectThread;
+import de.oliverprobst.tdk.navi.threads.I2CDataCollectThread;
 
 /**
  * Hello world!
@@ -45,7 +48,8 @@ public class App {
 	private static DataProcessingThread dataProcessingThread = null;
 	private static I2CDataCollectThread collectorThread = null;
 
-	private static void startDataCollect(DefaultController dc) throws Exception {
+	private static void startDataCollect(final DefaultController dc)
+			throws Exception {
 
 		collectorThread = new I2CDataCollectThread(incoming);
 		dataProcessingThread = new DataProcessingThread(incoming, dc);
@@ -58,10 +62,14 @@ public class App {
 				if (collectorThread != null) {
 					collectorThread.end();
 				}
-				log.error("Thread "
-						+ t.getName()
-						+ " died. Exited the other Thread and ending data collection.");
-				throw new RuntimeException(e);
+				log.error(
+						"Thread "
+								+ t.getName()
+								+ " died. Exited the other Thread and ending data collection.",
+						e);
+
+				log.info("Entering DEMO Mode due to previous exception.");
+				runInDemoMode(dc);
 			}
 		};
 
@@ -73,6 +81,15 @@ public class App {
 	}
 
 	private static void runInDemoMode(DefaultController dc) {
+
+		HaversineConverter hc = HaversineConverter.getInstance();
+		if (hc.getSwCornerLat() == 0) {
+			// Demo map
+			hc.setSwCorner(47.64245, 9.21137);
+			hc.setSeCorner(47.64243, 9.22884);
+			hc.setNwCorner(47.64821, 9.21168);
+			hc.calculateDimension();
+		}
 
 		Thread collectorThread = new DemoDataCollectThread(dc);
 		collectorThread.start();

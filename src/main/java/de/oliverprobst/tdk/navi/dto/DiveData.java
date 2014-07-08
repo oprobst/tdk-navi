@@ -36,8 +36,8 @@ public class DiveData extends AbstractModel implements Cloneable {
 	private float temperature;
 	private int inclination;
 	private int freeText;
-	private float humidity;
-	private int voltage;
+	private int humidity;
+	private float voltage;
 
 	/**
 	 * @return the surfacetime
@@ -206,7 +206,7 @@ public class DiveData extends AbstractModel implements Cloneable {
 	/**
 	 * @return the humidity
 	 */
-	public float getHumidity() {
+	public int getHumidity() {
 		return humidity;
 	}
 
@@ -214,14 +214,16 @@ public class DiveData extends AbstractModel implements Cloneable {
 	 * @param humidity
 	 *            the humidity to set
 	 */
-	public void setHumidity(float humidity) {
+	public void setHumidity(int humidity) {
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_HUMIDITY, this.humidity, humidity);
 		this.humidity = humidity;
 	}
 
 	/**
 	 * @return the voltage
 	 */
-	public int getVoltage() {
+	public float getVoltage() {
 		return voltage;
 	}
 
@@ -229,7 +231,9 @@ public class DiveData extends AbstractModel implements Cloneable {
 	 * @param voltage
 	 *            the voltage to set
 	 */
-	public void setVoltage(int voltage) {
+	public void setVoltage(float voltage) {
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_VOLTAGE, this.voltage, voltage);
 		this.voltage = voltage;
 	}
 

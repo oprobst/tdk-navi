@@ -54,7 +54,7 @@ public class CompassPanel extends JPanel implements PropertyChangeListener {
 						0, 0, 0, 0), 2, 2);
 
 		lblCompass = new JLabel("-| 350° | 000° | 010° |-");
-		layout.layoutSmallLabel(lblCompass);
+		layout.layoutMicroLabel(lblCompass);
 		this.add(lblCompass, gbc);
 
 		gbc = new GridBagConstraints(2, 1, 1, 1, 0.0d, 0.0d,
@@ -62,7 +62,7 @@ public class CompassPanel extends JPanel implements PropertyChangeListener {
 						0, 0, 0), 2, 2);
 
 		lblCompassReturn = new JLabel("180°");
-		layout.layoutSmallLabel(lblCompassReturn);
+		layout.layoutMicroLabel(lblCompassReturn);
 		this.add(lblCompassReturn, gbc);
 	}
 
@@ -106,8 +106,8 @@ public class CompassPanel extends JPanel implements PropertyChangeListener {
 		int offset = 15;
 		int middle = offset + courseRoundDown * 7 + remainingToCharPointer;
 		int range = 10;
-		return "-" + compassRose.substring(middle - range, middle + range + 1)
-				+ "-";
+		return "-{" + compassRose.substring(middle - range, middle + range + 1)
+				+ "}-";
 
 	}
 

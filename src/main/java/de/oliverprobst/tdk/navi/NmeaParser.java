@@ -9,18 +9,39 @@ public class NmeaParser {
 		// todo verify (Length, Checksum)
 	}
 
-	public String getLongitude() {
-		return gga.substring(17, 19) + "° " + getNSHemisphere() + " "
-				+ gga.substring(19, 25);
-
-		// gga.substring(19, 28);
+	public double getLongitude() {
+		double degree = Double.parseDouble(gga.substring(17, 19));
+		double minutes = Double.parseDouble(gga.substring(19, 21));
+		double seconds = Double.parseDouble(gga.substring(22, 25));
+		return convertDegreeAngleToDouble(degree, minutes, seconds); 
 	}
 
-	public String getLatitude() {
+	public double getLatitude() {
+
+		double degree = Double.parseDouble(gga.substring(30, 33));
+		double minutes = Double.parseDouble(gga.substring(33, 35));
+		double seconds = Double.parseDouble(gga.substring(36, 39));
+		return convertDegreeAngleToDouble(degree, minutes, seconds);
+	}
+
+	private double convertDegreeAngleToDouble(double degrees, double minutes,
+			double seconds) {
+		// Decimal degrees =
+		// whole number of degrees,
+		// plus minutes divided by 60,
+		// plus seconds divided by 3600
+
+		return degrees + (minutes / 60) + (seconds / 3600);
+	}
+
+	public String getFormattedLongitude() {
+		return gga.substring(17, 19) + "° " + getNSHemisphere() + " "
+				+ gga.substring(19, 25);
+	}
+
+	public String getFormattedLatitude() {
 		return gga.substring(30, 33) + "° " + getEWHemisphere() + " "
 				+ gga.substring(33, 39);
-
-		// return gga.substring(31, 41);
 	}
 
 	public String getNSHemisphere() {

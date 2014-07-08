@@ -51,7 +51,7 @@ public class AvgDiveDepthPanel extends JPanel implements PropertyChangeListener 
 				new Insets(0, 0, 0, 3), 2, 2);
 
 		
-		layout.layoutSmallLabel(lblAvg10);
+		layout.layoutMicroLabel(lblAvg10);
 		this.add(lblAvg10, gbc);
 	}
 
