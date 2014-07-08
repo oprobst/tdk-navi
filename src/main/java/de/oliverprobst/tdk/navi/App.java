@@ -89,8 +89,8 @@ public class App {
 			// NW 4739.018/00912.710
 			// SE 4738.541/00913.672
 			
-			hc.setSeCorner(47.641875, 9.227410);
-			hc.setNwCorner(47.651480, 9.211142);
+			hc.setSeCorner(47.640875, 9.22510);
+			hc.setNwCorner(47.650280, 9.21142);
 			hc.calculateDimension();
 		}
 

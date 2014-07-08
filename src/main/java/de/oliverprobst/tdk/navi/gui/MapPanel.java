@@ -111,8 +111,9 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			offY = -5;
 			offX = -5;
 		}
-		g.drawLine(x - 3, y - 3, x + 3, y + 3);
-		g.drawLine(x - 3, y + 3, x + 3, y - 3);
+		final int size = 4;
+		g.drawLine(x - size, y - size, x + size, y + size);
+		g.drawLine(x - size, y + size, x + size, y - size);
 		g.setColor(new Color(0, 0, 255));
 		g.drawLine(x, y, x + offX, y + offY);
 

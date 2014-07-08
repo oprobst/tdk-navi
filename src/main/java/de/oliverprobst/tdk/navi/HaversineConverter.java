@@ -50,9 +50,9 @@ public class HaversineConverter {
 		// NW 47.65148/9.211642
 		// SE 47.641875/9.22741
 
-		distanceNS = this.calculateDistance(nwCornerLat, nwCornerLng,
+		 distanceEW= this.calculateDistance(nwCornerLat, nwCornerLng,
 				seCornerLat, nwCornerLng);
-		distanceEW = this.calculateDistance(seCornerLat, nwCornerLng,
+		 distanceNS = this.calculateDistance(seCornerLat, nwCornerLng,
 				seCornerLat, seCornerLng);
 
 		log.info("Calculated dimension for map. Distance N to S is "
