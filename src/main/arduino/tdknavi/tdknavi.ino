@@ -24,17 +24,11 @@ SoftwareSerial gpsSerial = SoftwareSerial(RX_PIN_GPS, TX_PIN_GPS);
 
 //current sensor buffer
 const int BUFFER_SIZE = 6;
-const int MAX_MSG_SIZE = 78;
+const int MAX_MSG_SIZE = 77;
 byte buffer[BUFFER_SIZE][MAX_MSG_SIZE];
-short currBufferSize = 0;
+short currBufferSize = -1;
 short currReadBufferIdx = 0;
 short currWriteBufferIdx = -1;
-
-//to be deleted...
-int number = 0;
-int state = 0;
-boolean gpsStatus[] = { false, false, false, false, false, false, false };
-unsigned long start;
 
 /*
  * Main setup routine
@@ -53,8 +47,6 @@ void setup() {
   digitalWrite(10, LOW);
   digitalWrite(6, HIGH);
 
-
-
   if (DEBUG)
     Serial.println("Setup done.");
 
@@ -65,9 +57,6 @@ void setup() {
  */
 void loop() {
 
-  Serial.println("Starting main loop");
-
-  delay(500);
   int currentByteCount = 0;
   boolean complete = false;
   while (!complete) {
@@ -75,33 +64,35 @@ void loop() {
     if (gpsSerial.available()) {
       char in = gpsSerial.read();
 
-   
-
       //Detected a new GPS String:
       if (in == '$') {
-        if (currWriteBufferIdx >= BUFFER_SIZE) {
-          currWriteBufferIdx = -1;
-        }
-        if (currBufferSize >= BUFFER_SIZE) {
-          if (DEBUG)
-            Serial.println("WARNING: Buffer overflow!");
-          currBufferSize = 0;
-        }
-
+       
+      
         // increase buffer size and update to next index.
         currBufferSize++;
         currWriteBufferIdx++;
         currentByteCount = 0;
+        
+         if (currWriteBufferIdx >= BUFFER_SIZE) {
+          currWriteBufferIdx = 0;
+        }
+        if (currBufferSize >= BUFFER_SIZE) {
+          if (DEBUG)
+            Serial.println("WARN: Buffer overflow");
+          currBufferSize = 0;
+        }
+        
         // write protocol marker
         buffer[currWriteBufferIdx][currentByteCount++] = 'b';
 
         //Got a new character of the gps string
-      } else if (currentByteCount > 0 && currentByteCount < (MAX_MSG_SIZE - 4)  && in > 31 && in < 128) {
-           
+      } else if (currentByteCount > 0
+                 && currentByteCount < (MAX_MSG_SIZE - 4) && in > 31
+                 && in < 128) {
+
         buffer[currWriteBufferIdx][currentByteCount++] = in;
       }
-     
-          
+
       // last character war a termination char
       if (in == '*' || currentByteCount > (MAX_MSG_SIZE - 4)) {
 
@@ -110,42 +101,64 @@ void loop() {
 
         buffer[currWriteBufferIdx][currentByteCount++] = chkS1;
         buffer[currWriteBufferIdx][currentByteCount++] = chkS2;
-        buffer[currWriteBufferIdx][currentByteCount++] = '\0';
-        while (currentByteCount++ < MAX_MSG_SIZE) {
+        //buffer[currWriteBufferIdx][currentByteCount++] = '\0';
+        while (currentByteCount++ < MAX_MSG_SIZE -1) {
           buffer[currWriteBufferIdx][currentByteCount] = '%';
         }
-        Serial.write (buffer[currWriteBufferIdx], MAX_MSG_SIZE);
-       
-        Serial.print ("  => ");
-        Serial.println ( currWriteBufferIdx);
+        if (DEBUG) {
+          Serial.write(buffer[currWriteBufferIdx], sizeof(buffer[currWriteBufferIdx]));//MAX_MSG_SIZE);
+          Serial.print("=> ");
+          Serial.println(currWriteBufferIdx);
+        }
         complete = true;
       }
     }
   }
 }
 
-
+//Settings Array contains the following settings: [0]NavMode, [1]DataRate1, [2]DataRate2, [3]PortRateByte1, [4]PortRateByte2, [5]PortRateByte3,
+//[6]NMEA GLL Sentence, [7]NMEA GSA Sentence, [8]NMEA GSV Sentence, [9]NMEA RMC Sentence, [10]NMEA VTG Sentence
+//NavMode:
+//Pedestrian Mode    = 0x03
+//Automotive Mode    = 0x04
+//Sea Mode           = 0x05
+//Airborne < 1G Mode = 0x06
+//
+//DataRate:
+//1Hz     = 0xE8 0x03
+//2Hz     = 0xF4 0x01
+//3.33Hz  = 0x2C 0x01
+//4Hz     = 0xFA 0x00
+//
+//PortRate:
+//4800   = C0 12 00
+//9600   = 80 25 00
+//19200  = 00 4B 00  **SOFTWARESERIAL LIMIT FOR ARDUINO UNO R3!**
+//38400  = 00 96 00  **SOFTWARESERIAL LIMIT FOR ARDUINO MEGA 2560!**
+//57600  = 00 E1 00
+//115200 = 00 C2 01
+//230400 = 00 84 03
+//
+//NMEA Messages:
+//OFF = 0x00
+//ON  = 0x01
 void configureGPS() {
-  Serial.println("Configuring GPS receiver");
-  gpsSerial.begin(GPS_SERIAL_SPEED);
-  byte settingsArray[] = {
-    0x05, 0xF4, 0x03, 0x80, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-  }; //
+  if (DEBUG) Serial.println("Conf. GPS");
 
+  gpsSerial.begin(GPS_SERIAL_SPEED);
+
+  byte settingsArray[] = { 0x05, 0xE8, 0x03, 0x80, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
   configureUblox(settingsArray);
 
+
 }
-
-
 void configureUblox(byte *settingsArrayPointer) {
   byte gpsSetSuccess = 0;
-  Serial.println("Configuring u-Blox GPS initial state...");
 
   //Generate the configuration string for Navigation Mode
   byte setNav[] = {
     0xB5, 0x62, 0x06, 0x24, 0x00, 0x00, 0xFF, 0xFF, *settingsArrayPointer, 0x03, 0x00, 0x00, 0x00, 0x00, 0x10, 0x27, 0x00, 0x00, 0x05, 0x00, 0xFA, 0x00, 0xFA, 0x00, 0x64, 0x00, 0x2C, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
   };
-  //  byte setNav[] = {0xB5, 0x62, 0x06, 0x24, 0x24, 0x00, 0xFF, 0xFF, *settingsArrayPointer, 0x03, 0x00, 0x00, 0x00, 0x00, 0x10, 0x27, 0x00, 0x00, 0x05, 0x00, 0xFA, 0x00, 0xFA, 0x00, 0x64, 0x00, 0x2C, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
   calcChecksum(&setNav[2], sizeof(setNav) - 4);
 
   //Generate the configuration string for Data Rate
@@ -178,101 +191,85 @@ void configureUblox(byte *settingsArrayPointer) {
 
   delay(2500);
 
-  while (gpsSetSuccess < 3)
+  while (gpsSetSuccess < 5)
   {
-    Serial.print("Setting Navigation Mode... ");
+    if (DEBUG)
+      Serial.print("Set Nav. Mode");
+    byte lowerPortRate[] = {
+      0xB5, 0x62, 0x06, 0x00, 0x14, 0x00, 0x01, 0x00, 0x00, 0x00, 0xD0, 0x08, 0x00, 0x00, 0x80, 0x25, 0x00, 0x00, 0x07, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0xA2, 0xB5
+    };
+    sendUBX(lowerPortRate, sizeof(lowerPortRate));
+
+    delay(2000);
     sendUBX(&setNav[0], sizeof(setNav));  //Send UBX Packet
-    gpsSetSuccess += getUBX_ACK(&setNav[2]); //Passes Class ID and Message ID to the ACK Receive function
-    if (gpsSetSuccess == 5) {
-      gpsSetSuccess -= 4;
-      setBaud(settingsArrayPointer[4]);
-      delay(1500);
-      byte lowerPortRate[] = {
-        0xB5, 0x62, 0x06, 0x00, 0x14, 0x00, 0x01, 0x00, 0x00, 0x00, 0xD0, 0x08, 0x00, 0x00, 0x80, 0x25, 0x00, 0x00, 0x07, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0xA2, 0xB5
-      };
-      sendUBX(lowerPortRate, sizeof(lowerPortRate));
-      gpsSerial.begin(9600);
-      delay(2000);
-    }
+    gpsSetSuccess += getUBX_ACK(&setNav[2]);//Passes Class ID and Message ID to the ACK Receive function
+
     if (gpsSetSuccess == 6) gpsSetSuccess -= 4;
-    if (gpsSetSuccess == 10) gpsStatus[0] = true;
   }
-  if (gpsSetSuccess == 3) Serial.println("Navigation mode configuration failed.");
+ 
+  if (gpsSetSuccess == 3 && DEBUG) Serial.println("...failed.");
+
   gpsSetSuccess = 0;
   while (gpsSetSuccess < 3) {
-    Serial.print("Setting Data Update Rate... ");
+    Serial.print("Set Data Upd. Rate");
     sendUBX(&setDataRate[0], sizeof(setDataRate));  //Send UBX Packet
-    gpsSetSuccess += getUBX_ACK(&setDataRate[2]); //Passes Class ID and Message ID to the ACK Receive function
-    if (gpsSetSuccess == 10) gpsStatus[1] = true;
+    gpsSetSuccess += getUBX_ACK(&setDataRate[2]);//Passes Class ID and Message ID to the ACK Receive function
     if (gpsSetSuccess == 5 | gpsSetSuccess == 6) gpsSetSuccess -= 4;
   }
-  if (gpsSetSuccess == 3) Serial.println("Data update mode configuration failed.");
+  if (gpsSetSuccess == 3 && DEBUG) Serial.println("...failed.");
   gpsSetSuccess = 0;
 
-  return;
   while (gpsSetSuccess < 3 && settingsArrayPointer[6] == 0x00) {
-    Serial.print("Deactivating NMEA GLL Messages ");
+    Serial.print("Deact. NMEA GLL");
     sendUBX(setGLL, sizeof(setGLL));
     gpsSetSuccess += getUBX_ACK(&setGLL[2]);
-    if (gpsSetSuccess == 10) gpsStatus[2] = true;
     if (gpsSetSuccess == 5 | gpsSetSuccess == 6) gpsSetSuccess -= 4;
   }
-  if (gpsSetSuccess == 3) Serial.println("NMEA GLL Message Deactivation Failed!");
+  if (gpsSetSuccess == 3 && DEBUG) Serial.println("...failed.");
   gpsSetSuccess = 0;
 
   while (gpsSetSuccess < 3 && settingsArrayPointer[7] == 0x00) {
-    Serial.print("Deactivating NMEA GSA Messages ");
+    Serial.print("Deact. NMEA GSA");
     sendUBX(setGSA, sizeof(setGSA));
     gpsSetSuccess += getUBX_ACK(&setGSA[2]);
-    if (gpsSetSuccess == 10) gpsStatus[3] = true;
     if (gpsSetSuccess == 5 | gpsSetSuccess == 6) gpsSetSuccess -= 4;
   }
-  if (gpsSetSuccess == 3) Serial.println("NMEA GSA Message Deactivation Failed!");
+  if (gpsSetSuccess == 3 && DEBUG) Serial.println("...failed.");
   gpsSetSuccess = 0;
 
   while (gpsSetSuccess < 3 && settingsArrayPointer[8] == 0x00) {
-    Serial.print("Deactivating NMEA GSV Messages ");
+    Serial.print("Deact. NMEA GSV");
     sendUBX(setGSV, sizeof(setGSV));
     gpsSetSuccess += getUBX_ACK(&setGSV[2]);
-    if (gpsSetSuccess == 10) gpsStatus[4] = true;
     if (gpsSetSuccess == 5 | gpsSetSuccess == 6) gpsSetSuccess -= 4;
   }
-  if (gpsSetSuccess == 3) Serial.println("NMEA GSV Message Deactivation Failed!");
+  if (gpsSetSuccess == 3 && DEBUG) Serial.println("...failed.");
   gpsSetSuccess = 0;
 
   while (gpsSetSuccess < 3 && settingsArrayPointer[9] == 0x00) {
-    Serial.print("Deactivating NMEA RMC Messages ");
+    Serial.print("Deact. NMEA RMC");
     sendUBX(setRMC, sizeof(setRMC));
     gpsSetSuccess += getUBX_ACK(&setRMC[2]);
-    if (gpsSetSuccess == 10) gpsStatus[5] = true;
     if (gpsSetSuccess == 5 | gpsSetSuccess == 6) gpsSetSuccess -= 4;
   }
-  if (gpsSetSuccess == 3) Serial.println("NMEA RMC Message Deactivation Failed!");
+  if (gpsSetSuccess == 3 && DEBUG) Serial.println("...failed.");
   gpsSetSuccess = 0;
 
   while (gpsSetSuccess < 3 && settingsArrayPointer[10] == 0x00) {
-    Serial.print("Deactivating NMEA VTG Messages ");
+    Serial.print("Deact. NMEA VTG");
     sendUBX(setVTG, sizeof(setVTG));
     gpsSetSuccess += getUBX_ACK(&setVTG[2]);
-    if (gpsSetSuccess == 10) gpsStatus[6] = true;
     if (gpsSetSuccess == 5 | gpsSetSuccess == 6) gpsSetSuccess -= 4;
   }
-  if (gpsSetSuccess == 3) Serial.println("NMEA VTG Message Deactivation Failed!");
+  if (gpsSetSuccess == 3 && DEBUG) Serial.println("...failed.");
 
   gpsSetSuccess = 0;
-  if (settingsArrayPointer[4] != 0x25) {
-    Serial.print("Setting Port Baud Rate... ");
-    sendUBX(&setPortRate[0], sizeof(setPortRate));
-    setBaud(settingsArrayPointer[4]);
-    Serial.println("Success!");
-    delay(500);
-  }
-}
 
+}
 
 void calcChecksum(byte *checksumPayload, byte payloadSize) {
   byte CK_A = 0, CK_B = 0;
-  for (int i = 0; i < payloadSize ; i++) {
+  for (int i = 0; i < payloadSize; i++) {
     CK_A = CK_A + *checksumPayload;
     CK_B = CK_B + CK_A;
     checksumPayload++;
@@ -292,15 +289,16 @@ void sendUBX(byte *UBXmsg, byte msgLength) {
   gpsSerial.flush();
 }
 
-
-byte getUBX_ACK(byte *msgID) {
+byte
+getUBX_ACK(byte * msgID)
+{
   byte CK_A = 0, CK_B = 0;
   byte incoming_char;
   boolean headerReceived = false;
   unsigned long ackWait = millis();
-  byte ackPacket[10] = {
-    0xB5, 0x62, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-  };
+  byte ackPacket[10] = { 0xB5, 0x62, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00,
+                         0x00, 0x00
+                       };
   int i = 0;
   while (1) {
     if (gpsSerial.available()) {
@@ -309,52 +307,52 @@ byte getUBX_ACK(byte *msgID) {
 
       if (incoming_char == ackPacket[i]) {
         i++;
-      }
-      else if (i > 2) {
+      } else if (i > 2) {
         ackPacket[i] = incoming_char;
         i++;
       }
     }
-    if (i > 9) break;
+    if (i > 9)
+      break;
     if ((millis() - ackWait) > 2500) {
-      Serial.println("ACK Timeout");
+      Serial.println(" - ACK Timeout");
       return 5;
     }
     if (i == 4 && ackPacket[3] == 0x00) {
-      Serial.println("NAK Received");
+      Serial.println(" - NAK");
       return 1;
     }
   }
 
-  for (i = 2; i < 8 ; i++) {
+  for (i = 2; i < 8; i++) {
     CK_A = CK_A + ackPacket[i];
     CK_B = CK_B + CK_A;
   }
-  if (msgID[0] == ackPacket[6] && msgID[1] == ackPacket[7] && CK_A == ackPacket[8] && CK_B == ackPacket[9]) {
-    Serial.println("Success!");
-    Serial.print("ACK Received! ");
+  if (msgID[0] == ackPacket[6] && msgID[1] == ackPacket[7]
+      && CK_A == ackPacket[8] && CK_B == ackPacket[9]) {
+    Serial.print(" - ACK ");
     printHex(ackPacket, sizeof(ackPacket));
+    Serial.println();
     return 10;
-  }
-  else {
-    Serial.print("ACK Checksum Failure: ");
+  } else {
+    Serial.print(" - ACK Checksum Fail:");
     printHex(ackPacket, sizeof(ackPacket));
+    Serial.println();
     delay(1000);
     return 1;
   }
 }
 
-
 void printHex(uint8_t *data, uint8_t length) // prints 8-bit data in hex
 {
   char tmp[length * 2 + 1];
-  byte first ;
+  byte first;
   int j = 0;
   for (byte i = 0; i < length; i++)
   {
     first = (data[i] >> 4) | 48;
     if (first > 57) tmp[j] = first + (byte)7;
-    else tmp[j] = first ;
+    else tmp[j] = first;
     j++;
 
     first = (data[i] & 0x0F) | 48;
@@ -371,22 +369,8 @@ void printHex(uint8_t *data, uint8_t length) // prints 8-bit data in hex
     }
     else j++;
   }
-  Serial.println();
+  //Serial.println();
 }
-
-void setBaud(byte baudSetting) {
-  if (baudSetting == 0x12) gpsSerial.begin(4800);
-  if (baudSetting == 0x25) gpsSerial.begin(9600);
-  if (baudSetting == 0x4B) gpsSerial.begin(19200);
-  if (baudSetting == 0x96) gpsSerial.begin(38400);
-  if (baudSetting == 0xE1) gpsSerial.begin(57600);
-  if (baudSetting == 0xC2) gpsSerial.begin(115200);
-  if (baudSetting == 0x84) gpsSerial.begin(230400);
-}
-
-
-
-
 
 
 //
@@ -397,7 +381,7 @@ void setBaud(byte baudSetting) {
  * Configure all settings required to establish I2C connectivity to all clients.
  */
 void configureI2C() {
-  if (DEBUG) Serial.println("Configuring I2C connectivity");
+  if (DEBUG) Serial.println("Conf. I2C");
   Wire.begin(ARDUINO_ADDR);
   Wire.onReceive(receiveData);
   Wire.onRequest(sendData);
@@ -428,10 +412,10 @@ void sendData() {
       currWriteBufferIdx = 0;
     }
 
-   // byte [] hdr  = {'T','D','K'};
+    // byte [] hdr  = {'T','D','K'};
     //Wire.write (hdr, 3);
     Wire.write ("TDK");
-    Wire.write ( buffer [currWriteBufferIdx],MAX_MSG_SIZE );
+    Wire.write ( buffer [currWriteBufferIdx], MAX_MSG_SIZE );
     currWriteBufferIdx++;
     currBufferSize--;
   }
