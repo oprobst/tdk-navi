@@ -8,16 +8,20 @@ import org.slf4j.LoggerFactory;
 
 public class HaversineConverter {
 
-	private Logger log = LoggerFactory.getLogger(App.class);
-
-	public final static double AVERAGE_RADIUS_OF_EARTH = 6371;
-
 	/**
 	 * @return the averageRadiusOfEarth
 	 */
 	public static double getAverageRadiusOfEarth() {
 		return AVERAGE_RADIUS_OF_EARTH;
 	}
+
+	public static HaversineConverter getInstance() {
+		return instance;
+	}
+
+	private Logger log = LoggerFactory.getLogger(App.class);
+
+	public final static double AVERAGE_RADIUS_OF_EARTH = 6371;
 
 	private static HaversineConverter instance = new HaversineConverter();
 
@@ -29,12 +33,30 @@ public class HaversineConverter {
 
 	private double seCornerLng = 0;
 
-	private double swCornerLat = 0;
+	private int distanceNS = 0;
 
-	private double swCornerLng = 0;
+	private int distanceEW = 0;
 
 	private HaversineConverter() {
 
+	}
+
+	public void calculateDimension() {
+		if (nwCornerLat == 0 || nwCornerLng == 0 || seCornerLat == 0
+				|| seCornerLng == 0) {
+			throw new RuntimeException(
+					"Could not calculate map dimension, not all corners definded.");
+		}
+		// NW 47.65148/9.211642
+		// SE 47.641875/9.22741
+
+		distanceNS = this.calculateDistance(nwCornerLat, nwCornerLng,
+				seCornerLat, nwCornerLng);
+		distanceEW = this.calculateDistance(seCornerLat, nwCornerLng,
+				seCornerLat, seCornerLng);
+
+		log.info("Calculated dimension for map. Distance N to S is "
+				+ distanceNS + "m and E to W is " + distanceEW + "m.");
 	}
 
 	/**
@@ -59,10 +81,6 @@ public class HaversineConverter {
 
 		return (int) (Math.round(AVERAGE_RADIUS_OF_EARTH * c * 1000));
 
-	}
-
-	public static HaversineConverter getInstance() {
-		return instance;
 	}
 
 	/**
@@ -94,20 +112,6 @@ public class HaversineConverter {
 	}
 
 	/**
-	 * @return the swCornerLat
-	 */
-	public double getSwCornerLat() {
-		return swCornerLat;
-	}
-
-	/**
-	 * @return the swCornerLng
-	 */
-	public double getSwCornerLng() {
-		return swCornerLng;
-	}
-
-	/**
 	 * @param nwCorner
 	 *            the nwCorner to set
 	 */
@@ -125,43 +129,17 @@ public class HaversineConverter {
 		this.seCornerLng = seCornerLng;
 	}
 
-	/**
-	 * @param nwCorner
-	 *            the nwCorner to set
-	 */
-	public void setSwCorner(double swCornerLat, double swCornerLng) {
-		this.swCornerLat = swCornerLat;
-		this.swCornerLng = swCornerLng;
-	}
-
-	private int distanceNS = 0;
-
-	private int distanceEW = 0;
-
-	public void calculateDimension() {
-		if (nwCornerLat == 0 || nwCornerLng == 0 || seCornerLat == 0
-				|| seCornerLng == 0 || swCornerLat == 0 || swCornerLng == 0) {
-			throw new RuntimeException(
-					"Could not calculate map dimension, not all corners definded.");
-		}
-		distanceNS = this.calculateDistance(nwCornerLat, nwCornerLng,
-				swCornerLat, swCornerLng);
-		distanceEW = this.calculateDistance(seCornerLat, seCornerLng,
-				swCornerLat, swCornerLng);
-
-		log.info("Calculated dimension for map. Distance N to S is "
-				+ distanceNS + "m and E to W is " + distanceEW + "m.");
-	}
-
 	public Point xyProjection(Dimension size, double longitude, double latitude) {
 
-		int distanceWtoLat = this.calculateDistance(swCornerLat, swCornerLng,
-				latitude, swCornerLng);
-		int distanceNtoLng = this.calculateDistance(nwCornerLat, nwCornerLng,
-				nwCornerLng, longitude);
+		int distanceEtoLat = this.calculateDistance(seCornerLat, longitude,
+				latitude, longitude);
+		int distanceNtoLng = distanceNS
+				- this.calculateDistance(latitude, nwCornerLng, latitude,
+						longitude);
 
-		int x = (int) Math.round(size.getWidth() / distanceEW * distanceWtoLat);
-		int y = (int) Math.round(size.getWidth() / distanceNS * distanceNtoLng);
+		int x = (int) Math.round(size.getWidth() / distanceEW * distanceEtoLat);
+		int y = (int) Math
+				.round(size.getHeight() / distanceNS * distanceNtoLng);
 
 		if (x < 0) {
 			x = 0;
@@ -176,7 +154,7 @@ public class HaversineConverter {
 			y = size.height;
 		}
 
-		log.info("Map projection: WGS84 (" + longitude + "/" + latitude
+		log.debug("Map projection: WGS84 (" + longitude + "/" + latitude
 				+ ") projection to Point (" + x + "/" + y + ").");
 
 		return new Point(x, y);

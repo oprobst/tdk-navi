@@ -11,27 +11,31 @@ public class NmeaParser {
 
 	public double getLongitude() {
 		double degree = Double.parseDouble(gga.substring(17, 19));
-		double minutes = Double.parseDouble(gga.substring(19, 21));
-		double seconds = Double.parseDouble(gga.substring(22, 25));
-		return convertDegreeAngleToDouble(degree, minutes, seconds); 
+		double minutes = Double.parseDouble(gga.substring(19, 26).replace(",", ""));
+		minutes = minutes / 600000 ;
+		double out = degree+minutes;
+			 
+		return out;
+		
 	}
 
 	public double getLatitude() {
-
-		double degree = Double.parseDouble(gga.substring(30, 33));
-		double minutes = Double.parseDouble(gga.substring(33, 35));
-		double seconds = Double.parseDouble(gga.substring(36, 39));
-		return convertDegreeAngleToDouble(degree, minutes, seconds);
+//$GPGGA,161725.62,4764,2445,N,00921,3756,E,1,06,1.10,193.6,M,47.4,M,,*59
+		double degree = Double.parseDouble(gga.substring(29, 32));
+		double minutes = Double.parseDouble(gga.substring(32, 39).replace(",", ""));
+		minutes = minutes / 600000 ;
+		double out = degree+minutes;
+		 
+		return out;
 	}
 
-	private double convertDegreeAngleToDouble(double degrees, double minutes,
-			double seconds) {
+	private double convertDegreeAngleToDouble(double degrees, double minutes) {
 		// Decimal degrees =
 		// whole number of degrees,
 		// plus minutes divided by 60,
 		// plus seconds divided by 3600
 
-		return degrees + (minutes / 60) + (seconds / 3600);
+		return degrees + (minutes / 60) ;
 	}
 
 	public String getFormattedLongitude() {

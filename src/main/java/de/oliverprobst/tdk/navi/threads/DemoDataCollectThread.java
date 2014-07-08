@@ -81,29 +81,29 @@ public class DemoDataCollectThread extends Thread {
 		}
 	}
 
-	double lastGPSLong = 4764.245;
-	double lastGPSLat = 921.374;
+	double lastGPSLat = 4738.554;
+	double lastGPSLong =  912.830;
 
 	/**
 	 * 
 	 */
 	private void writeGPS() {
-		if (iteration % 100 == 0) {
+		if (iteration % 30 == 0) {
 
 			SimpleDateFormat dateFormatGmt = new SimpleDateFormat("HH:mm:ss.00");
 			dateFormatGmt.setTimeZone(TimeZone.getTimeZone("GMT"));
 
 			// Corners:
-			// SW 47.64243/9.21168
-			// NW 47.64821/9.21168
-			// SE 47.64243/9.22884
+			// SW 4738.541/00912.710
+			// NW 4739.018/00912.710
+			// SE 4738.541/00913.672
 
 			// Distances:
-			// NS: 47.64243 - 47.64821
-			// EW: 9.21168 - 9.22884
+			// NS: 4739.018 - 4738.541  
+			// EW: 00913.672 - 00912.710
 
-			lastGPSLat = lastGPSLat + (double) ((Math.random() -.5) * .006);
-			lastGPSLong = lastGPSLong + (double) ((Math.random() -.5) * .0012);
+			lastGPSLat = lastGPSLat + (double) ((Math.random() -.2) * .006);
+			lastGPSLong = lastGPSLong + (double) ((Math.random() -.35) * .0012);
 			
 
 			DecimalFormat formatterLng = new DecimalFormat("#0000.0000");
@@ -112,8 +112,8 @@ public class DemoDataCollectThread extends Thread {
 
 			// $GPGGA,HHMMSS.ss,BBBB.BBBB,b,LLLLL.LLLL,l,Q,NN,D.D,H.H,h,G.G,g,A.A,RRRR*PP
 
-			String message = "$GPGGA,161725.62," + formatterLng.format(lastGPSLong)
-					+ ",N," + formatterLat.format(lastGPSLat)
+			String message = "$GPGGA,161725.62," + formatterLng.format(lastGPSLat)
+					+ ",N," + formatterLat.format(lastGPSLong)
 					+ ",E,1,06,1.10,193.6,M,47.4,M,,*59";
 			System.out.println(message);
 			// (checksum invalid)

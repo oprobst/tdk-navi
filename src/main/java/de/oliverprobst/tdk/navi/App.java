@@ -83,11 +83,14 @@ public class App {
 	private static void runInDemoMode(DefaultController dc) {
 
 		HaversineConverter hc = HaversineConverter.getInstance();
-		if (hc.getSwCornerLat() == 0) {
+		if (hc.getSeCornerLat() == 0) {
 			// Demo map
-			hc.setSwCorner(47.64245, 9.21137);
-			hc.setSeCorner(47.64243, 9.22884);
-			hc.setNwCorner(47.64821, 9.21168);
+			// SW 4738.541/00912.710
+			// NW 4739.018/00912.710
+			// SE 4738.541/00913.672
+			
+			hc.setSeCorner(47.641875, 9.227410);
+			hc.setNwCorner(47.651480, 9.211142);
 			hc.calculateDimension();
 		}
 
