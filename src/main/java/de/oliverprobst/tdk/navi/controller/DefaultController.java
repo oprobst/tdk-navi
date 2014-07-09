@@ -132,16 +132,14 @@ public class DefaultController {
 	public void setCourse(int course) {
 		currentRecord.setCourse(course);
 	}
-  
 
 	/**
 	 * @param temperature
 	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setTemperature(float)
 	 */
 	public void setTemperature(float temperature) {
-		currentRecord
-		.setTemperature(temperature); 
-		 
+		currentRecord.setTemperature(temperature);
+
 	}
 
 	/**
@@ -168,11 +166,8 @@ public class DefaultController {
 		currentRecord.setVoltage(f);
 	}
 
-	public void setScooterSpeed(int speed) {
-		if (speed != 0) {
-
-		}
-
+	public void setSpeed(int speed) {
+		currentRecord.setSpeed(speed);
 	}
 
 	public void registerModelPropertyListener(PropertyChangeListener pcl) {

@@ -14,4 +14,5 @@ public final class DiveDataProperties {
 	public static final String PROP_TEMPERATUR = "temperatur";
 	public static final String PROP_HUMIDITY = "humidity";
 	public static final String PROP_VOLTAGE = "voltage";
+	public static final String PROP_SPEED = "speed";
 }

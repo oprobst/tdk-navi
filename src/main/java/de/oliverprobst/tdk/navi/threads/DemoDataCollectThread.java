@@ -23,6 +23,7 @@ public class DemoDataCollectThread extends Thread {
 		dc.setTemperature(24.2f);
 		dc.setDepth(0.0f);
 		dc.setCourse(045);
+		dc.setSpeed(3);
 	}
 
 	/*
@@ -46,7 +47,6 @@ public class DemoDataCollectThread extends Thread {
 			writeTemp();
 			writeHumidity();
 			writeVoltage();
-
 			writeGPS();
 
 			if (iteration < 10000) {
@@ -129,10 +129,14 @@ public class DemoDataCollectThread extends Thread {
 				offY = +.5;
 				offX = -.5;
 			}
+			double speed = dc.getCurrentRecordClone().getSpeed();
+			if (speed > 0) {
+				speed = speed / 500 + .003;
+			}
 			lastGPSLong = lastGPSLong
-					+ (double) (((Math.random() - .5) + offY) * .01);
+					+ (double) (((Math.random() - .5) + offY) * speed);
 			lastGPSLat = lastGPSLat
-					+ (double) (((Math.random() - .5) + offX) * .01);
+					+ (double) (((Math.random() - .5) + offX) * speed);
 
 			DecimalFormat formatterLng = new DecimalFormat("#0000.0000");
 			DecimalFormat formatterLat = new DecimalFormat("#00000.0000");

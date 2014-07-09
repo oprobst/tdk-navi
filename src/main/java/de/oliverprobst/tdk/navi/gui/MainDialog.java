@@ -182,6 +182,30 @@ public class MainDialog extends JFrame {
 		gbl.setConstraints(averageDepthPanel, gbc);
 		panel.add(averageDepthPanel, gbc);
 		dc.registerModelPropertyListener(averageDepthPanel);
+		
+
+		gbc = new GridBagConstraints(0, 3, 1, 1, 0.0d, 0.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
+				defInsets, 2, 2);
+
+		SpeedPanel speedPanel = new SpeedPanel(layouter);
+
+		gbl.setConstraints(speedPanel, gbc);
+		panel.add(speedPanel, gbc);
+		dc.registerModelPropertyListener(speedPanel);
+
+		
+
+		gbc = new GridBagConstraints(1, 3, 1, 1, 0.0d, 0.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
+				defInsets, 2, 2);
+
+		SpeedPanel pitchPanel = new SpeedPanel(layouter);
+
+		gbl.setConstraints(pitchPanel, gbc);
+		panel.add(pitchPanel, gbc);
+		dc.registerModelPropertyListener(pitchPanel);
+
 
 	}
 
@@ -300,7 +324,22 @@ public class MainDialog extends JFrame {
 					dc.setGGA(message);
 
 					break;
-
+				case 107: // +
+				 	int speed = dd.getSpeed();
+				 	speed += 1;
+					if (speed > 10) {
+						speed = 10;
+					}
+					dc.setSpeed(speed);
+					break;
+				case 109: // -
+					speed = dd.getSpeed();
+				 	speed -= 1;
+					if (speed < 0) {
+						speed = 0;
+					}
+					dc.setSpeed(speed);
+					break;
 				default:
 					// nada
 					log.debug("Unknown key: " + e.getKeyCode());

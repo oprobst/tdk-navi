@@ -19,6 +19,7 @@ public class DiveData extends AbstractModel implements Cloneable {
 		clone.humidity = humidity;
 		clone.freeText = freeText;
 		clone.voltage = voltage;
+		clone.speed = speed;
 		return clone;
 	}
 
@@ -38,6 +39,24 @@ public class DiveData extends AbstractModel implements Cloneable {
 	private int freeText;
 	private int humidity;
 	private float voltage;
+	private int speed;
+
+	/**
+	 * @return the speed
+	 */
+	public int getSpeed() {
+		return speed;
+	}
+
+	/**
+	 * @param speed
+	 *            the speed to set
+	 */
+	public void setSpeed(int speed) {
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_SPEED, this.speed, speed);
+		this.speed = speed;
+	}
 
 	/**
 	 * @return the surfacetime
