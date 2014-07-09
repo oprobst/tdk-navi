@@ -6,7 +6,6 @@ import java.awt.Insets;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.TimeZone;
 
 import javax.swing.JFrame;
@@ -108,18 +107,18 @@ public class MainDialog extends JFrame {
 		dc.registerControllerPropertyChangeListener(profilePanel);
 
 		gbc = new GridBagConstraints(1, 0, 1, 1, 0.0d, 0.0d,
-				GridBagConstraints.EAST, GridBagConstraints.BOTH, defInsets,
-				2, 2);
+				GridBagConstraints.EAST, GridBagConstraints.BOTH, defInsets, 2,
+				2);
 
 		VoltagePanel voltagePanel = new VoltagePanel(layouter);
 
 		gbl.setConstraints(voltagePanel, gbc);
 		panel.add(voltagePanel, gbc);
 		dc.registerModelPropertyListener(voltagePanel);
-		
+
 		gbc = new GridBagConstraints(1, 1, 1, 1, 0.0d, 0.0d,
-				GridBagConstraints.EAST, GridBagConstraints.BOTH, defInsets,
-				2, 2);
+				GridBagConstraints.EAST, GridBagConstraints.BOTH, defInsets, 2,
+				2);
 
 		HumidityPanel humidityPanel = new HumidityPanel(layouter);
 
@@ -182,7 +181,6 @@ public class MainDialog extends JFrame {
 		gbl.setConstraints(averageDepthPanel, gbc);
 		panel.add(averageDepthPanel, gbc);
 		dc.registerModelPropertyListener(averageDepthPanel);
-		
 
 		gbc = new GridBagConstraints(0, 3, 1, 1, 0.0d, 0.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
@@ -194,18 +192,15 @@ public class MainDialog extends JFrame {
 		panel.add(speedPanel, gbc);
 		dc.registerModelPropertyListener(speedPanel);
 
-		
-
 		gbc = new GridBagConstraints(1, 3, 1, 1, 0.0d, 0.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
 				defInsets, 2, 2);
 
-		SpeedPanel pitchPanel = new SpeedPanel(layouter);
+		PitchPanel pitchPanel = new PitchPanel(layouter);
 
 		gbl.setConstraints(pitchPanel, gbc);
 		panel.add(pitchPanel, gbc);
 		dc.registerModelPropertyListener(pitchPanel);
-
 
 	}
 
@@ -318,15 +313,14 @@ public class MainDialog extends JFrame {
 					SimpleDateFormat dateFormatGmt = new SimpleDateFormat(
 							"HH:mm:ss.00");
 					dateFormatGmt.setTimeZone(TimeZone.getTimeZone("GMT"));
-					String time = dateFormatGmt.format(new Date());
 					String message = "$GPGGA,161718.53,4846.13423,N,00819.92680,E,1,05,1.63,190.9,M,47.4,M,,*59";
 					// (checksum invalid)
 					dc.setGGA(message);
 
 					break;
 				case 107: // +
-				 	int speed = dd.getSpeed();
-				 	speed += 1;
+					int speed = dd.getSpeed();
+					speed += 1;
 					if (speed > 10) {
 						speed = 10;
 					}
@@ -334,11 +328,27 @@ public class MainDialog extends JFrame {
 					break;
 				case 109: // -
 					speed = dd.getSpeed();
-				 	speed -= 1;
+					speed -= 1;
 					if (speed < 0) {
 						speed = 0;
 					}
 					dc.setSpeed(speed);
+					break;
+				case 34:// pageDown
+					int pitch = dd.getPitch();
+					pitch -= 1;
+					if (pitch < -180) {
+						pitch = +180;
+					}
+					dc.setPitch(pitch);
+					break;
+				case 33: // pageUp
+					pitch = dd.getPitch();
+					pitch += 1;
+					if (pitch > 180) {
+						pitch = -180;
+					}
+					dc.setPitch(pitch);
 					break;
 				default:
 					// nada

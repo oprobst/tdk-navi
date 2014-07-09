@@ -146,8 +146,8 @@ public class DefaultController {
 	 * @param inclination
 	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setInclination(int)
 	 */
-	public void setInclination(int inclination) {
-		currentRecord.setInclination(inclination);
+	public void setPitch(int pitch) {
+		currentRecord.setPitch(pitch);
 	}
 
 	/**

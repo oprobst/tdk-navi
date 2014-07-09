@@ -24,6 +24,7 @@ public class DemoDataCollectThread extends Thread {
 		dc.setDepth(0.0f);
 		dc.setCourse(045);
 		dc.setSpeed(3);
+		dc.setPitch(-8);
 	}
 
 	/*
@@ -170,19 +171,20 @@ public class DemoDataCollectThread extends Thread {
 	private void writeDepth() {
 
 		float depth = dc.getCurrentRecordClone().getDepth();
-		if (iteration > 0) {
-			if (depth < 10) {
-				float c = (float) ((Math.random()) / 14);
-				depth = depth + c;
-			} else if (depth >= 10 && depth < 50) {
-				float c = (float) ((Math.random() - 0.2) / 18);
-				depth = depth + c;
-			} else if (depth > 50) {
-				float c = (float) ((Math.random() - 0.8) / 25);
-				depth = depth + c;
-			}
-		} else {
-			depth = 0.3f;
+		int pitch = dc.getCurrentRecordClone().getPitch() * -1;
+
+		if (pitch > 90) {
+			pitch = 180 - pitch;
+		}
+		if (pitch < -90) {
+			pitch = -180 - pitch;
+		}
+
+		float c = (float) ((Math.random() * pitch) / 200);
+		depth = depth + c;
+
+		if (depth < 0) {
+			depth = 0;
 		}
 		dc.setDepth(depth);
 	}
