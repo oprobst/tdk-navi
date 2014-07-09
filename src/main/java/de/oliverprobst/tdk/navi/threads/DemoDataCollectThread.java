@@ -22,7 +22,7 @@ public class DemoDataCollectThread extends Thread {
 		this.dc = dc;
 		dc.setTemperature(24.2f);
 		dc.setDepth(0.0f);
-		dc.setCourse(180);
+		dc.setCourse(045);
 	}
 
 	/*
@@ -59,17 +59,17 @@ public class DemoDataCollectThread extends Thread {
 
 	private void writeVoltage() {
 		if (iteration < 100) {
-			dc.setVoltage(4.18f);
+			dc.setVoltage(12.18f);
 		} else if (iteration < 150) {
-			dc.setVoltage(4.12f);
+			dc.setVoltage(12.1f);
 		} else if (iteration < 200) {
-			dc.setVoltage(4.07f);
+			dc.setVoltage(11.97f);
 		} else if (iteration < 200) {
-			dc.setVoltage(4.01f);
+			dc.setVoltage(11.74f);
 		} else if (iteration < 250) {
-			dc.setVoltage(3.92f);
+			dc.setVoltage(11.60f);
 		} else if (iteration % 40 == 0) {
-			dc.setVoltage(((float) (Math.random() + 2.9) * 10) / 10);
+			dc.setVoltage(((float) (Math.random() + 10.5) * 10) / 10);
 		}
 
 	}
@@ -82,7 +82,7 @@ public class DemoDataCollectThread extends Thread {
 	}
 
 	double lastGPSLat = 4738.554;
-	double lastGPSLong =  912.830;
+	double lastGPSLong = 912.750;
 
 	/**
 	 * 
@@ -99,12 +99,40 @@ public class DemoDataCollectThread extends Thread {
 			// SE 4738.541/00913.672
 
 			// Distances:
-			// NS: 4739.018 - 4738.541  
+			// NS: 4739.018 - 4738.541
 			// EW: 00913.672 - 00912.710
-
-			lastGPSLat = lastGPSLat + (double) ((Math.random() -.22) * .0045);
-			lastGPSLong = lastGPSLong + (double) ((Math.random() -.35) * .0045);
-			
+			double offY = 0;
+			double offX = 0;
+			int course = dc.getCurrentRecordClone().getCourse();
+			if (course > 336 || course < 22) {
+				offY = +1.0;
+				offX = 0;
+			} else if (course > 22 && course < 67) {
+				offY = +.5;
+				offX = +.5;
+			} else if (course > 66 && course < 112) {
+				offY = 0;
+				offX = +1;
+			} else if (course > 111 && course < 157) {
+				offY = -.5;
+				offX = +.5;
+			} else if (course > 156 && course < 202) {
+				offY = -1;
+				offX = +0;
+			} else if (course > 201 && course < 247) {
+				offY = -.5;
+				offX = -.5;
+			} else if (course > 246 && course < 292) {
+				offY = 0;
+				offX = -1;
+			} else if (course > 291 && course < 337) {
+				offY = +.5;
+				offX = -.5;
+			}
+			lastGPSLong = lastGPSLong
+					+ (double) (((Math.random() - .5) + offY) * .01);
+			lastGPSLat = lastGPSLat
+					+ (double) (((Math.random() - .5) + offX) * .01);
 
 			DecimalFormat formatterLng = new DecimalFormat("#0000.0000");
 			DecimalFormat formatterLat = new DecimalFormat("#00000.0000");
@@ -112,10 +140,14 @@ public class DemoDataCollectThread extends Thread {
 
 			// $GPGGA,HHMMSS.ss,BBBB.BBBB,b,LLLLL.LLLL,l,Q,NN,D.D,H.H,h,G.G,g,A.A,RRRR*PP
 
-			String message = "$GPGGA,161725.62," + formatterLng.format(lastGPSLat)
-					+ ",N," + formatterLat.format(lastGPSLong)
-					+ ",E,1,06,1.10,193.6,M,47.4,M,,*59";
-			System.out.println(message);
+			int isDGPS = 0;
+			isDGPS = (int) (Math.random() + 1.10);
+
+			String message = "$GPGGA,161725.62,"
+					+ formatterLng.format(lastGPSLat) + ",N,"
+					+ formatterLat.format(lastGPSLong) + ",E," + isDGPS
+					+ ",06,1.10,193.6,M,47.4,M,,*59";
+			log.debug(message);
 			// (checksum invalid)
 			dc.setGGA(message);
 		}
@@ -124,7 +156,7 @@ public class DemoDataCollectThread extends Thread {
 	private void writeCourse() {
 		int course = dc.getCurrentRecordClone().getCourse();
 
-		int c = (int) (((Math.random()) - .35) * 2.5) + course;
+		int c = (int) (((Math.random()) - .5) * 0.8) + course;
 		if (c > 360) {
 			c = c - 360;
 		}

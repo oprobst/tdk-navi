@@ -42,7 +42,7 @@ public class VoltagePanel extends JPanel implements PropertyChangeListener {
 				GridBagConstraints.SOUTHEAST, GridBagConstraints.VERTICAL,
 				new Insets(0, 0, 0, 3), 2, 2);
 
-		JLabel lblDesc = new JLabel("V");
+		JLabel lblDesc = new JLabel("Volt");
 		layout.layoutTinyDescriptionLabel(lblDesc);
 		this.add(lblDesc, gbc);
 	}

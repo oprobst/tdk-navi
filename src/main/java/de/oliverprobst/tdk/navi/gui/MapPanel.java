@@ -54,7 +54,10 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		super.paintComponent(g);
 		g.drawImage(image, 0, 0, null);
 
-		g.setColor(new Color(255, 150, 150));
+		if (locations.isEmpty()) {
+			return;
+		}
+		g.setColor(new Color(255, 150, 200));
 		Point lastLocation = null;
 
 		int stepSize = (int) (((double) (locations.size() + 26) / 50) + 0.5);
@@ -63,11 +66,11 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 			// last 10 records in red:
 			if (i > locations.size() - 11 * stepSize) {
-				g.setColor(new Color(255, 100, 100));
+				g.setColor(new Color(255, 100, 150));
 			}
 			// last 3 records in dark red:
 			if (i > locations.size() - 4 * stepSize) {
-				g.setColor(new Color(255, 50, 50));
+				g.setColor(new Color(255, 50, 100));
 			}
 			if (lastLocation != null) {
 				g.drawLine(lastLocation.x, lastLocation.y, location.x,
@@ -110,15 +113,17 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			offX = -5;
 		}
 		final int size = 4;
-		g.setColor(new Color(255, 255, 255));
-		g.drawArc(x - size, y - size, size * 2, size * 2, 0, 360);		
+		// arc
+		g.setColor(new Color(255, 200, 200));
+		g.drawArc(x - size, y - size, size * 2, size * 2, 0, 360);
+		// line
 		g.setColor(new Color(255, 0, 0));
 		g.drawLine(x - size, y - size, x + size, y + size);
 		g.drawLine(x - size, y + size, x + size, y - size);
-		
+		// direction
 		g.setColor(new Color(0, 0, 255));
 		g.drawLine(x, y, x + offX, y + offY);
-		g.drawArc(x + offX-1,  y + offY-1, 2, 2, 0, 360);
+		g.drawArc(x + offX - 1, y + offY - 1, 2, 2, 0, 360);
 
 	}
 
@@ -139,8 +144,8 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			Dimension d = new Dimension(image.getWidth(), image.getHeight());
 			HaversineConverter hc = HaversineConverter.getInstance();
 			NmeaParser p = new NmeaParser((String) newValue);
-			Point location = hc.xyProjection(d, p.getLatitude(),
-					p.getLongitude());
+			Point location = hc.xyProjection(d, p.getLongitude(),
+					p.getLatitude());
 
 			locations.add(location);
 

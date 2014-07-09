@@ -1,5 +1,6 @@
 package de.oliverprobst.tdk.navi.gui;
 
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -73,10 +74,28 @@ public class GpsCoordPanel extends JPanel implements PropertyChangeListener {
 
 	private void updateLocation(String locationGgaString) {
 		NmeaParser p = new NmeaParser(locationGgaString);
-		lblNSHemisphere.setText(p.getFormattedLongitude());
-		lblEWHemisphere.setText(p.getFormattedLatitude());
-		lblSat.setText(p.getSatelliteCount() + " Sat");
-		lblPrecision.setText(p.getDiluentOfPrecision() + " DOP");
-	}
+		int gpsQuality = Integer.parseInt(p.getSignalQuality());
+		if (gpsQuality > 0) {
+			String longitude = p.getFormattedLongitude();
+			longitude = longitude.substring(0, longitude.length() - 1);
+			String latitude = p.getFormattedLatitude();
+			latitude = latitude.substring(0, longitude.length() - 1);
+			lblNSHemisphere.setText(latitude);
+			lblEWHemisphere.setText(longitude);
+			lblPrecision.setText(p.getDiluentOfPrecision() + " DOP");
+			if (gpsQuality > 1) {
+				Color lightGreen = new Color(150, 250, 150);
+				lblNSHemisphere.setForeground(lightGreen);
+				lblEWHemisphere.setForeground(lightGreen);
+				lblSat.setForeground(Color.GREEN);
+				lblSat.setText(p.getSatelliteCount() + " Sat+D");
 
+			} else {
+				lblNSHemisphere.setForeground(Color.WHITE);
+				lblEWHemisphere.setForeground(Color.WHITE);
+				lblSat.setForeground(Color.WHITE);
+				lblSat.setText(p.getSatelliteCount() + " Sat");
+			}
+		}
+	}
 }

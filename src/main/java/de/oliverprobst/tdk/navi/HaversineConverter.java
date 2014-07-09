@@ -2,6 +2,7 @@ package de.oliverprobst.tdk.navi;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.text.DecimalFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +51,9 @@ public class HaversineConverter {
 		// NW 47.65148/9.211642
 		// SE 47.641875/9.22741
 
-		 distanceEW= this.calculateDistance(nwCornerLat, nwCornerLng,
+		distanceNS = this.calculateDistance(nwCornerLat, nwCornerLng,
 				seCornerLat, nwCornerLng);
-		 distanceNS = this.calculateDistance(seCornerLat, nwCornerLng,
+		distanceEW = this.calculateDistance(seCornerLat, nwCornerLng,
 				seCornerLat, seCornerLng);
 
 		log.info("Calculated dimension for map. Distance N to S is "
@@ -131,13 +132,13 @@ public class HaversineConverter {
 
 	public Point xyProjection(Dimension size, double longitude, double latitude) {
 
-		int distanceEtoLat = this.calculateDistance(seCornerLat, longitude,
+		int distanceWtoLat = this.calculateDistance(seCornerLat, longitude,
 				latitude, longitude);
 		int distanceNtoLng = distanceNS
 				- this.calculateDistance(latitude, nwCornerLng, latitude,
 						longitude);
 
-		int x = (int) Math.round(size.getWidth() / distanceEW * distanceEtoLat);
+		int x = (int) Math.round(size.getWidth() / distanceEW * distanceWtoLat);
 		int y = (int) Math
 				.round(size.getHeight() / distanceNS * distanceNtoLng);
 
@@ -154,9 +155,17 @@ public class HaversineConverter {
 			y = size.height;
 		}
 
-		log.debug("Map projection: WGS84 (" + longitude + "/" + latitude
-				+ ") projection to Point (" + x + "/" + y + ").");
+		if (log.isDebugEnabled()) {
+			DecimalFormat formatLat = new DecimalFormat("#00.00000");
+			DecimalFormat formatLon = new DecimalFormat("#000.00000");
+			String lon = formatLon.format(longitude);
+			String lat = formatLat.format(latitude);
 
+			log.debug("Map projection: WGS84 (" + lon + "/" + lat
+					+ ") with distance (" + distanceNtoLng + "/"
+					+ distanceWtoLat + ") projection to Point (" + x + "/" + y
+					+ ").");
+		}
 		return new Point(x, y);
 	}
 }

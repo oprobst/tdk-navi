@@ -2,73 +2,69 @@ package de.oliverprobst.tdk.navi;
 
 public class NmeaParser {
 
-	private final String gga;
+	private final String ggaSplit[];
 
 	public NmeaParser(String gga) {
-		this.gga = gga;
+		ggaSplit = gga.split(",");
 		// todo verify (Length, Checksum)
 	}
 
 	public double getLongitude() {
-		double degree = Double.parseDouble(gga.substring(17, 19));
-		double minutes = Double.parseDouble(gga.substring(19, 26).replace(",", ""));
-		minutes = minutes / 600000 ;
-		double out = degree+minutes;
-			 
-		return out;
-		
+
+		int splitLen = ggaSplit[4].length();
+
+		double degree = Double.parseDouble(ggaSplit[4].substring(0, 3));
+		double minutes = Double.parseDouble(ggaSplit[4].substring(3, splitLen));
+		minutes = minutes / 60;
+
+		return degree + minutes;
 	}
 
 	public double getLatitude() {
-//$GPGGA,161725.62,4764,2445,N,00921,3756,E,1,06,1.10,193.6,M,47.4,M,,*59
-		double degree = Double.parseDouble(gga.substring(29, 32));
-		double minutes = Double.parseDouble(gga.substring(32, 39).replace(",", ""));
-		minutes = minutes / 600000 ;
-		double out = degree+minutes;
-		 
-		return out;
-	}
+		// $GPGGA,161725.62,4764,2445,N,00921,3756,E,1,06,1.10,193.6,M,47.4,M,,*59
 
-	private double convertDegreeAngleToDouble(double degrees, double minutes) {
-		// Decimal degrees =
-		// whole number of degrees,
-		// plus minutes divided by 60,
-		// plus seconds divided by 3600
+		int splitLen = ggaSplit[2].length();
 
-		return degrees + (minutes / 60) ;
+		double degree = Double.parseDouble(ggaSplit[2].substring(0, 2));
+		double minutes = Double.parseDouble(ggaSplit[2].substring(2, splitLen));
+		minutes = minutes / 60;
+		return degree + minutes;
 	}
 
 	public String getFormattedLongitude() {
-		return gga.substring(17, 19) + "° " + getNSHemisphere() + " "
-				+ gga.substring(19, 25);
+
+		int splitLen = ggaSplit[4].length();
+		return ggaSplit[4].substring(0, 3) + "° " + getNSHemisphere() + " "
+				+ ggaSplit[4].substring(3, splitLen);
 	}
 
 	public String getFormattedLatitude() {
-		return gga.substring(30, 33) + "° " + getEWHemisphere() + " "
-				+ gga.substring(33, 39);
+		int splitLen = ggaSplit[2].length();
+		return ggaSplit[2].substring(0, 2) + "° " + getEWHemisphere() + " "
+				+ ggaSplit[2].substring(2, splitLen);
 	}
 
 	public String getNSHemisphere() {
-		return gga.substring(28, 29);
+		return ggaSplit[3];
 	}
 
 	public String getEWHemisphere() {
-		return gga.substring(42, 43);
+		return ggaSplit[5];
 	}
 
 	public String getSignalQuality() {
-		return gga.substring(44, 45);
+		return ggaSplit[6];
 	}
 
 	public String getDiluentOfPrecision() {
-		return gga.substring(49, 52);
+		return ggaSplit[8];
 	}
 
 	public String getSatelliteCount() {
-		return gga.substring(46, 48);
+		return ggaSplit[7];
 	}
 
 	public String getClock() {
-		return gga.substring(7, 18);
+		return ggaSplit[1];
 	}
 }
