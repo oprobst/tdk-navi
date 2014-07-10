@@ -24,12 +24,10 @@ public class DemoDialog extends JFrame {
 		this.setPreferredSize(new Dimension(640, 300));
 		this.setLocation(100, 600);
 		this.setResizable(false);
-		this.setUndecorated(true);
 		this.setVisible(true);
 		this.setFocusable(false);
 		createMainGridLayout();
 		this.pack();
-
 	}
 
 	private void createMainGridLayout() {
@@ -60,7 +58,9 @@ public class DemoDialog extends JFrame {
 
 	private String getHelpText() {
 
-		String helpText = "<html><table>"
+		String helpText = "<html>"
+				+ "<p><b>No sensor connected. Switched to test and demo mode. </b> </p>"
+				+ "<table>"
 				+ "<td><b>q</b> : </td><td>Quit </td><td></td><td> </td></tr>"
 				+ "<td><b>w</b> : </td><td>Up </td><td> <b>s</b>: </td><td>Down </td></tr>"
 				+ "<td><b>e</b> : </td><td>Left </td><td> <b>d:</b> </td><td>Right </td></tr>"

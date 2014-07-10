@@ -132,15 +132,15 @@ public class HaversineConverter {
 
 	public Point xyProjection(Dimension size, double longitude, double latitude) {
 
-		int distanceWtoLat = this.calculateDistance(seCornerLat, longitude,
+		int distanceEtoLat = this.calculateDistance(latitude, seCornerLng,
 				latitude, longitude);
-		int distanceNtoLng = distanceNS
-				- this.calculateDistance(latitude, nwCornerLng, latitude,
-						longitude);
+		int distanceNtoLng = this.calculateDistance(nwCornerLat, longitude,
+				latitude, longitude);
 
-		int x = (int) Math.round(size.getWidth() / distanceEW * distanceWtoLat);
-		int y = (int) Math
-				.round(size.getHeight() / distanceNS * distanceNtoLng);
+		int x = (int) Math.round(size.getWidth() / distanceEW
+				* (distanceEW - distanceEtoLat));
+		int y = (int) Math.round(size.getHeight() / distanceNS
+				* (distanceNtoLng));
 
 		if (x < 0) {
 			x = 0;
@@ -163,9 +163,20 @@ public class HaversineConverter {
 
 			log.debug("Map projection: WGS84 (" + lon + "/" + lat
 					+ ") with distance (" + distanceNtoLng + "/"
-					+ distanceWtoLat + ") projection to Point (" + x + "/" + y
+					+ distanceEtoLat + ") projection to Point (" + x + "/" + y
 					+ ").");
 		}
 		return new Point(x, y);
+	}
+
+	public int calculateBearing(double fromLat, double fromLng, double toLat,
+			double toLng) {
+
+		double longDiff = fromLng - toLng;
+		double y = Math.sin(longDiff) * Math.cos(toLat);
+		double x = Math.cos(fromLat) * Math.sin(toLat) - Math.sin(fromLat)
+				* Math.cos(toLat) * Math.cos(longDiff);
+		return (int) (((Math.toDegrees(Math.atan2(y, x)) + 360) % 360) + 0.5);
+
 	}
 }

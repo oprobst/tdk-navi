@@ -96,8 +96,9 @@ public class DemoDataCollectThread extends Thread {
 		}
 	}
 
-	double lastGPSLat = 4738.554;
-	double lastGPSLong = 912.750;
+	
+	double lastGPSLat = 4738.554; // = 47.642586 
+	double lastGPSLong = 912.825; // = 009.213739
 
 	/**
 	 * 
@@ -149,12 +150,12 @@ public class DemoDataCollectThread extends Thread {
 				speed = speed / 500 + .003;
 			}
 			lastGPSLong = lastGPSLong
-					+ (double) (((Math.random() - .5) + offY) * speed);
-			lastGPSLat = lastGPSLat
 					+ (double) (((Math.random() - .5) + offX) * speed);
+			lastGPSLat = lastGPSLat
+					+ (double) (((Math.random() - .5) + offY) * speed);
 
-			DecimalFormat formatterLng = new DecimalFormat("#0000.0000");
-			DecimalFormat formatterLat = new DecimalFormat("#00000.0000");
+			DecimalFormat formatterLng = new DecimalFormat("#0000.00000");
+			DecimalFormat formatterLat = new DecimalFormat("#00000.00000");
 			// Ka : 49° 0' 34" Nord, 8° 24' 15" Ost
 
 			// $GPGGA,HHMMSS.ss,BBBB.BBBB,b,LLLLL.LLLL,l,Q,NN,D.D,H.H,h,G.G,g,A.A,RRRR*PP
@@ -192,16 +193,17 @@ public class DemoDataCollectThread extends Thread {
 			double x = p.getLongitude();  //TODO x/y not correct !?!
 
 			if (x < xmin) {
-				c = (int)(0 + Math.random() * 10) ;
-			}
-			if (y < ymin) {
 				c = (int) (80 + Math.random() * 20);
 			}
+			if (y < ymin) {
+				c = (int) (170 + Math.random() * 20);				
+			}
 			if (x > xmax) {
-				c = (int) (170 + Math.random() * 20);
+				c = (int) (260 + Math.random() * 20);
 			}
 			if (y > ymax) {
-				c = (int) (260 + Math.random() * 20);
+				c = (int)(0 + Math.random() * 10) ;
+				
 			}
 		}
 

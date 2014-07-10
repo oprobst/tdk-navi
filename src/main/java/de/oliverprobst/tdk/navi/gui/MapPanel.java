@@ -11,6 +11,7 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -20,6 +21,7 @@ import de.oliverprobst.tdk.navi.NmeaParser;
 import de.oliverprobst.tdk.navi.controller.DiveDataProperties;
 import de.oliverprobst.tdk.navi.dto.StructuralIntegrity;
 import de.oliverprobst.tdk.navi.dto.StructuralIntegrity.Status;
+import de.oliverprobst.tdk.navi.dto.Waypoint;
 
 /**
  * 
@@ -36,7 +38,8 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 	int lastCourse = 0;
 	ArrayList<Point> locations = new ArrayList<Point>();
 
-	public MapPanel() {
+	public MapPanel(Collection<Waypoint> wps) {
+		this.wps = wps;
 
 		ClassLoader classloader = Thread.currentThread()
 				.getContextClassLoader();
@@ -83,6 +86,45 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		}
 		lastLocation = locations.get(locations.size() - 1);
 		drawArrow(g, lastLocation.x, lastLocation.y);
+
+		drawWPs(g);
+	}
+
+	private final Collection<Waypoint> wps;
+
+	private void drawWPs(Graphics g) {
+		Dimension d = new Dimension(image.getWidth(), image.getHeight());
+		HaversineConverter hc = HaversineConverter.getInstance();
+
+		for (Waypoint wp : wps) {
+			Point loc = hc.xyProjection(d, wp.getLongitude(), wp.getLatitude());
+
+			int distance = -1;
+			int bearing = -1;
+			if (lastLongitude != 0) {
+				distance = hc.calculateDistance(lastLatitude, lastLongitude,
+						 wp.getLatitude(), wp.getLongitude());
+				bearing = hc.calculateBearing(lastLatitude, lastLongitude,
+						wp.getLatitude(), wp.getLongitude());
+			}
+
+			g.setColor(new Color(180, 180, 255));
+			g.drawArc(loc.x, loc.y, 4, 4, 0, 360);
+			g.setColor(new Color(0, 0, 255));
+			final int size = 3;
+			g.drawLine(loc.x - size, loc.y - size, loc.x + size, loc.y + size);
+			g.drawLine(loc.x - size, loc.y + size, loc.x + size, loc.y - size);
+
+			g.setColor(new Color(0, 0, 255));
+			g.setFont(new Font("Dialog", Font.BOLD, 10));
+			g.drawString(wp.getName(), loc.x + 6, loc.y);
+			if (bearing >= 0) {
+				g.drawString(bearing + " °", loc.x + 6, loc.y + 10);
+			}
+			if (distance >= 0) {
+				g.drawString(distance + " m", loc.x + 6, loc.y + 20);
+			}
+		}
 	}
 
 	private void drawArrow(Graphics g, int x, int y) {
@@ -134,11 +176,14 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			g.drawString(warning, 15, 35);
 		}
 
+		// NavPoints
+
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_GPSFIX)) {
 			drawLocation(evt.getNewValue());
+
 		}
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_COURSE)) {
 			lastCourse = (Integer) evt.getNewValue();
@@ -160,12 +205,17 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 	private String warning = null;
 
+	private double lastLongitude = 0;
+	private double lastLatitude = 0;
+
 	private void drawLocation(Object newValue) {
 
 		if (newValue != null) {
 			Dimension d = new Dimension(image.getWidth(), image.getHeight());
 			HaversineConverter hc = HaversineConverter.getInstance();
 			NmeaParser p = new NmeaParser((String) newValue);
+			lastLatitude = p.getLatitude();
+			lastLongitude = p.getLongitude();
 			Point location = hc.xyProjection(d, p.getLongitude(),
 					p.getLatitude());
 

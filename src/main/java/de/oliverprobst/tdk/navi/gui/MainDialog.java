@@ -224,10 +224,10 @@ public class MainDialog extends JFrame {
 		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0d, 1.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
 				0, 0);
-		MapPanel mapPanel = new MapPanel();
+		MapPanel mapPanel = new MapPanel(dc.getWPs());
 		panel.add(mapPanel, gbc);
 		dc.registerModelPropertyListener(mapPanel);
-
+        
 		layouter.layout(mapPanel);
 	}
 
@@ -326,7 +326,7 @@ public class MainDialog extends JFrame {
 					SimpleDateFormat dateFormatGmt = new SimpleDateFormat(
 							"HH:mm:ss.00");
 					dateFormatGmt.setTimeZone(TimeZone.getTimeZone("GMT"));
-					String message = "$GPGGA,161718.53,4846.13423,N,00819.92680,E,1,05,1.63,190.9,M,47.4,M,,*59";
+					String message = "$GPGGA,161718.53,4738.55555,N,00912.82288,E,1,10,1.63,190.9,M,47.4,M,,*59";
 					// (checksum invalid)
 					dc.setGGA(message);
 

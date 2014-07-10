@@ -2,6 +2,7 @@ package de.oliverprobst.tdk.navi.controller;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,12 +11,21 @@ import org.slf4j.LoggerFactory;
 
 import de.oliverprobst.tdk.navi.dto.DiveData;
 import de.oliverprobst.tdk.navi.dto.StructuralIntegrity;
+import de.oliverprobst.tdk.navi.dto.Waypoint;
 
 public class DefaultController {
 
 	private final List<DiveData> record = new LinkedList<DiveData>();
 
+	private final Collection<Waypoint> wps = new LinkedList<Waypoint>();
+
+	public Collection<Waypoint> getWPs() {
+		return wps;
+	}
+
 	/**
+	 * O
+	 * 
 	 * @return the record
 	 */
 	public List<DiveData> getRecord() {
@@ -151,7 +161,7 @@ public class DefaultController {
 	 */
 	public void setIntegrityCode(int integrityCode) {
 		StructuralIntegrity si = structuralIntegrityController.parseCode(
-				integrityCode, currentRecord.getDepth());		
+				integrityCode, currentRecord.getDepth());
 		currentRecord.setIntegrity(si);
 	}
 

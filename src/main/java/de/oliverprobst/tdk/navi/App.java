@@ -2,13 +2,19 @@ package de.oliverprobst.tdk.navi;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import javax.swing.JFrame;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.oliverprobst.tdk.navi.controller.DefaultController;
+import de.oliverprobst.tdk.navi.dto.Waypoint;
 import de.oliverprobst.tdk.navi.gui.DemoDialog;
 import de.oliverprobst.tdk.navi.gui.MainDialog;
 import de.oliverprobst.tdk.navi.i2c.I2CPackage;
@@ -28,6 +34,9 @@ public class App {
 
 	public static void main(String[] args) {
 		log.info("Starting Dive Software of Tief-Dunkel-Kalt.org");
+
+		Locale.setDefault(Locale.US); // TODO : Misusage of Decimal converter
+										// forces that. FIXIT!
 		DefaultController dc = new DefaultController();
 		md = new MainDialog(dc);
 
@@ -92,7 +101,17 @@ public class App {
 
 		if (height > 480) {
 			log.info("Screen is big enough to display help screen.");
-			new DemoDialog();
+			DemoDialog dlg = new DemoDialog();
+
+			dlg.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+			dlg.addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent we) {
+					log.info("System exit by closing documentation window. Bye!");
+					System.exit(0);
+				}
+			});
+
 			md.requestFocus();
 		}
 
@@ -103,10 +122,14 @@ public class App {
 			// NW 4739.018/00912.710
 			// SE 4738.541/00913.672
 
-			hc.setNwCorner(47.650280, 9.21042);
-			hc.setSeCorner(47.640875, 9.22510);
-
+			hc.setNwCorner(47.649500, 9.21120);
+			hc.setSeCorner(47.641400, 9.22675);
 			hc.calculateDimension();
+
+			// Demo WPs
+			dc.getWPs().add(new Waypoint("Jura", 47.647479, 9.224010));
+			dc.getWPs().add(new Waypoint("Entry", 47.642586, 9.213739));
+			dc.getWPs().add(new Waypoint("WP-1", 47.642816, 9.216398));
 		}
 
 		Thread collectorThread = new DemoDataCollectThread(dc);
