@@ -63,7 +63,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		if (locations.isEmpty()) {
 			return;
 		}
-		g.setColor(new Color(255, 150, 200));
+		g.setColor(new Color(255, 150, 150));
 		Point lastLocation = null;
 
 		int stepSize = (int) (((double) (locations.size() + 26) / 50) + 0.5);
@@ -72,18 +72,21 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 			// last 10 records in red:
 			if (i > locations.size() - 11 * stepSize) {
-				g.setColor(new Color(255, 100, 150));
+				g.setColor(new Color(255, 100, 100));
 			}
 			// last 3 records in dark red:
 			if (i > locations.size() - 4 * stepSize) {
-				g.setColor(new Color(255, 50, 100));
+				g.setColor(new Color(255, 50, 00));
 			}
 			if (lastLocation != null) {
 				g.drawLine(lastLocation.x, lastLocation.y, location.x,
 						location.y);
 			}
 			lastLocation = location;
-		}
+			if (i > locations.size() - 50){
+				stepSize = 1;
+			}
+		}		
 		lastLocation = locations.get(locations.size() - 1);
 		drawArrow(g, lastLocation.x, lastLocation.y);
 

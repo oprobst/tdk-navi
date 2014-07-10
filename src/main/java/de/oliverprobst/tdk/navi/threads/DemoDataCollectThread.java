@@ -190,20 +190,19 @@ public class DemoDataCollectThread extends Thread {
 			double xmax = hc.getSeCornerLng();
 			NmeaParser p = new NmeaParser(record.getGga());
 			double y = p.getLatitude();
-			double x = p.getLongitude();  //TODO x/y not correct !?!
+			double x = p.getLongitude();
 
 			if (x < xmin) {
-				c = (int) (80 + Math.random() * 20);
+				c = (int) (70 + Math.random() * 40);
 			}
 			if (y < ymin) {
-				c = (int) (170 + Math.random() * 20);				
+				c = (int)(0 + Math.random() * 20) ;			
 			}
 			if (x > xmax) {
-				c = (int) (260 + Math.random() * 20);
+				c = (int) (250 + Math.random() * 40);
 			}
 			if (y > ymax) {
-				c = (int)(0 + Math.random() * 10) ;
-				
+				c = (int) (160 + Math.random() * 40);	
 			}
 		}
 
