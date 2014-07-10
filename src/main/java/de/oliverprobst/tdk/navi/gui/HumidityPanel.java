@@ -43,7 +43,7 @@ public class HumidityPanel extends JPanel implements PropertyChangeListener {
 
 		JLabel lblDesc = new JLabel("Hum");
 		layout.layoutTinyDescriptionLabel(lblDesc);
-		this.add(lblDesc, gbc);
+		//this.add(lblDesc, gbc);
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {

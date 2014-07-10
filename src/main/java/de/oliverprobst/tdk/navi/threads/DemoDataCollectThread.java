@@ -7,7 +7,10 @@ import java.util.TimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.oliverprobst.tdk.navi.HaversineConverter;
+import de.oliverprobst.tdk.navi.NmeaParser;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
+import de.oliverprobst.tdk.navi.dto.DiveData;
 
 public class DemoDataCollectThread extends Thread {
 
@@ -170,12 +173,38 @@ public class DemoDataCollectThread extends Thread {
 	}
 
 	private void writeCourse() {
-		int course = dc.getCurrentRecordClone().getCourse();
+		DiveData record = dc.getCurrentRecordClone();
+		int course = record.getCourse();
 
 		int c = (int) (((Math.random()) - .5) * 0.8) + course;
 		if (c > 360) {
 			c = c - 360;
 		}
+		if (record.getGga() != null) {
+			HaversineConverter hc = HaversineConverter.getInstance();
+
+			double ymax = hc.getNwCornerLat();
+			double xmin = hc.getNwCornerLng();
+			double ymin = hc.getSeCornerLat();
+			double xmax = hc.getSeCornerLng();
+			NmeaParser p = new NmeaParser(record.getGga());
+			double y = p.getLatitude();
+			double x = p.getLongitude();  //TODO x/y not correct !?!
+
+			if (x < xmin) {
+				c = (int)(0 + Math.random() * 10) ;
+			}
+			if (y < ymin) {
+				c = (int) (80 + Math.random() * 20);
+			}
+			if (x > xmax) {
+				c = (int) (170 + Math.random() * 20);
+			}
+			if (y > ymax) {
+				c = (int) (260 + Math.random() * 20);
+			}
+		}
+
 		dc.setCourse(c);
 	}
 

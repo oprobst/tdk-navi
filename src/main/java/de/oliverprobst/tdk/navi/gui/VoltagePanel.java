@@ -44,7 +44,7 @@ public class VoltagePanel extends JPanel implements PropertyChangeListener {
 
 		JLabel lblDesc = new JLabel("Volt");
 		layout.layoutTinyDescriptionLabel(lblDesc);
-		this.add(lblDesc, gbc);
+		// this.add(lblDesc, gbc);
 	}
 
 	DecimalFormat voltageFormatter = new DecimalFormat("#0.00");
@@ -52,7 +52,7 @@ public class VoltagePanel extends JPanel implements PropertyChangeListener {
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_VOLTAGE)) {
 			lblVoltage.setText(voltageFormatter.format((Float) evt
-					.getNewValue()));
+					.getNewValue()) + " V");
 
 		}
 	}
