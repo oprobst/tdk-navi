@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.dto.DiveData;
+import de.oliverprobst.tdk.navi.dto.StructuralIntegrity.Status;
 
 public class MainDialog extends JFrame {
 
@@ -96,7 +97,7 @@ public class MainDialog extends JFrame {
 		GridBagLayout gbl = new GridBagLayout();
 		panel.setLayout(gbl);
 
-		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 2, 1.0d, 1.0d,
+		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 3, 1.0d, 1.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
 				2, 2);
 
@@ -125,6 +126,17 @@ public class MainDialog extends JFrame {
 		gbl.setConstraints(humidityPanel, gbc);
 		panel.add(humidityPanel, gbc);
 		dc.registerModelPropertyListener(humidityPanel);
+
+		gbc = new GridBagConstraints(1, 2, 1, 1, 0.0d, 0.0d,
+				GridBagConstraints.EAST, GridBagConstraints.BOTH, defInsets, 2,
+				2);
+
+		StructureIntegrityPanel structureIntegrity = new StructureIntegrityPanel(
+				layouter);
+
+		gbl.setConstraints(structureIntegrity, gbc);
+		panel.add(structureIntegrity, gbc);
+		dc.registerModelPropertyListener(structureIntegrity);
 
 	}
 
@@ -350,6 +362,36 @@ public class MainDialog extends JFrame {
 					}
 					dc.setPitch(pitch);
 					break;
+
+				case 71: // t
+					if (dd.getIntegrity().getLastCode() >= 100000) {
+						dc.setIntegrityCode(dd.getIntegrity().getLastCode() - 100000);
+					} else {
+						dc.setIntegrityCode(dd.getIntegrity().getLastCode() + 100000);
+					}
+					break;
+				case 84: // g
+					if (dd.getIntegrity().getLastCode() - 100000 >= 10000
+							|| ((dd.getIntegrity().getLastCode() < 100000) && (dd
+									.getIntegrity().getLastCode() >= 10000))) {
+						dc.setIntegrityCode(dd.getIntegrity().getLastCode() - 10000);
+					} else {
+						dc.setIntegrityCode(dd.getIntegrity().getLastCode() + 10000);
+					}
+					break;
+				case 90: // z
+					dc.setIntegrityCode(dd.getIntegrity().getLastCode() + 100);
+					break;
+				case 72: // h
+					dc.setIntegrityCode(dd.getIntegrity().getLastCode() - 100);
+					break;
+				case 70: // f
+					dc.setIntegrityCode(1013);
+					dd.getIntegrity().setBow(Status.OK);
+					dd.getIntegrity().setAmbient(Status.OK);
+					dd.getIntegrity().setStern(Status.OK);
+					break;
+
 				default:
 					// nada
 					log.debug("Unknown key: " + e.getKeyCode());

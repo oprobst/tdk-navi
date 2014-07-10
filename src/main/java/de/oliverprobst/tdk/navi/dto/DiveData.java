@@ -20,6 +20,7 @@ public class DiveData extends AbstractModel implements Cloneable {
 		clone.freeText = freeText;
 		clone.voltage = voltage;
 		clone.speed = speed;
+		clone.integrity = integrity.clone();
 		return clone;
 	}
 
@@ -40,6 +41,24 @@ public class DiveData extends AbstractModel implements Cloneable {
 	private int humidity;
 	private float voltage;
 	private int speed;
+	private StructuralIntegrity integrity = new StructuralIntegrity();
+
+	/**
+	 * @return the integrity
+	 */
+	public StructuralIntegrity getIntegrity() {
+		return integrity;
+	}
+
+	/**
+	 * @param integrity
+	 *            the integrity to set
+	 */
+	public void setIntegrity(StructuralIntegrity integrity) {
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_HULL, this.integrity, integrity);
+		this.integrity = integrity;
+	}
 
 	/**
 	 * @return the speed

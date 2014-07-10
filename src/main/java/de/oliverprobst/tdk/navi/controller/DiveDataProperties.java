@@ -16,4 +16,5 @@ public final class DiveDataProperties {
 	public static final String PROP_VOLTAGE = "voltage";
 	public static final String PROP_SPEED = "speed";
 	public static final String PROP_PITCH = "pitch";
+	public static final String PROP_HULL = "hull";
 }

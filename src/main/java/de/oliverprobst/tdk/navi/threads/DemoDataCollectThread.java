@@ -25,6 +25,7 @@ public class DemoDataCollectThread extends Thread {
 		dc.setCourse(045);
 		dc.setSpeed(3);
 		dc.setPitch(-8);
+		dc.setIntegrityCode(998);
 	}
 
 	/*
@@ -49,12 +50,24 @@ public class DemoDataCollectThread extends Thread {
 			writeHumidity();
 			writeVoltage();
 			writeGPS();
+			writeIntegrity();
 
 			if (iteration < 10000) {
 				iteration++;
 			} else {
 				iteration = 0;
 			}
+		}
+	}
+
+	private void writeIntegrity() {
+		if (iteration % 10 == 0) {
+			int code = dc.getCurrentRecordClone().getIntegrity().getLastCode();
+			code = ((int) (code / 10000)) * 10000;
+			double pressureDepth = (code + (dc.getCurrentRecordClone()
+					.getDepth() / 1000) * 1000);
+			code += pressureDepth + 999;
+			dc.setIntegrityCode(code);
 		}
 	}
 

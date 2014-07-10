@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.oliverprobst.tdk.navi.dto.DiveData;
+import de.oliverprobst.tdk.navi.dto.StructuralIntegrity;
 
 public class DefaultController {
 
@@ -140,6 +141,18 @@ public class DefaultController {
 	public void setTemperature(float temperature) {
 		currentRecord.setTemperature(temperature);
 
+	}
+
+	private final StructuralIntegrityController structuralIntegrityController = new StructuralIntegrityController();
+
+	/**
+	 * @param integrity
+	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setIntegrity(de.oliverprobst.tdk.navi.dto.StructuralIntegrity)
+	 */
+	public void setIntegrityCode(int integrityCode) {
+		StructuralIntegrity si = structuralIntegrityController.parseCode(
+				integrityCode, currentRecord.getDepth());		
+		currentRecord.setIntegrity(si);
 	}
 
 	/**
