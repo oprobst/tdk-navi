@@ -99,7 +99,7 @@ public class StructureIntegrityPanel extends JPanel implements
 
 		private final Color okColor = new Color(0, 255, 0);
 		private final Color problemColor = new Color(255, 255, 00);
-		private final Color brokenColor = new Color(250, 10, 10);
+		private final Color brokenColor = new Color(250, 50, 00);
 
 		@Override
 		protected void paintComponent(Graphics g) {

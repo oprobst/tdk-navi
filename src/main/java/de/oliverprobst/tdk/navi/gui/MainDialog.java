@@ -279,6 +279,7 @@ public class MainDialog extends JFrame {
 			public void keyPressed(KeyEvent e) {
 
 				DiveData dd = dc.getCurrentRecordClone();
+				int lastIntegrityCode = dd.getIntegrity().getLastCode();
 
 				switch (e.getKeyCode()) {
 				case 81: // q
@@ -363,27 +364,26 @@ public class MainDialog extends JFrame {
 					dc.setPitch(pitch);
 					break;
 
-				case 71: // t
-					if (dd.getIntegrity().getLastCode() >= 100000) {
-						dc.setIntegrityCode(dd.getIntegrity().getLastCode() - 100000);
+				case 71: // g
+					if (lastIntegrityCode >= 100000) {
+						dc.setIntegrityCode(lastIntegrityCode - 100000);
 					} else {
-						dc.setIntegrityCode(dd.getIntegrity().getLastCode() + 100000);
+						dc.setIntegrityCode(lastIntegrityCode + 100000);
 					}
 					break;
-				case 84: // g
-					if (dd.getIntegrity().getLastCode() - 100000 >= 10000
-							|| ((dd.getIntegrity().getLastCode() < 100000) && (dd
-									.getIntegrity().getLastCode() >= 10000))) {
-						dc.setIntegrityCode(dd.getIntegrity().getLastCode() - 10000);
+				case 84: // t
+					if (lastIntegrityCode >= 110000
+							|| ((lastIntegrityCode < 100000) && (lastIntegrityCode >= 10000))) {
+						dc.setIntegrityCode(lastIntegrityCode - 10000);
 					} else {
-						dc.setIntegrityCode(dd.getIntegrity().getLastCode() + 10000);
+						dc.setIntegrityCode(lastIntegrityCode + 10000);
 					}
 					break;
 				case 90: // z
-					dc.setIntegrityCode(dd.getIntegrity().getLastCode() + 100);
+					dc.setIntegrityCode(lastIntegrityCode + 100);
 					break;
 				case 72: // h
-					dc.setIntegrityCode(dd.getIntegrity().getLastCode() - 100);
+					dc.setIntegrityCode(lastIntegrityCode - 100);
 					break;
 				case 70: // f
 					dc.setIntegrityCode(1013);

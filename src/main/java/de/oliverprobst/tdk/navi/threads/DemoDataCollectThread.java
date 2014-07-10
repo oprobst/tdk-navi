@@ -64,9 +64,7 @@ public class DemoDataCollectThread extends Thread {
 		if (iteration % 10 == 0) {
 			int code = dc.getCurrentRecordClone().getIntegrity().getLastCode();
 			code = ((int) (code / 10000)) * 10000;
-			double pressureDepth = (code + (dc.getCurrentRecordClone()
-					.getDepth() / 1000) * 1000);
-			code += pressureDepth + 999;
+			code = (int) (code + (dc.getCurrentRecordClone().getDepth() / 1000) * 1000) + 998;
 			dc.setIntegrityCode(code);
 		}
 	}

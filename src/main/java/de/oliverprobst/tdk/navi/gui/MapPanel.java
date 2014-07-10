@@ -2,6 +2,7 @@ package de.oliverprobst.tdk.navi.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -17,6 +18,8 @@ import javax.swing.JPanel;
 import de.oliverprobst.tdk.navi.HaversineConverter;
 import de.oliverprobst.tdk.navi.NmeaParser;
 import de.oliverprobst.tdk.navi.controller.DiveDataProperties;
+import de.oliverprobst.tdk.navi.dto.StructuralIntegrity;
+import de.oliverprobst.tdk.navi.dto.StructuralIntegrity.Status;
 
 /**
  * 
@@ -125,6 +128,12 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		g.drawLine(x, y, x + offX, y + offY);
 		g.drawArc(x + offX - 1, y + offY - 1, 2, 2, 0, 360);
 
+		if (warning != null) {
+			g.setColor(new Color(255, 1, 1));
+			g.setFont(new Font("Dialog", Font.BOLD, 18));
+			g.drawString(warning, 15, 35);
+		}
+
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
@@ -135,8 +144,21 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			lastCourse = (Integer) evt.getNewValue();
 			drawLocation(null);
 		}
+		if (evt.getPropertyName().equals(DiveDataProperties.PROP_HULL)) {
+			StructuralIntegrity si = (StructuralIntegrity) evt.getNewValue();
+			warning = null;
+
+			if (si.getAmbient() == Status.BROKEN
+					|| si.getStern() == Status.BROKEN
+					|| si.getBow() == Status.BROKEN) {
+				warning = "WARNING: POSSIBLE LEAK DETECTED!";
+			}
+			drawLocation(null);
+		}
 
 	}
+
+	private String warning = null;
 
 	private void drawLocation(Object newValue) {
 
