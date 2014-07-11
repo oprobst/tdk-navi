@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -79,7 +80,7 @@ public class Layouter implements Serializable {
 
 	public void layout(JPanel panel) {
 
-		// panel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+		 panel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
 		panel.setBackground(BACKGROUND);
 
 	}

@@ -194,7 +194,16 @@ public class MainDialog extends JFrame {
 		panel.add(averageDepthPanel, gbc);
 		dc.registerModelPropertyListener(averageDepthPanel);
 
-		gbc = new GridBagConstraints(0, 3, 1, 1, 0.0d, 0.0d,
+		gbc = new GridBagConstraints(0, 3, 2, 1, 0.0d, 0.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
+				defInsets, 2, 2);
+
+		NotesPanel notesPanel = new NotesPanel(layouter);		
+		gbl.setConstraints(notesPanel, gbc);
+		panel.add(notesPanel, gbc);
+		dc.registerControllerPropertyChangeListener(notesPanel);
+
+		gbc = new GridBagConstraints(0, 4, 1, 1, 0.0d, 0.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
 				defInsets, 2, 2);
 
@@ -204,7 +213,7 @@ public class MainDialog extends JFrame {
 		panel.add(speedPanel, gbc);
 		dc.registerModelPropertyListener(speedPanel);
 
-		gbc = new GridBagConstraints(1, 3, 1, 1, 0.0d, 0.0d,
+		gbc = new GridBagConstraints(1, 4, 1, 1, 0.0d, 0.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
 				defInsets, 2, 2);
 
@@ -227,7 +236,7 @@ public class MainDialog extends JFrame {
 		MapPanel mapPanel = new MapPanel(dc.getWPs());
 		panel.add(mapPanel, gbc);
 		dc.registerModelPropertyListener(mapPanel);
-        
+
 		layouter.layout(mapPanel);
 	}
 

@@ -130,6 +130,8 @@ public class App {
 			dc.getWPs().add(new Waypoint("Jura", 47.647479, 9.224010));
 			dc.getWPs().add(new Waypoint("Entry", 47.642586, 9.213739));
 			dc.getWPs().add(new Waypoint("WP-1", 47.642816, 9.216398));
+
+			dc.setNotes(createDemoNodes());
 		}
 
 		Thread collectorThread = new DemoDataCollectThread(dc);
@@ -145,5 +147,18 @@ public class App {
 
 		collectorThread.start();
 
+	}
+
+	private static String createDemoNodes() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<html>");
+		sb.append("<p>Dive Notes</p>");
+		sb.append("<table cellspacing=0 cellpadding=0>");
+		sb.append("<tr><td>32m-25</td><td>36m-60</td></tr>");
+		sb.append("<tr><td>18m-1</td><td>9m-9</td></tr>");
+		sb.append("<tr><td>15m-4</td><td>6m-14</td></tr>");
+		sb.append("<tr><td>12m-5</td><td>3m-29</td></tr>");
+		sb.append("</table></html>");
+		return sb.toString();
 	}
 }

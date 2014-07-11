@@ -19,29 +19,36 @@ public class DefaultController {
 
 	private final Collection<Waypoint> wps = new LinkedList<Waypoint>();
 
-	public Collection<Waypoint> getWPs() {
-		return wps;
-	}
-
-	/**
-	 * O
-	 * 
-	 * @return the record
-	 */
-	public List<DiveData> getRecord() {
-		return record;
-	}
+	private String notes = "";
 
 	private DiveData currentRecord = new DiveData();
 
-	/**
-	 * @return the currentRecord
-	 */
-	public DiveData getCurrentRecordClone() {
-		return currentRecord.clone();
-	}
-
 	private Logger log = LoggerFactory.getLogger(DefaultController.class);
+
+	/**
+	 * Set to true when the first time below 1.5m
+	 */
+	private boolean isDiving = false;
+
+	/**
+	 * Timestamp of first time below 1.5m
+	 */
+	private long diveStartTimestamp = 0;
+
+	/**
+	 * Timer if diver is up again: First timestamp above 1m depth.
+	 */
+	private long onSurfaceSinceTimestamp = 0;
+
+	/**
+	 * Overall time on surface after the dive started.
+	 */
+	private long overallSurfaceTime = 0;
+
+	private final StructuralIntegrityController structuralIntegrityController = new StructuralIntegrityController();
+
+	protected PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(
+			this);
 
 	public DefaultController() {
 
@@ -79,26 +86,59 @@ public class DefaultController {
 		recordThread.start();
 	}
 
-	private void updateDiveProfile() {
-		firePropertyChange(DiveDataProperties.PROP_UPDATEPROFILE, null, record);
+	protected void firePropertyChange(String propertyName, Object oldValue,
+			Object newValue) {
+		propertyChangeSupport.firePropertyChange(propertyName, oldValue,
+				newValue);
 	}
 
 	/**
-	 * Set to true when the first time below 1.5m
+	 * @return the currentRecord
 	 */
-	private boolean isDiving = false;
+	public DiveData getCurrentRecordClone() {
+		return currentRecord.clone();
+	}
+
 	/**
-	 * Timestamp of first time below 1.5m
+	 * @return the notes
 	 */
-	private long diveStartTimestamp = 0;
+	public String getNotes() {
+		return notes;
+	}
+
 	/**
-	 * Timer if diver is up again: First timestamp above 1m depth.
+	 * O
+	 * 
+	 * @return the record
 	 */
-	private long onSurfaceSinceTimestamp = 0;
+	public List<DiveData> getRecord() {
+		return record;
+	}
+
+	public Collection<Waypoint> getWPs() {
+		return wps;
+	}
+
+	public void registerControllerPropertyChangeListener(
+			PropertyChangeListener listener) {
+		propertyChangeSupport.addPropertyChangeListener(listener);
+	}
+
+	public void registerModelPropertyListener(PropertyChangeListener pcl) {
+		currentRecord.addPropertyChangeListener(pcl);
+	}
+
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		propertyChangeSupport.removePropertyChangeListener(listener);
+	}
+
 	/**
-	 * Overall time on surface after the dive started.
+	 * @param course
+	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setCourse(int)
 	 */
-	private long overallSurfaceTime = 0;
+	public void setCourse(int course) {
+		currentRecord.setCourse(course);
+	}
 
 	/**
 	 * @param depth
@@ -136,24 +176,17 @@ public class DefaultController {
 		currentRecord.setDepth(depth);
 	}
 
-	/**
-	 * @param course
-	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setCourse(int)
-	 */
-	public void setCourse(int course) {
-		currentRecord.setCourse(course);
+	public void setGGA(String message) {
+		currentRecord.setGga(message);
 	}
 
 	/**
-	 * @param temperature
-	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setTemperature(float)
+	 * @param humidity
+	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setHumidity(float)
 	 */
-	public void setTemperature(float temperature) {
-		currentRecord.setTemperature(temperature);
-
+	public void setHumidity(int humidity) {
+		currentRecord.setHumidity(humidity);
 	}
-
-	private final StructuralIntegrityController structuralIntegrityController = new StructuralIntegrityController();
 
 	/**
 	 * @param integrity
@@ -166,6 +199,15 @@ public class DefaultController {
 	}
 
 	/**
+	 * @param notes
+	 *            the notes to set
+	 */
+	public void setNotes(String notes) {
+		firePropertyChange(DiveDataProperties.PROP_NOTES, this.notes, notes);
+		this.notes = notes;
+	}
+
+	/**
 	 * @param inclination
 	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setInclination(int)
 	 */
@@ -173,12 +215,17 @@ public class DefaultController {
 		currentRecord.setPitch(pitch);
 	}
 
+	public void setSpeed(int speed) {
+		currentRecord.setSpeed(speed);
+	}
+
 	/**
-	 * @param humidity
-	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setHumidity(float)
+	 * @param temperature
+	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setTemperature(float)
 	 */
-	public void setHumidity(int humidity) {
-		currentRecord.setHumidity(humidity);
+	public void setTemperature(float temperature) {
+		currentRecord.setTemperature(temperature);
+
 	}
 
 	/**
@@ -189,33 +236,8 @@ public class DefaultController {
 		currentRecord.setVoltage(f);
 	}
 
-	public void setSpeed(int speed) {
-		currentRecord.setSpeed(speed);
+	private void updateDiveProfile() {
+		firePropertyChange(DiveDataProperties.PROP_UPDATEPROFILE, null, record);
 	}
 
-	public void registerModelPropertyListener(PropertyChangeListener pcl) {
-		currentRecord.addPropertyChangeListener(pcl);
-	}
-
-	protected PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(
-			this);
-
-	public void registerControllerPropertyChangeListener(
-			PropertyChangeListener listener) {
-		propertyChangeSupport.addPropertyChangeListener(listener);
-	}
-
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		propertyChangeSupport.removePropertyChangeListener(listener);
-	}
-
-	protected void firePropertyChange(String propertyName, Object oldValue,
-			Object newValue) {
-		propertyChangeSupport.firePropertyChange(propertyName, oldValue,
-				newValue);
-	}
-
-	public void setGGA(String message) {
-		currentRecord.setGga(message);
-	}
 }
