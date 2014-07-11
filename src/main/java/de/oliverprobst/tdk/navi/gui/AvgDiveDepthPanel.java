@@ -21,6 +21,7 @@ public class AvgDiveDepthPanel extends JPanel implements PropertyChangeListener 
 
 	private final JLabel lblAvgDownTime;
 	private final JLabel lblAvg10 = new JLabel("0.0 ");
+
 	/**
 	 * ctor
 	 */
@@ -30,27 +31,26 @@ public class AvgDiveDepthPanel extends JPanel implements PropertyChangeListener 
 		GridBagLayout gbl = new GridBagLayout();
 		this.setLayout(gbl);
 
-		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0d, 0.0d,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				new Insets(0, 0, 0, 0), 2, 2);
+		GridBagConstraints gbc = new GridBagConstraints(0, 0, 2, 1, 1.0d, 0.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
+						0, 0, 0, 0), 2, 2);
 
 		lblAvgDownTime = new JLabel("0");
 		layout.layoutMinorLabel(lblAvgDownTime);
 		this.add(lblAvgDownTime, gbc);
 
 		gbc = new GridBagConstraints(0, 1, 1, 1, 1.0d, 0.0d,
-				GridBagConstraints.EAST, GridBagConstraints.BOTH,
-				new Insets(2, 0, 0, 3),0, 0);
+				GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(2,
+						0, 0, 3), 0, 0);
 
-		JLabel lblDesc = new JLabel("<html>avg. ↓<br/>∅↓ 10m</html>"); 
+		JLabel lblDesc = new JLabel("<html>avg↓<br/>↓10m</html>");
 		layout.layoutTinyDescriptionLabel(lblDesc);
 		this.add(lblDesc, gbc);
 
 		gbc = new GridBagConstraints(1, 1, 1, 1, 0.0d, 0.0d,
-				GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
+				GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
 				new Insets(0, 0, 0, 3), 2, 2);
 
-		
 		layout.layoutMicroLabel(lblAvg10);
 		this.add(lblAvg10, gbc);
 	}
