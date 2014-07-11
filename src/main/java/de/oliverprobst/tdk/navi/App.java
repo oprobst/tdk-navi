@@ -154,10 +154,10 @@ public class App {
 		sb.append("<html>");
 		sb.append("<p><b>Dive Notes</b></p>");
 		sb.append("<table cellspacing=0 cellpadding=0>");
-		sb.append("<tr><td>32m-25 &nbsp;</td> <td>36m-60</td></tr>");
-		sb.append("<tr><td>18m-1</td><td>9m-9</td></tr>");
-		sb.append("<tr><td>15m-4</td><td>6m-14</td></tr>");
-		sb.append("<tr><td>12m-5</td><td>3m-29</td></tr>");
+		sb.append("<tr><td>32m-25min &nbsp;</td> <td>36m-60min</td></tr>");
+		sb.append("<tr><td>18m-1min</td><td>9m-9min</td></tr>");
+		sb.append("<tr><td>15m-4min</td><td>6m-14min</td></tr>");
+		sb.append("<tr><td>12m-5min</td><td>3m-29min</td></tr>");
 		sb.append("</table></html>");
 		return sb.toString();
 	}
