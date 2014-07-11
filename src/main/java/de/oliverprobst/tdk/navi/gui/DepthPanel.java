@@ -20,6 +20,11 @@ public class DepthPanel extends JPanel implements PropertyChangeListener {
 	private static final long serialVersionUID = -5013078838389083700L;
 
 	private final JLabel lblDepth;
+	private final JLabel lblMaxDepth;
+
+	private float maximum = 0;
+
+	DecimalFormat twoDForm = new DecimalFormat("#0.00");
 
 	/**
 	 * ctor
@@ -42,22 +47,31 @@ public class DepthPanel extends JPanel implements PropertyChangeListener {
 				GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0,
 						0, 0, 0), 0, 0);
 
-		JLabel lblDesc = new JLabel("Depth");
-		layout.layoutDescriptionLabel(lblDesc);
-		this.add(lblDesc, gbc);
+		lblMaxDepth = new JLabel("0.0m");
+		layout.layoutMicroLabel(lblMaxDepth);
+		this.add(lblMaxDepth, gbc);
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_DEPTH)) {
-			this.setDepth((Float) evt.getNewValue());
+			float depth = (Float) evt.getNewValue();
+			this.setDepth(depth);
+			setMax(depth);
 		}
 	}
 
-	DecimalFormat twoDForm = new DecimalFormat("#0.00");
-
-	private void setDepth(float newValue) {	 
-
+	private void setDepth(float newValue) {
 		lblDepth.setText(twoDForm.format(newValue) + " m");
+	}
+
+	private void setMax(float value) {
+		if (value > maximum) {
+			maximum = value;
+
+			DecimalFormat twoDForm = new DecimalFormat("#0.0");
+
+			lblMaxDepth.setText("max " + twoDForm.format(value) + " m");
+		}
 	}
 
 }
