@@ -6,6 +6,9 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JLabel;
@@ -25,6 +28,8 @@ public class DiveTimePanel extends JPanel implements PropertyChangeListener {
 	private final JLabel lblSurfacetime;
 
 	private final Layouter layout;
+	
+	private final JLabel lblClock;
 
 	/**
 	 * ctor
@@ -50,9 +55,9 @@ public class DiveTimePanel extends JPanel implements PropertyChangeListener {
 				GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0,
 						0, 0, 3), 2, 2);
 
-		JLabel lblDesc = new JLabel("Divetime");
-		layout.layoutDescriptionLabel(lblDesc);
-		this.add(lblDesc, gbc);
+		lblClock = new JLabel("0:00");
+		layout.layoutMicroLabel(lblClock);
+		this.add(lblClock, gbc);
 
 		gbc = new GridBagConstraints(0, 1, 1, 1, 1.0d, 0.0d,
 				GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0,
@@ -71,6 +76,11 @@ public class DiveTimePanel extends JPanel implements PropertyChangeListener {
 				DiveDataProperties.PROP_SURFACETIME)) {
 			this.setSurfaceTime((Long) evt.getNewValue());
 		}
+		Date time = new Date();
+		DateFormat formatter = new SimpleDateFormat("HH:mm");
+		
+		lblClock.setText(formatter.format(time));
+
 	}
 
 	private void setDiveTime(Long newValue) {
@@ -91,9 +101,10 @@ public class DiveTimePanel extends JPanel implements PropertyChangeListener {
 				TimeUnit.MILLISECONDS.toSeconds(newValue)
 						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
 								.toMinutes(newValue)));
-		lblSurfacetime.setText("↷ " + surfaceTime);
+		lblSurfacetime.setText("⇝ " + surfaceTime);
 		lblSurfacetime.setForeground(new Color(50, 255, 50));
 
+		
 	}
 
 }
