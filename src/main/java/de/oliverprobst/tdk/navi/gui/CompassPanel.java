@@ -35,7 +35,7 @@ public class CompassPanel extends JPanel implements PropertyChangeListener {
 
 		GridBagConstraints gbc = new GridBagConstraints(0, 0, 3, 1, 1.0d, 0.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
-						0, 0, 0, 0), 2, 2);
+						0, 0, 0, 0), 0, 0);
 
 		lblCourse = new JLabel("");
 		layout.layoutMajorLabel(lblCourse);
@@ -43,7 +43,7 @@ public class CompassPanel extends JPanel implements PropertyChangeListener {
 
 		gbc = new GridBagConstraints(0, 1, 1, 1, 0.0d, 0.0d,
 				GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0,
-						0, 0, 0), 2, 2);
+						0, 0, 0), 0, 0);
 
 		JLabel lblDescr = new JLabel("      ");
 		layout.layoutDescriptionLabel(lblDescr);
@@ -51,7 +51,7 @@ public class CompassPanel extends JPanel implements PropertyChangeListener {
 
 		gbc = new GridBagConstraints(1, 1, 1, 1, 1.0d, 0.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
-						0, 0, 0, 0), 2, 2);
+						0, 0, 0, 0), 0, 0);
 
 		lblCompass = new JLabel("-| 350° | 000° | 010° |-");
 		layout.layoutMicroLabel(lblCompass);
@@ -59,7 +59,7 @@ public class CompassPanel extends JPanel implements PropertyChangeListener {
 
 		gbc = new GridBagConstraints(2, 1, 1, 1, 0.0d, 0.0d,
 				GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0,
-						0, 0, 0), 2, 2);
+						0, 0, 5), 5, 0);
 
 		lblCompassReturn = new JLabel("180°");
 		layout.layoutMicroLabel(lblCompassReturn);

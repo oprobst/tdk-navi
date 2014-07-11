@@ -45,7 +45,7 @@ public class DiveTimePanel extends JPanel implements PropertyChangeListener {
 
 		GridBagConstraints gbc = new GridBagConstraints(0, 0, 2, 1, 1.0d, 1.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
-						0, 0, 0, 0), 2, 2);
+						0, 0, 0, 0), 2, 0);
 
 		lblDivetime = new JLabel("0:00");
 		layout.layoutMajorLabel(lblDivetime);
@@ -53,7 +53,7 @@ public class DiveTimePanel extends JPanel implements PropertyChangeListener {
 
 		gbc = new GridBagConstraints(1, 1, 1, 1, 1.0d, 0.0d,
 				GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0,
-						0, 0, 3), 2, 2);
+						0, 0, 3), 2, 0);
 
 		lblClock = new JLabel("0:00");
 		layout.layoutMicroLabel(lblClock);
@@ -61,7 +61,7 @@ public class DiveTimePanel extends JPanel implements PropertyChangeListener {
 
 		gbc = new GridBagConstraints(0, 1, 1, 1, 1.0d, 0.0d,
 				GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0,
-						2, 0, 0), 2, 2);
+						2, 0, 0), 2, 0);
 
 		lblSurfacetime = new JLabel("⇝ 0:00");
 		layout.layoutMicroLabel(lblSurfacetime);

@@ -143,7 +143,7 @@ public class Layouter implements Serializable {
 		this.layoutLabel(label);
 		label.setBackground(BACKGROUND);
 		label.setForeground(Color.WHITE);
-		label.setFont(label.getFont().deriveFont(18.0f));
+		label.setFont(label.getFont().deriveFont(17.0f));
 
 	}
 

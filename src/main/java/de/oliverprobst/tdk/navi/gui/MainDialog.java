@@ -52,7 +52,7 @@ public class MainDialog extends JFrame {
 
 		GridBagConstraints gbc = new GridBagConstraints(0, 0, 2, 1, 1.0d, 0.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-				new Insets(0, 0, 0, 0), 2, 2);
+				new Insets(0, 0, 0, 0), 0, 1);
 
 		JPanel topPanel = new JPanel();
 		layouter.layout(topPanel);
@@ -79,7 +79,7 @@ public class MainDialog extends JFrame {
 
 		gbc = new GridBagConstraints(0, 2, 2, 1, 0.0d, 0.15d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-						0, 0, 0, 0), 2, 2);
+						0, 0, 0, 0), 2, 1);
 
 		JPanel bottomPanel = new JPanel();
 		layouter.layout(bottomPanel);
@@ -237,7 +237,7 @@ public class MainDialog extends JFrame {
 
 		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.25d,
 				1.0d, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				defInsets, 2, 2);
+				defInsets, 2, 0);
 
 		DepthPanel depthPanel = new DepthPanel(layouter);
 
@@ -247,7 +247,7 @@ public class MainDialog extends JFrame {
 
 		gbc = new GridBagConstraints(1, 0, 1, 1, 0.5d, 1.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
-				15, 2);
+				15, 0);
 
 		CompassPanel compassPanel = new CompassPanel(layouter);
 
@@ -257,7 +257,7 @@ public class MainDialog extends JFrame {
 
 		gbc = new GridBagConstraints(2, 0, 1, 1, 0.25d, 1.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
-				15, 2);
+				15, 0);
 
 		DiveTimePanel diveTimePanel = new DiveTimePanel(layouter);
 
