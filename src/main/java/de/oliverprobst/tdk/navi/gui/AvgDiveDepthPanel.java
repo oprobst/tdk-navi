@@ -38,15 +38,15 @@ public class AvgDiveDepthPanel extends JPanel implements PropertyChangeListener 
 		layout.layoutMinorLabel(lblAvgDownTime);
 		this.add(lblAvgDownTime, gbc);
 
-		gbc = new GridBagConstraints(0, 2, 1, 1, 1.0d, 0.0d,
+		gbc = new GridBagConstraints(0, 1, 1, 1, 1.0d, 0.0d,
 				GridBagConstraints.EAST, GridBagConstraints.BOTH,
-				new Insets(0, 0, 0, 3), 2, 2);
+				new Insets(2, 0, 0, 3),0, 0);
 
-		JLabel lblDesc = new JLabel("Avg ↓");
-		layout.layoutDescriptionLabel(lblDesc);
+		JLabel lblDesc = new JLabel("<html>avg. ↓<br/>∅↓ 10m</html>"); 
+		layout.layoutTinyDescriptionLabel(lblDesc);
 		this.add(lblDesc, gbc);
 
-		gbc = new GridBagConstraints(0, 1, 1, 1, 0.0d, 0.0d,
+		gbc = new GridBagConstraints(1, 1, 1, 1, 0.0d, 0.0d,
 				GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
 				new Insets(0, 0, 0, 3), 2, 2);
 
@@ -65,13 +65,13 @@ public class AvgDiveDepthPanel extends JPanel implements PropertyChangeListener 
 	long curAvgCount = 1;
 	float curAvg10 = 0;
 	long curAvgCount10 = 1;
-	DecimalFormat depthFormat = new DecimalFormat("#.#");
+	DecimalFormat depthFormat = new DecimalFormat("0.0");
 
 	private void setNewValue(float newValue) {
 		curAvg = (curAvg * curAvgCount + newValue) / ++curAvgCount;
 		if (newValue > 10) {
 			curAvg10 = (curAvg10 * curAvgCount10 + newValue) / ++curAvgCount10;
-			lblAvg10.setText(depthFormat.format(curAvg10) + " ↓10");
+			lblAvg10.setText(depthFormat.format(curAvg10));
 		}
 		lblAvgDownTime.setText(depthFormat.format(curAvg) + " m");
 	}

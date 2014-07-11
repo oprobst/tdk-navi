@@ -31,7 +31,7 @@ public class MaxDepthPanel extends JPanel implements PropertyChangeListener {
 		this.setLayout(gbl);
 
 		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0d, 0.0d,
-				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
 						0, 0, 0, 0), 2, 2);
 
 		lblMaxDepth = new JLabel("");
@@ -39,11 +39,11 @@ public class MaxDepthPanel extends JPanel implements PropertyChangeListener {
 		this.add(lblMaxDepth, gbc);
 
 		gbc = new GridBagConstraints(0, 1, 1, 1, 0.0d, 0.0d,
-				GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0,
-						0, 0, 3), 2, 2);
+				GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(0,
+						0, 0, 3), 0, 0);
 
 		JLabel lblDesc = new JLabel("↥ max");
-		layout.layoutDescriptionLabel(lblDesc);
+		layout.layoutTinyDescriptionLabel(lblDesc);
 		this.add(lblDesc, gbc);
 
 	}

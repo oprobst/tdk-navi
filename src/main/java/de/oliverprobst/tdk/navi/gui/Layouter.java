@@ -80,7 +80,13 @@ public class Layouter implements Serializable {
 
 	public void layout(JPanel panel) {
 
-		 panel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+		layout(panel, true);
+	}
+
+	public void layout(JPanel panel, boolean border) {
+		if (border) {
+			panel.setBorder(BorderFactory.createLineBorder(new Color (50,50,60)));
+		}
 		panel.setBackground(BACKGROUND);
 
 	}
@@ -109,13 +115,13 @@ public class Layouter implements Serializable {
 
 	public void layoutTinyDescriptionLabel(JLabel label) {
 		this.layoutLabel(label);
-		label.setFont(label.getFont().deriveFont(8.0f));
+		label.setFont(label.getFont().deriveFont(9.0f));
 		label.setForeground(new Color(180, 180, 255));
 	}
-	
+
 	public void layoutTinyLabel(JLabel label) {
 		this.layoutLabel(label);
-		label.setFont(label.getFont().deriveFont(8.0f));
+		label.setFont(label.getFont().deriveFont(9.0f));
 		label.setForeground(Color.WHITE);
 	}
 

@@ -152,9 +152,9 @@ public class App {
 	private static String createDemoNodes() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<html>");
-		sb.append("<p>Dive Notes</p>");
+		sb.append("<p><b>Dive Notes</b></p>");
 		sb.append("<table cellspacing=0 cellpadding=0>");
-		sb.append("<tr><td>32m-25</td><td>36m-60</td></tr>");
+		sb.append("<tr><td>32m-25 &nbsp;</td> <td>36m-60</td></tr>");
 		sb.append("<tr><td>18m-1</td><td>9m-9</td></tr>");
 		sb.append("<tr><td>15m-4</td><td>6m-14</td></tr>");
 		sb.append("<tr><td>12m-5</td><td>3m-29</td></tr>");
