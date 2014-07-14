@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:de:oliverprobst:tdk:navi:configuration:1.0"
+	xmlns:tns="urn:de:oliverprobst:tdk:navi:configuration:1.0" elementFormDefault="qualified"
+	xmlns:jxb="http://java.sun.com/xml/ns/jaxb" jxb:version="2.0">
+
+	<!-- -->
+	<!-- Parent configuration element -->
+	<!-- -->
+	<element name="config">
+		<annotation>
+			<appinfo>
+				<jxb:class name="Configuration" />
+			</appinfo>
+			<documentation>This is the configuration for the TDK Navigation System.
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="maps" type="tns:mapSet" minOccurs="0" maxOccurs="unbounded">
+					<annotation>
+						<documentation>List of all maps available for navigation.
+						</documentation>
+					</annotation>
+				</element>
+			</sequence>
+			<attribute name="notes" type="string" use="optional">
+				<annotation>
+					<documentation>The text file containing the html formatted dive notes.
+					</documentation>
+				</annotation>
+			</attribute>
+		</complexType>
+	</element>
+
+	<complexType name="mapSet">
+		<sequence>
+			<element name="waypoints" type="tns:waypoint">
+				<annotation>
+					<documentation>List of all waypoints in map.
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+		<attribute name="image" type="string">
+			<annotation>
+				<documentation>The image containing the map.
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="nw-latitude" type="string">
+			<annotation>
+				<documentation>Latitude of the NW corner.
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="nw-longitude" type="string">
+			<annotation>
+				<documentation>Longitude of the NW corner.
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="se-latitude" type="string">
+			<annotation>
+				<documentation>Latitude of the SE corner.
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="se-longitude" type="string">
+			<annotation>
+				<documentation>Longitude of the SE corner.
+				</documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+
+	<complexType name="waypoint">
+
+		<annotation>
+			<documentation>List of all waypoints in map.
+			</documentation>
+		</annotation>
+		<attribute name="id" type="ID">
+			<annotation>
+				<documentation>Name of the waypoint
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="latitude" type="string">
+			<annotation>
+				<documentation>Latitude of the SE corner.
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="longitude" type="string">
+			<annotation>
+				<documentation>Longitude of the SE corner.
+				</documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+
+</schema>
