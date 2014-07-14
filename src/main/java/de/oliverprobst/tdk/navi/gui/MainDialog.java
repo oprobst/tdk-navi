@@ -37,7 +37,7 @@ public class MainDialog extends JFrame {
 		super();
 		this.dc = dc;
 		this.setSize(640, 480);
-		this.setLocation(100, 100);
+		this.setLocation(000, 000);
 		this.layouter.layout(this.getContentPane());
 		this.setResizable(false);
 		this.setUndecorated(true);
@@ -196,7 +196,7 @@ public class MainDialog extends JFrame {
 
 	
 
-		gbc = new GridBagConstraints(0, 4, 1, 1, 0.0d, 0.0d,
+		gbc = new GridBagConstraints(0, 4, 1, 1, 0.0d, 1.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 				defInsets, 0, 0);
 
@@ -206,7 +206,7 @@ public class MainDialog extends JFrame {
 		panel.add(speedPanel, gbc);
 		dc.registerModelPropertyListener(speedPanel);
 
-		gbc = new GridBagConstraints(1, 4, 1, 1, 0.0d, 0.0d,
+		gbc = new GridBagConstraints(1, 4, 1, 1, 0.0d, 0.1d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 				defInsets, 0, 0);
 
@@ -216,7 +216,7 @@ public class MainDialog extends JFrame {
 		panel.add(pitchPanel, gbc);
 		dc.registerModelPropertyListener(pitchPanel);
 		
-		gbc = new GridBagConstraints(0, 5, 2, 1, 0.0d, 0.0d,
+		gbc = new GridBagConstraints(0, 5, 2, 1, 0.0d, 1.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 				defInsets, 0, 0);
 

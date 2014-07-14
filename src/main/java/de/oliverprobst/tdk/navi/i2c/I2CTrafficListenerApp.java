@@ -39,6 +39,7 @@ public class I2CTrafficListenerApp {
 				.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 
 					public void uncaughtException(Thread t, Throwable e) {
+						e.printStackTrace();
 						log.error("Thread " + t + " ended unexpectedly with a "
 								+ e.getCause().getClass(), e);
 						try {
@@ -46,6 +47,7 @@ public class I2CTrafficListenerApp {
 						} catch (InterruptedException e1) {
 							log.error("Thread sleep interrupted!", e1);
 						}
+						e.printStackTrace();
 						t.start();
 					}
 				});
@@ -53,10 +55,10 @@ public class I2CTrafficListenerApp {
 		collectorThread.start();
 
 		while (true) {
-			log.info("Wait to process " +incoming.size() +" messages.");
+			log.info("Wait to process " + incoming.size() + " messages.");
 			if (incoming.isEmpty()) {
 				try {
-					Thread.sleep(100);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					log.error("Thread sleep interrupted!", e);
 				}
@@ -66,7 +68,6 @@ public class I2CTrafficListenerApp {
 
 		}
 	}
- 
 
 	private static void handle(I2CPackage msg) {
 		log.info("--- New Message ------------------------- buffer size ="

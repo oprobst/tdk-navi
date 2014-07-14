@@ -1,7 +1,7 @@
 tdk-navi
 ========
 
-Submarine Navigation System developed for www.tief-dunkel-kalt.de.
+Submarine Navigation System developed for www.tief-dunkel-kalt.org.
 
 
 Implementation of a submarine computer showing relevant data during the dive.

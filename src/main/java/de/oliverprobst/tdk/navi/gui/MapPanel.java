@@ -43,7 +43,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 		ClassLoader classloader = Thread.currentThread()
 				.getContextClassLoader();
-		InputStream is = classloader.getResourceAsStream("demoMap.png");
+		InputStream is = classloader.getResourceAsStream("demoMap2.png");
 
 		try {
 			image = ImageIO.read(is);

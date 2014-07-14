@@ -33,15 +33,15 @@ public class PitchPanel extends JPanel implements PropertyChangeListener {
 		GridBagLayout gbl = new GridBagLayout();
 		this.setLayout(gbl);
 
-		GridBagConstraints gbc = new GridBagConstraints(0, 0, 2, 1, 0.0d, 0.0d,
-				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
+		GridBagConstraints gbc = new GridBagConstraints(0, 0, 2, 1, 0.0d, 1.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 				new Insets(0, 0, 0, 0), 2, 2);
 		hpanel.setPreferredSize(new Dimension(60, 60));
 		layout.layout(hpanel, false);
 		this.add(hpanel, gbc);
 
 		gbc = new GridBagConstraints(1, 1, 1, 1, 0.0d, 0.0d,
-				GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
+				GridBagConstraints.EAST, GridBagConstraints.BOTH,
 				new Insets(0, 0, 0, 2), 2, 2);
 
 		JLabel lblDesc = new JLabel("Pitch");
@@ -49,7 +49,7 @@ public class PitchPanel extends JPanel implements PropertyChangeListener {
 		this.add(lblDesc, gbc);
 
 		gbc = new GridBagConstraints(0, 1, 1, 1, 0.0d, 0.0d,
-				GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
+				GridBagConstraints.EAST, GridBagConstraints.BOTH,
 				new Insets(0, 6, 0, 1), 2, 2);
 
 		layout.layoutTinyLabel(lblPitch);

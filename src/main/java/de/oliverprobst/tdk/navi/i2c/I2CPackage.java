@@ -71,9 +71,10 @@ public class I2CPackage {
 		this.message = b;
 	}
 
-	public byte getReceivedChecksum() throws IllegalArgumentException {
-
-		return message[message.length - 1];
+	public int getReceivedChecksum() throws IllegalArgumentException {
+		int checksum_A = message[message.length - 2];
+		int checksum_B = message[message.length - 1];
+		return ((int) checksum_A + 256) + (int) checksum_B;
 
 	}
 
@@ -104,28 +105,11 @@ public class I2CPackage {
 		return out;
 	}
 
-	private String getSum(String in) {
-		int checksum = 0;
-		if (in.startsWith("$")) {
-			in = in.substring(1, in.length());
-		}
-
-		int end = in.indexOf('*');
-		if (end == -1)
-			end = in.length();
-		for (int i = 0; i < end; i++) {
-			checksum = checksum ^ in.charAt(i);
-		}
-		String hex = Integer.toHexString(checksum);
-		if (hex.length() == 1)
-			hex = "0" + hex;
-		return hex.toUpperCase();
-	}
-
-	public byte getCalculatedCheckSum() {
+	public int getCalculatedCheckSum() {
 
 		int pos = 0;
-		int checksum = 0;
+		int checksum_A = 0;
+		int checksum_B = 0;
 
 		boolean foundTermination = false;
 		do {
@@ -135,14 +119,20 @@ public class I2CPackage {
 				break;
 
 			}
-			checksum = checksum ^ message[pos];
-
+			checksum_A = checksum_A + message[pos];
+			checksum_B = checksum_B + checksum_A;
 		} while (pos++ < message.length);
 
 		if (!foundTermination) {
-			throw new IllegalArgumentException(
-					"Payload is not terminated by a 0x42 byte.");
+			return -1;
 		}
-		return (byte) checksum;
+		return ((int) checksum_A + 256) + (int) checksum_B;
 	}
+
+	/*
+	 * void calcChecksum(byte *checksumPayload, byte payloadSize) { byte CK_A =
+	 * 0, CK_B = 0; for (int i = 0; i < payloadSize; i++) { CK_A = CK_A +
+	 * *checksumPayload; CK_B = CK_B + CK_A; checksumPayload++; }checksumPayload
+	 * = CK_A; checksumPayload++;checksumPayload = CK_B; }
+	 */
 }

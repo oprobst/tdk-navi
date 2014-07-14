@@ -122,14 +122,22 @@ public class App {
 			// NW 4739.018/00912.710
 			// SE 4738.541/00913.672
 
-			hc.setNwCorner(47.649500, 9.21120);
-			hc.setSeCorner(47.641400, 9.22675);
+			//JURA
+			//hc.setNwCorner(47.649500, 9.21120);
+			//hc.setSeCorner(47.641400, 9.22675);
+			//Gernsbach
+			hc.setNwCorner(48.769124, 8.328957);
+			hc.setSeCorner(48.765872, 8.335494);
 			hc.calculateDimension();
 
-			// Demo WPs
-			dc.getWPs().add(new Waypoint("Jura", 47.647479, 9.224010));
-			dc.getWPs().add(new Waypoint("Entry", 47.642586, 9.213739));
-			dc.getWPs().add(new Waypoint("WP-1", 47.642816, 9.216398));
+			// Demo WPs JURA
+			//dc.getWPs().add(new Waypoint("Jura", 47.647479, 9.224010));
+			//dc.getWPs().add(new Waypoint("Entry", 47.642586, 9.213739));
+			//dc.getWPs().add(new Waypoint("WP-1", 47.642816, 9.216398));
+               
+			dc.getWPs().add(new Waypoint("F.H.-Brücke", 48.769217, 8.334448));
+			dc.getWPs().add(new Waypoint("Spielplatz",  48.766862, 8.333186));
+			dc.getWPs().add(new Waypoint("Sitzbank",  48.769010, 8.330950));
 
 			dc.setNotes(createDemoNodes());
 		}

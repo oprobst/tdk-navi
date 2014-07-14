@@ -41,8 +41,8 @@ public class SpeedPanel extends JPanel implements PropertyChangeListener {
 		GridBagLayout gbl = new GridBagLayout();
 		this.setLayout(gbl);
 
-		GridBagConstraints gbc = new GridBagConstraints(0, 0, 2, 1, 0.0d, 0.0d,
-				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
+		GridBagConstraints gbc = new GridBagConstraints(0, 0, 2, 1, 0.0d, 1.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 				new Insets(0, 0, 0, 0), 2, 2);
 
 		ChartPanel panel = createDial(layout);
@@ -50,7 +50,7 @@ public class SpeedPanel extends JPanel implements PropertyChangeListener {
 
 		
 		gbc = new GridBagConstraints(1, 1, 1, 1, 0.0d, 0.0d,
-		GridBagConstraints.SOUTHEAST, GridBagConstraints.VERTICAL, new
+		GridBagConstraints.SOUTHEAST, GridBagConstraints.BOTH, new
 		 Insets(0, 0, 0, 3), 2, 2);
 		 
 		JLabel lblDesc = new JLabel("Speed");

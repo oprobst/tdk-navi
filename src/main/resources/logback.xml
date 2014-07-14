@@ -24,7 +24,7 @@
 	</appender>
 
 
-	<logger name="de.oliverprobst" level="DEBUG" additivity="false">
+	<logger name="de.oliverprobst" level="INFO" additivity="false">
 		<appender-ref ref="FILE" />
 		<appender-ref ref="STDOUT" />
 	</logger>

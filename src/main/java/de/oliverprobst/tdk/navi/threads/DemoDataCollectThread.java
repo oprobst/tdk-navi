@@ -96,11 +96,17 @@ public class DemoDataCollectThread extends Thread {
 		}
 	}
 
-	
-	double lastGPSLat = 4738.554; // = 47.642586 
-	double lastGPSLong = 912.825; // = 009.213739
+	//jura
+	//double lastGPSLat = 4738.554; // = 47.642586 
+	//double lastGPSLong = 912.825; // = 009.213739
 
+	//Gernsbach
+	double lastGPSLat =  4846.134; 
+	double lastGPSLong = 819.860; 
+	
 	/**
+	 * GPGGA,,,,,,0,00,99.99,,,,,,*48
+	 * GPGGA,175918.00,,,,,0,03,6.25,,,,,,*57E
 	 * 
 	 */
 	private void writeGPS() {
