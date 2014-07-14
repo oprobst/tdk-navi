@@ -16,7 +16,7 @@
 		</annotation>
 		<complexType>
 			<sequence>
-				<element name="maps" type="tns:mapSet" minOccurs="0" maxOccurs="unbounded">
+				<element name="map" type="tns:naviMap" minOccurs="0" maxOccurs="unbounded">
 					<annotation>
 						<documentation>List of all maps available for navigation.
 						</documentation>
@@ -32,7 +32,7 @@
 		</complexType>
 	</element>
 
-	<complexType name="mapSet">
+	<complexType name="naviMap">
 		<sequence>
 			<element name="waypoints" type="tns:waypoint">
 				<annotation>
@@ -47,25 +47,25 @@
 				</documentation>
 			</annotation>
 		</attribute>
-		<attribute name="nw-latitude" type="string">
+		<attribute name="nw-latitude" type="double">
 			<annotation>
 				<documentation>Latitude of the NW corner.
 				</documentation>
 			</annotation>
 		</attribute>
-		<attribute name="nw-longitude" type="string">
+		<attribute name="nw-longitude" type="double">
 			<annotation>
 				<documentation>Longitude of the NW corner.
 				</documentation>
 			</annotation>
 		</attribute>
-		<attribute name="se-latitude" type="string">
+		<attribute name="se-latitude" type="double">
 			<annotation>
 				<documentation>Latitude of the SE corner.
 				</documentation>
 			</annotation>
 		</attribute>
-		<attribute name="se-longitude" type="string">
+		<attribute name="se-longitude" type="double">
 			<annotation>
 				<documentation>Longitude of the SE corner.
 				</documentation>
@@ -79,19 +79,19 @@
 			<documentation>List of all waypoints in map.
 			</documentation>
 		</annotation>
-		<attribute name="id" type="ID">
+		<attribute name="id" type="string">
 			<annotation>
 				<documentation>Name of the waypoint
 				</documentation>
 			</annotation>
 		</attribute>
-		<attribute name="latitude" type="string">
+		<attribute name="latitude" type="double">
 			<annotation>
 				<documentation>Latitude of the SE corner.
 				</documentation>
 			</annotation>
 		</attribute>
-		<attribute name="longitude" type="string">
+		<attribute name="longitude" type="double">
 			<annotation>
 				<documentation>Longitude of the SE corner.
 				</documentation>
