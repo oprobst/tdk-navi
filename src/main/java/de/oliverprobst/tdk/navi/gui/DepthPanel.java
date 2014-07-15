@@ -21,7 +21,7 @@ public class DepthPanel extends JPanel implements PropertyChangeListener {
 
 	private final JLabel lblDepth;
 	private final JLabel lblMaxDepth;
-
+	private final JLabel lblAvgDepth;
 	private float maximum = 0;
 
 	DecimalFormat twoDForm = new DecimalFormat("#0.00");
@@ -35,7 +35,7 @@ public class DepthPanel extends JPanel implements PropertyChangeListener {
 		GridBagLayout gbl = new GridBagLayout();
 		this.setLayout(gbl);
 
-		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0d, 1.0d,
+		GridBagConstraints gbc = new GridBagConstraints(0, 0, 2, 1, 1.0d, 1.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
 						0, 0, 0, 0), 0, 0);
 
@@ -44,18 +44,28 @@ public class DepthPanel extends JPanel implements PropertyChangeListener {
 		this.add(lblDepth, gbc);
 
 		gbc = new GridBagConstraints(0, 1, 1, 1, 1.0d, 0.0d,
+				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0,
+						0, 0, 0), 0, 0);
+
+		lblMaxDepth = new JLabel("↓ 0.0m");
+		layout.layoutMicroLabel(lblMaxDepth);
+		this.add(lblMaxDepth, gbc);
+
+		gbc = new GridBagConstraints(1, 1, 1, 1, 1.0d, 0.0d,
 				GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0,
 						0, 0, 0), 0, 0);
 
-		lblMaxDepth = new JLabel("0.0m");
-		layout.layoutMicroLabel(lblMaxDepth);
-		this.add(lblMaxDepth, gbc);
+		lblAvgDepth = new JLabel("∅ 0.0m");
+		layout.layoutMicroLabel(lblAvgDepth);
+		this.add(lblAvgDepth, gbc);
+
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_DEPTH)) {
 			float depth = (Float) evt.getNewValue();
 			this.setDepth(depth);
+			this.setAvg(depth);
 			setMax(depth);
 		}
 	}
@@ -68,10 +78,28 @@ public class DepthPanel extends JPanel implements PropertyChangeListener {
 		if (value > maximum) {
 			maximum = value;
 
-			DecimalFormat twoDForm = new DecimalFormat("#0.0");
-
-			lblMaxDepth.setText("max " + twoDForm.format(value) + " m");
+			DecimalFormat twoDForm = new DecimalFormat("0.0");
+			lblMaxDepth.setText("↥ " + twoDForm.format(value) + ""); // ↥
 		}
+	}
+
+	float curAvg = 0;
+	long curAvgCount = 1;
+	float curAvg10 = 0;
+	long curAvgCount10 = 1;
+	DecimalFormat depthFormat = new DecimalFormat("0.0");
+
+	private void setAvg(float newValue) {
+		curAvg = (curAvg * curAvgCount + newValue) / ++curAvgCount;
+		String avg = "∅:" + depthFormat.format(curAvg) + "";
+
+		if (newValue > 10) {
+			curAvg10 = (curAvg10 * curAvgCount10 + newValue) / ++curAvgCount10;
+
+			avg += ( " ∅↓:"+ depthFormat.format(curAvg10) + "");
+
+		}
+		lblAvgDepth.setText(avg);
 	}
 
 }
