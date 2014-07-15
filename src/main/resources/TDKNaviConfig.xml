@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns="urn:de:oliverprobst:tdk:navi:configuration:1.0">
+	<!-- Navigation System configuration file -->
+
+	<settings>
+		<demomode>true</demomode>
+		<notes>Dive Notes</notes>
+	</settings>
+
+	<map id="Gernsbach" image="${user.home}/tdk-navi/gernsbach.png">
+		<northwest longitude="8.328957" latitude="48.769124" />
+		<southeast longitude="8.335494" latitude="48.765872" />
+		<waypoint longitude="8.334448" latitude="48.769217" id="F.H.-Brücke" />
+		<waypoint longitude="8.333186" latitude="48.766862" id="Spielplatz" />
+		<waypoint longitude="8.330950" latitude="48.769010" id="Sitzbank" />
+	</map>
+
+	<map image="demoMap.png" id="demo">
+		<northwest latitude="47.649500" longitude="9.21120" />
+		<southeast latitude="47.641400" longitude="9.22675" />
+		<waypoint id="Jura" latitude="47.647479" longitude="9.224010" />
+		<waypoint id="Entry" latitude="47.642586" longitude="9.213739" />
+		<waypoint id="WP-1" latitude="47.642816" longitude="9.216398" />
+	</map>
+
+</config> 

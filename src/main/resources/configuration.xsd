@@ -16,6 +16,14 @@
 		</annotation>
 		<complexType>
 			<sequence>
+				<element name="settings" type="tns:Settings" minOccurs="1"
+					maxOccurs="1">
+					<annotation>
+						<documentation>Application parameter
+						</documentation>
+					</annotation>
+				</element>
+
 				<element name="map" type="tns:naviMap" minOccurs="0" maxOccurs="unbounded">
 					<annotation>
 						<documentation>List of all maps available for navigation.
@@ -23,20 +31,35 @@
 					</annotation>
 				</element>
 			</sequence>
-			<attribute name="notes" type="string" use="optional">
-				<annotation>
-					<documentation>The text file containing the html formatted dive notes.
-					</documentation>
-				</annotation>
-			</attribute>
 		</complexType>
 	</element>
 
+	<complexType name="Settings">
+		<sequence>
+			<element name="demomode" type="boolean" default="false" minOccurs="0" />
+			<element name="notes" type="string" />
+		</sequence>
+	</complexType>
+
+
+
 	<complexType name="naviMap">
 		<sequence>
-			<element name="waypoints" type="tns:waypoint">
+			<element name="northwest" type="tns:corner">
 				<annotation>
-					<documentation>List of all waypoints in map.
+					<documentation>north west corner of the map
+					</documentation>
+				</annotation>
+			</element>
+			<element name="southeast" type="tns:corner">
+				<annotation>
+					<documentation>south east corner of the map
+					</documentation>
+				</annotation>
+			</element>
+			<element name="waypoint" type="tns:waypoint">
+				<annotation>
+					<documentation>A waypoint in the map.
 					</documentation>
 				</annotation>
 			</element>
@@ -47,30 +70,13 @@
 				</documentation>
 			</annotation>
 		</attribute>
-		<attribute name="nw-latitude" type="double">
+		<attribute name="id" type="ID" use="required">
 			<annotation>
-				<documentation>Latitude of the NW corner.
+				<documentation>Unique name of the map
 				</documentation>
 			</annotation>
 		</attribute>
-		<attribute name="nw-longitude" type="double">
-			<annotation>
-				<documentation>Longitude of the NW corner.
-				</documentation>
-			</annotation>
-		</attribute>
-		<attribute name="se-latitude" type="double">
-			<annotation>
-				<documentation>Latitude of the SE corner.
-				</documentation>
-			</annotation>
-		</attribute>
-		<attribute name="se-longitude" type="double">
-			<annotation>
-				<documentation>Longitude of the SE corner.
-				</documentation>
-			</annotation>
-		</attribute>
+
 	</complexType>
 
 	<complexType name="waypoint">
@@ -79,24 +85,48 @@
 			<documentation>List of all waypoints in map.
 			</documentation>
 		</annotation>
-		<attribute name="id" type="string">
+		<attribute name="id" type="string" use="required">
 			<annotation>
 				<documentation>Name of the waypoint
 				</documentation>
 			</annotation>
 		</attribute>
-		<attribute name="latitude" type="double">
+
+		<attribute name="latitude" type="double" use="required">
 			<annotation>
 				<documentation>Latitude of the SE corner.
 				</documentation>
 			</annotation>
 		</attribute>
-		<attribute name="longitude" type="double">
+		<attribute name="longitude" type="double" use="required">
 			<annotation>
 				<documentation>Longitude of the SE corner.
 				</documentation>
 			</annotation>
 		</attribute>
+
+	</complexType>
+
+	<complexType name="corner">
+
+		<annotation>
+			<documentation>Map Corner
+			</documentation>
+		</annotation>
+		<attribute name="latitude" type="double" use="required">
+			<annotation>
+				<documentation>Latitude of the SE corner.
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="longitude" type="double" use="required">
+			<annotation>
+				<documentation>Longitude of the SE corner.
+				</documentation>
+			</annotation>
+		</attribute>
+
+
 	</complexType>
 
 </schema>

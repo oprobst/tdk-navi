@@ -4,6 +4,8 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -13,6 +15,10 @@ import javax.swing.JFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.oliverprobst.tdk.navi.config.Configuration;
+import de.oliverprobst.tdk.navi.config.loader.ConfigurationFactory;
+import de.oliverprobst.tdk.navi.config.loader.ConfigurationFailureException;
+import de.oliverprobst.tdk.navi.config.loader.ConfigurationLoader;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.dto.Waypoint;
 import de.oliverprobst.tdk.navi.gui.DemoDialog;
@@ -37,12 +43,13 @@ public class App {
 
 		Locale.setDefault(Locale.US); // TODO : Misusage of Decimal converter
 										// forces that. FIXIT!
+
+		Configuration config = loadConfiguration();
+
 		DefaultController dc = new DefaultController();
 		md = new MainDialog(dc);
 
-		String demomode = System
-				.getProperty("de.oliverprobst.tdk.navi.demomode");
-		boolean isDemoMode = Boolean.getBoolean(demomode);
+		boolean isDemoMode = config.getSettings().isDemomode();
 
 		if (isDemoMode) {
 			runInDemoMode(dc);
@@ -56,6 +63,23 @@ public class App {
 				runInDemoMode(dc);
 			}
 		}
+	}
+
+	/**
+	 * @return Configuration read from home/user/TDKNaviConfig.xml
+	 */
+	private static Configuration loadConfiguration() {
+		String fileName = "${user.home}" + File.separator + "TDKNaviConfig.xml";
+		Configuration config = null;
+		ConfigurationLoader cl = ConfigurationFactory.getConfigurationLoader();
+		try {
+			config = cl.loadConfig(fileName);
+		} catch (IOException e) {
+			log.error("Failed to load configuration file " + fileName, e);
+		} catch (ConfigurationFailureException e) {
+			log.error("Failed to load configuration file " + fileName, e);
+		}
+		return config;
 	}
 
 	private static DataProcessingThread dataProcessingThread = null;
@@ -122,22 +146,22 @@ public class App {
 			// NW 4739.018/00912.710
 			// SE 4738.541/00913.672
 
-			//JURA
-			//hc.setNwCorner(47.649500, 9.21120);
-			//hc.setSeCorner(47.641400, 9.22675);
-			//Gernsbach
+			// JURA
+			// hc.setNwCorner(47.649500, 9.21120);
+			// hc.setSeCorner(47.641400, 9.22675);
+			// Gernsbach
 			hc.setNwCorner(48.769124, 8.328957);
 			hc.setSeCorner(48.765872, 8.335494);
 			hc.calculateDimension();
 
 			// Demo WPs JURA
-			//dc.getWPs().add(new Waypoint("Jura", 47.647479, 9.224010));
-			//dc.getWPs().add(new Waypoint("Entry", 47.642586, 9.213739));
-			//dc.getWPs().add(new Waypoint("WP-1", 47.642816, 9.216398));
-               
+			// dc.getWPs().add(new Waypoint("Jura", 47.647479, 9.224010));
+			// dc.getWPs().add(new Waypoint("Entry", 47.642586, 9.213739));
+			// dc.getWPs().add(new Waypoint("WP-1", 47.642816, 9.216398));
+
 			dc.getWPs().add(new Waypoint("F.H.-Brücke", 48.769217, 8.334448));
-			dc.getWPs().add(new Waypoint("Spielplatz",  48.766862, 8.333186));
-			dc.getWPs().add(new Waypoint("Sitzbank",  48.769010, 8.330950));
+			dc.getWPs().add(new Waypoint("Spielplatz", 48.766862, 8.333186));
+			dc.getWPs().add(new Waypoint("Sitzbank", 48.769010, 8.330950));
 
 			dc.setNotes(createDemoNodes());
 		}
