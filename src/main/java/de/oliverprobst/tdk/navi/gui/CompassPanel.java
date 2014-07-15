@@ -95,7 +95,8 @@ public class CompassPanel extends JPanel implements PropertyChangeListener {
 		if (retCourse < 0) {
 			retCourse = 360 + retCourse;
 		}
-		lblCompassReturn.setText("↩ " +retCourse + "°");
+
+		lblCompassReturn.setText("↩ " + courseFormat.format(retCourse));
 	}
 
 	private String calculateCourseString(int course) {
