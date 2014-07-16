@@ -143,6 +143,8 @@ public class App {
 
 	private static void runInDemoMode(DefaultController dc, Configuration config) {
 
+		md.setLocation(100, 100);
+
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment()
 				.getDefaultScreenDevice();
 		int height = gd.getDisplayMode().getHeight();

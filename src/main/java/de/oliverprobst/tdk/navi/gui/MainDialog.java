@@ -14,7 +14,6 @@ import javax.swing.JPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.oliverprobst.tdk.navi.config.Configuration;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.dto.DiveData;
 import de.oliverprobst.tdk.navi.dto.StructuralIntegrity.Status;
@@ -40,7 +39,7 @@ public class MainDialog extends JFrame {
 		super();
 		this.dc = dc;
 		this.setSize(640, 480);
-		this.setLocation(000, 000);
+		this.setLocation(0, 0);
 		this.layouter.layout(this.getContentPane());
 		this.setResizable(false);
 		this.setUndecorated(true);
