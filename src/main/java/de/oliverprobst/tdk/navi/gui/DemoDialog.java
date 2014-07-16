@@ -66,7 +66,8 @@ public class DemoDialog extends JFrame {
 				+ "<td><b>e</b> : </td><td>Left </td><td> <b>d:</b> </td><td>Right </td></tr>"
 				+ "<td><b>r</b> : </td><td>check GPS antenna  </td><td></td><td></td></tr>"
 				+ "<td><b>+</b> : </td><td>Speed + </td><td> <b>- :</b></td><td>Speed - </td></tr>"
-				+ "<td><b>pgDown</b> : </td><td>pitch - </td><td> <b>pgUp</b>: </td><td>pitch + </td></tr>"
+				+ "<td><b>pgDown</b> : </td><td>pitch down </td><td> <b>pgUp</b>: </td><td>pitch up </td></tr>"
+				+ "<td><b>home</b> : </td><td>pitch left </td><td> <b>end</b>: </td><td>pitch right </td></tr>"
 				+ "<td><b>t</b> : </td><td>Stern leak </td><td><b>g</b>: </td><td>Bow leak</td></tr>"
 				+ "<td><b>z</b> : </td><td>Hull pressure + </td><td>  <b>h</b>: </td><td>Hull pressure - </td></tr>"
 				+ "<td><b>f</b> : </td><td>reset leak detection</td><td></td><td></td></tr></table></html>";
