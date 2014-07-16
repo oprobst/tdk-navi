@@ -6,6 +6,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -16,11 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.oliverprobst.tdk.navi.config.Configuration;
+import de.oliverprobst.tdk.navi.config.NaviMap;
 import de.oliverprobst.tdk.navi.config.loader.ConfigurationFactory;
 import de.oliverprobst.tdk.navi.config.loader.ConfigurationFailureException;
 import de.oliverprobst.tdk.navi.config.loader.ConfigurationLoader;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
-import de.oliverprobst.tdk.navi.dto.Waypoint;
 import de.oliverprobst.tdk.navi.gui.DemoDialog;
 import de.oliverprobst.tdk.navi.gui.MainDialog;
 import de.oliverprobst.tdk.navi.i2c.I2CPackage;
@@ -29,7 +30,7 @@ import de.oliverprobst.tdk.navi.threads.DemoDataCollectThread;
 import de.oliverprobst.tdk.navi.threads.I2CDataCollectThread;
 
 /**
- * Hello world!
+ *  
  *
  */
 public class App {
@@ -47,22 +48,36 @@ public class App {
 		Configuration config = loadConfiguration();
 
 		DefaultController dc = new DefaultController();
-		md = new MainDialog(dc);
 
 		boolean isDemoMode = config.getSettings().isDemomode();
 
+		NaviMap useMap = (NaviMap) config.getSettings().getForcemap();
+		if (useMap == null) {
+			useMap = determineMapByGPS();
+		}
+
+		configureApp(dc, config, useMap);
+
+		md = new MainDialog(dc);
+
 		if (isDemoMode) {
-			runInDemoMode(dc);
+			runInDemoMode(dc, config);
 		} else {
+
 			try {
-				startDataCollect(dc);
+				startDataCollect(dc, config);
 			} catch (Throwable e) {
 				log.error(
 						"Could not start data collection thread. Going to demo mode. Reason: "
 								+ e.getMessage(), e);
-				runInDemoMode(dc);
+				runInDemoMode(dc, config);
 			}
 		}
+	}
+
+	private static NaviMap determineMapByGPS() {
+		log.error("Not implemented yet.");
+		return null;
 	}
 
 	/**
@@ -74,10 +89,19 @@ public class App {
 		ConfigurationLoader cl = ConfigurationFactory.getConfigurationLoader();
 		try {
 			config = cl.loadConfig(fileName);
-		} catch (IOException e) {
+		} catch (IOException | ConfigurationFailureException e) {
 			log.error("Failed to load configuration file " + fileName, e);
-		} catch (ConfigurationFailureException e) {
-			log.error("Failed to load configuration file " + fileName, e);
+		}
+		if (config == null) {
+			log.info("Found no configuration file. Using internal default configuration.");
+			try {
+				InputStream is = App.class
+						.getResourceAsStream("/TDKNaviConfig.xml");
+				config = cl.loadConfig(is);
+			} catch (IOException | ConfigurationFailureException e) {
+				throw new RuntimeException(
+						"Could not load internal configuration file.", e);
+			}
 		}
 		return config;
 	}
@@ -85,8 +109,8 @@ public class App {
 	private static DataProcessingThread dataProcessingThread = null;
 	private static I2CDataCollectThread collectorThread = null;
 
-	private static void startDataCollect(final DefaultController dc)
-			throws Exception {
+	private static void startDataCollect(final DefaultController dc,
+			final Configuration config) throws Exception {
 
 		collectorThread = new I2CDataCollectThread(incoming);
 		dataProcessingThread = new DataProcessingThread(incoming, dc);
@@ -106,7 +130,7 @@ public class App {
 						e);
 
 				log.info("Entering DEMO Mode due to previous exception.");
-				runInDemoMode(dc);
+				runInDemoMode(dc, config);
 			}
 		};
 
@@ -117,7 +141,7 @@ public class App {
 		dataProcessingThread.start();
 	}
 
-	private static void runInDemoMode(DefaultController dc) {
+	private static void runInDemoMode(DefaultController dc, Configuration config) {
 
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment()
 				.getDefaultScreenDevice();
@@ -139,33 +163,6 @@ public class App {
 			md.requestFocus();
 		}
 
-		HaversineConverter hc = HaversineConverter.getInstance();
-		if (hc.getSeCornerLat() == 0) {
-			// Demo map
-			// SW 4738.541/00912.710
-			// NW 4739.018/00912.710
-			// SE 4738.541/00913.672
-
-			// JURA
-			// hc.setNwCorner(47.649500, 9.21120);
-			// hc.setSeCorner(47.641400, 9.22675);
-			// Gernsbach
-			hc.setNwCorner(48.769124, 8.328957);
-			hc.setSeCorner(48.765872, 8.335494);
-			hc.calculateDimension();
-
-			// Demo WPs JURA
-			// dc.getWPs().add(new Waypoint("Jura", 47.647479, 9.224010));
-			// dc.getWPs().add(new Waypoint("Entry", 47.642586, 9.213739));
-			// dc.getWPs().add(new Waypoint("WP-1", 47.642816, 9.216398));
-
-			dc.getWPs().add(new Waypoint("F.H.-Brücke", 48.769217, 8.334448));
-			dc.getWPs().add(new Waypoint("Spielplatz", 48.766862, 8.333186));
-			dc.getWPs().add(new Waypoint("Sitzbank", 48.769010, 8.330950));
-
-			dc.setNotes(createDemoNodes());
-		}
-
 		Thread collectorThread = new DemoDataCollectThread(dc);
 		collectorThread
 				.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
@@ -179,6 +176,29 @@ public class App {
 
 		collectorThread.start();
 
+	}
+
+	/**
+	 * @param dc
+	 * @param config
+	 * @param demoMap
+	 */
+	private static void configureApp(DefaultController dc,
+			Configuration config, NaviMap map) {
+		HaversineConverter hc = HaversineConverter.getInstance();
+
+		hc.setNwCorner(map.getNorthwest().getLatitude(), map.getNorthwest()
+				.getLongitude());
+		hc.setSeCorner(map.getSoutheast().getLatitude(), map.getSoutheast()
+				.getLongitude());
+		hc.calculateDimension();
+
+		for (de.oliverprobst.tdk.navi.config.Waypoint wp : map.getWaypoint()) {
+			dc.getWPs().add(wp);
+		}
+
+		dc.setNotes(config.getSettings().getNotes());
+		dc.setMapImage(map.getImage());
 	}
 
 	private static String createDemoNodes() {

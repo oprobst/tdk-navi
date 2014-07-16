@@ -48,7 +48,7 @@ public class NotesPanel extends JPanel implements PropertyChangeListener {
 	}
 
 	public void setNotes(String notes) {
-		lblNotes.setText(notes);
+		lblNotes.setText(notes.trim());
 	}
 
 }

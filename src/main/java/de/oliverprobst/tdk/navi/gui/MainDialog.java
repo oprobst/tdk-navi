@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.oliverprobst.tdk.navi.config.Configuration;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.dto.DiveData;
 import de.oliverprobst.tdk.navi.dto.StructuralIntegrity.Status;
@@ -32,6 +33,8 @@ public class MainDialog extends JFrame {
 
 	/**
 	 * ctor
+	 * 
+	 * @param config
 	 */
 	public MainDialog(DefaultController dc) {
 		super();
@@ -155,8 +158,8 @@ public class MainDialog extends JFrame {
 		dc.registerModelPropertyListener(gpsPanel);
 
 		gbc = new GridBagConstraints(0, 1, 1, 1, 1.0d, 1.0d,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				defInsets, 0, 0);
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
+				0, 0);
 
 		MaxDepthPanel maxDepthPanel = new MaxDepthPanel(layouter);
 
@@ -165,8 +168,8 @@ public class MainDialog extends JFrame {
 		dc.registerModelPropertyListener(maxDepthPanel);
 
 		gbc = new GridBagConstraints(1, 1, 1, 1, 1.0d, 1.0d,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				defInsets, 0, 0);
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
+				0, 0);
 
 		LastFixPanel lastFixPanel = new LastFixPanel(layouter);
 
@@ -175,8 +178,8 @@ public class MainDialog extends JFrame {
 		dc.registerModelPropertyListener(lastFixPanel);
 
 		gbc = new GridBagConstraints(0, 2, 1, 1, 1.0d, 1.0d,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				defInsets, 0, 0);
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
+				0, 0);
 
 		TemperaturePanel temperaturePanel = new TemperaturePanel(layouter);
 
@@ -185,8 +188,8 @@ public class MainDialog extends JFrame {
 		dc.registerModelPropertyListener(temperaturePanel);
 
 		gbc = new GridBagConstraints(1, 2, 1, 1, 1.0d, 1.0d,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				defInsets, 0, 0);
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
+				0, 0);
 
 		AvgDiveDepthPanel averageDepthPanel = new AvgDiveDepthPanel(layouter);
 
@@ -194,11 +197,9 @@ public class MainDialog extends JFrame {
 		panel.add(averageDepthPanel, gbc);
 		dc.registerModelPropertyListener(averageDepthPanel);
 
-	
-
 		gbc = new GridBagConstraints(0, 4, 1, 1, 0.0d, 1.0d,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				defInsets, 0, 0);
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
+				0, 0);
 
 		SpeedPanel speedPanel = new SpeedPanel(layouter);
 
@@ -207,20 +208,20 @@ public class MainDialog extends JFrame {
 		dc.registerModelPropertyListener(speedPanel);
 
 		gbc = new GridBagConstraints(1, 4, 1, 1, 0.0d, 0.1d,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				defInsets, 0, 0);
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
+				0, 0);
 
 		PitchPanel pitchPanel = new PitchPanel(layouter);
 
 		gbl.setConstraints(pitchPanel, gbc);
 		panel.add(pitchPanel, gbc);
 		dc.registerModelPropertyListener(pitchPanel);
-		
-		gbc = new GridBagConstraints(0, 5, 2, 1, 0.0d, 1.0d,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				defInsets, 0, 0);
 
-		NotesPanel notesPanel = new NotesPanel(layouter);		
+		gbc = new GridBagConstraints(0, 5, 2, 1, 0.0d, 1.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
+				0, 0);
+
+		NotesPanel notesPanel = new NotesPanel(layouter);
 		gbl.setConstraints(notesPanel, gbc);
 		panel.add(notesPanel, gbc);
 		dc.registerControllerPropertyChangeListener(notesPanel);
@@ -235,7 +236,7 @@ public class MainDialog extends JFrame {
 		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0d, 1.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
 				0, 0);
-		MapPanel mapPanel = new MapPanel(dc.getWPs());
+		MapPanel mapPanel = new MapPanel(dc.getWPs(), dc.getMapImage());
 		panel.add(mapPanel, gbc);
 		dc.registerModelPropertyListener(mapPanel);
 

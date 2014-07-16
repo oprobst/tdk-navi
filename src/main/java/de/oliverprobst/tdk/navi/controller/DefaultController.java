@@ -9,9 +9,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.oliverprobst.tdk.navi.config.Waypoint;
 import de.oliverprobst.tdk.navi.dto.DiveData;
 import de.oliverprobst.tdk.navi.dto.StructuralIntegrity;
-import de.oliverprobst.tdk.navi.dto.Waypoint;
 
 public class DefaultController {
 
@@ -20,6 +20,22 @@ public class DefaultController {
 	private final Collection<Waypoint> wps = new LinkedList<Waypoint>();
 
 	private String notes = "";
+
+	private String mapImage = "";
+	
+	/**
+	 * @return the mapImage
+	 */
+	public String getMapImage() {
+		return mapImage;
+	}
+
+	/**
+	 * @param mapImage the mapImage to set
+	 */
+	public void setMapImage(String mapImage) {
+		this.mapImage = mapImage;
+	}
 
 	private DiveData currentRecord = new DiveData();
 

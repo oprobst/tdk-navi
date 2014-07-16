@@ -38,6 +38,7 @@
 		<sequence>
 			<element name="demomode" type="boolean" default="false" minOccurs="0" />
 			<element name="notes" type="string" />
+			<element name="forcemap" type="IDREF" minOccurs="0" />
 		</sequence>
 	</complexType>
 
@@ -57,19 +58,20 @@
 					</documentation>
 				</annotation>
 			</element>
-			<element name="waypoint" type="tns:waypoint">
+			<element name="waypoint" type="tns:waypoint" minOccurs="0" maxOccurs="unbounded">
 				<annotation>
 					<documentation>A waypoint in the map.
 					</documentation>
 				</annotation>
 			</element>
 		</sequence>
-		<attribute name="image" type="string">
+		<attribute name="image" type="string" use="required">
 			<annotation>
 				<documentation>The image containing the map.
 				</documentation>
 			</annotation>
 		</attribute>
+
 		<attribute name="id" type="ID" use="required">
 			<annotation>
 				<documentation>Unique name of the map

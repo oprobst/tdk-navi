@@ -4,10 +4,20 @@
 
 	<settings>
 		<demomode>true</demomode>
-		<notes>Dive Notes</notes>
+		<notes>
+     <![CDATA[<html>
+		<p><b>Dive Notes</b></p>
+		<table cellspacing=0 cellpadding=0>
+		<tr><td>32m-25min &nbsp;</td> <td>36m-60min</td></tr>
+		<tr><td>18m-1min</td><td>9m-9min</td></tr>
+		<tr><td>15m-4min</td><td>6m-14min</td></tr>
+		<tr><td>12m-5min</td><td>3m-29min</td></tr>
+		</table></html>]]>
+		</notes>
+		<forcemap>demo</forcemap>
 	</settings>
 
-	<map id="Gernsbach" image="${user.home}/tdk-navi/gernsbach.png">
+	<map id="Gernsbach" image="${user.home}/tdk-navi/Gernsbach.png">
 		<northwest longitude="8.328957" latitude="48.769124" />
 		<southeast longitude="8.335494" latitude="48.765872" />
 		<waypoint longitude="8.334448" latitude="48.769217" id="F.H.-Brücke" />
@@ -15,7 +25,7 @@
 		<waypoint longitude="8.330950" latitude="48.769010" id="Sitzbank" />
 	</map>
 
-	<map image="demoMap.png" id="demo">
+	<map id="demo" image="${intern}/demoMap.png">
 		<northwest latitude="47.649500" longitude="9.21120" />
 		<southeast latitude="47.641400" longitude="9.22675" />
 		<waypoint id="Jura" latitude="47.647479" longitude="9.224010" />

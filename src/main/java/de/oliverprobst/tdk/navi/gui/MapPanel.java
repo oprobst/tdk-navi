@@ -8,6 +8,9 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -16,12 +19,15 @@ import java.util.Collection;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.oliverprobst.tdk.navi.HaversineConverter;
 import de.oliverprobst.tdk.navi.NmeaParser;
+import de.oliverprobst.tdk.navi.config.Waypoint;
 import de.oliverprobst.tdk.navi.controller.DiveDataProperties;
 import de.oliverprobst.tdk.navi.dto.StructuralIntegrity;
 import de.oliverprobst.tdk.navi.dto.StructuralIntegrity.Status;
-import de.oliverprobst.tdk.navi.dto.Waypoint;
 
 /**
  * 
@@ -33,17 +39,38 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 	 * 
 	 */
 	private static final long serialVersionUID = -1775948240481194745L;
+	private static Logger log = LoggerFactory.getLogger(MapPanel.class);
 
 	private BufferedImage image;
 	int lastCourse = 0;
 	ArrayList<Point> locations = new ArrayList<Point>();
 
-	public MapPanel(Collection<Waypoint> wps) {
+	public MapPanel(Collection<Waypoint> wps, String imageLocation) {
 		this.wps = wps;
 
-		ClassLoader classloader = Thread.currentThread()
-				.getContextClassLoader();
-		InputStream is = classloader.getResourceAsStream("demoMap.png");
+		final String internPrefix = "${intern}";
+		InputStream is = null;
+
+		// delivered with jar:
+		if (imageLocation.trim().startsWith(internPrefix)) {
+			imageLocation = imageLocation.trim().replace(internPrefix, "");
+			log.info("Loading internal map " + imageLocation);
+			is = MapPanel.class.getResourceAsStream(imageLocation);
+		} else {
+			// loaded from file system
+			imageLocation = imageLocation.replaceAll("\\$\\{user.home\\}",
+					System.getProperty("user.home"));
+			File file = new File(imageLocation);
+			log.info("Loading external map " + imageLocation);
+			try {
+				is = new FileInputStream(file);
+			} catch (FileNotFoundException e) {
+				throw new RuntimeException("Error loading file "
+						+ file.getAbsolutePath());
+
+			}
+
+		}
 
 		try {
 			image = ImageIO.read(is);
@@ -83,10 +110,10 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 						location.y);
 			}
 			lastLocation = location;
-			if (i > locations.size() - 50){
+			if (i > locations.size() - 50) {
 				stepSize = 1;
 			}
-		}		
+		}
 		lastLocation = locations.get(locations.size() - 1);
 		drawArrow(g, lastLocation.x, lastLocation.y);
 
@@ -106,7 +133,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			int bearing = -1;
 			if (lastLongitude != 0) {
 				distance = hc.calculateDistance(lastLatitude, lastLongitude,
-						 wp.getLatitude(), wp.getLongitude());
+						wp.getLatitude(), wp.getLongitude());
 				bearing = hc.calculateBearing(lastLatitude, lastLongitude,
 						wp.getLatitude(), wp.getLongitude());
 			}
@@ -120,7 +147,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 			g.setColor(new Color(0, 0, 255));
 			g.setFont(new Font("Dialog", Font.BOLD, 10));
-			g.drawString(wp.getName(), loc.x + 6, loc.y);
+			g.drawString(wp.getId(), loc.x + 6, loc.y);
 			if (bearing >= 0) {
 				g.drawString(bearing + " °", loc.x + 6, loc.y + 10);
 			}
