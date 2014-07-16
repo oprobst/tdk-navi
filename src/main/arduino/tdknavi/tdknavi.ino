@@ -5,16 +5,16 @@
  *
  * Support for all sensors to collect and aggregate data and send to processing unit.
  *
- * "The Arduino use a hard coded I2C buffer size of 32 bytes.
+ * "The Arduino use a hard coded I2C sensorBuffer size of 32 bytes.
  * If you send more than 32 bytes the Arduino will crash and you need to power cycle the board!
- *  I changed the buffer size from 32 bytes to 96 bytes, by editing those Arduino library files (make sure the Arduino IDE is closed):
+ *  I changed the sensorBuffer size from 32 bytes to 96 bytes, by editing those Arduino library files (make sure the Arduino IDE is closed):
  *
  *
  *  utility/twi.h:
- *  #define TWI_BUFFER_LENGTH 96 (was 32)
+ *  #define TWI_sensorBuffer_LENGTH 96 (was 32)
  *
  *  wire.h:
- * #define BUFFER_LENGTH 96 (was 32)
+ * #define sensorBuffer_LENGTH 96 (was 32)
  *
  * Recompile your sketch and reupload it. "
  * From http://neophob.com/2013/04/i2c-communication-between-a-rpi-and-a-arduino/
@@ -22,12 +22,18 @@
  */
 #include <SoftwareSerial.h>
 #include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_HMC5883_U.h>
+#include <LiquidCrystal.h>
+
+LiquidCrystal lcd(2, 3, 7, 6, 5, 4);
+
+Adafruit_HMC5883_Unified mag = Adafruit_HMC5883_Unified(12345);
 
 //GPS Communication Constants
 #define RX_PIN_GPS 9
 #define TX_PIN_GPS 8
 SoftwareSerial gpsSerial = SoftwareSerial(RX_PIN_GPS, TX_PIN_GPS);
-#define GPS_SERIAL_SPEED 9600
 
 // I2C Constants
 #define ARDUINO_ADDR 0x04
@@ -35,20 +41,25 @@ SoftwareSerial gpsSerial = SoftwareSerial(RX_PIN_GPS, TX_PIN_GPS);
 
 // Serial port
 #define SERIAL_SPEED 9600
-#define DEBUG true
+#define DEBUG false
+#define DEBUG_LCD true
 
 //current sensor buffer
-const int BUFFER_SIZE = 2;
-const int MAX_MSG_SIZE = 90;
-byte buffer[BUFFER_SIZE][MAX_MSG_SIZE];
+const short BUFFER_SIZE = 2;
+const short MAX_MSG_SIZE = 80;
 short currBufferSize = -1;
 short currReadBufferIdx = 0;
 short currWriteBufferIdx = -1;
+byte sensorBuffer[BUFFER_SIZE][MAX_MSG_SIZE];
 
 /*
  * Main setup routine
  */
 void setup() {
+  lcd.begin(16, 2);
+  lcd.print("Tief Dunkel Kalt");
+  lcd.setCursor(0, 1);
+  lcd.print("Init Navi...");
 
   if (DEBUG)
     Serial.begin(9600);
@@ -57,88 +68,211 @@ void setup() {
   configureGPS();
 
   pinMode(12, OUTPUT);
-  pinMode(6, OUTPUT);
-  pinMode(6, OUTPUT);
   digitalWrite(10, LOW);
-  digitalWrite(6, HIGH);
 
+  lcd.clear();
+  mag.begin();
   if (DEBUG)
     Serial.println("Setup done.");
 }
 
-boolean complete = false;
 
 /*
  * Main loop
  */
 void loop() {
-  delay (50);
-  int currentByteCount = 0;
-  complete = false;
-  while (!complete) {
+  delay (30);
+   short lastWritePos = 0;
+  unsigned long lastGPS = 0;
+if (millis() - lastGPS > 1000) {
+    lastGPS = millis();
+    //once per second
+    prepareNextBuffer ();
+    lastWritePos = collectGPSData(sensorBuffer[currWriteBufferIdx]);
+    calcChecksum(&sensorBuffer[currWriteBufferIdx][3], lastWritePos - 3);
+    sendLastBuffer ();
+  }
 
-    if (gpsSerial.available()) {
+  prepareNextBuffer ();
+  lastWritePos = collectCompassData(sensorBuffer[currWriteBufferIdx]);
+  calcChecksum(&sensorBuffer[currWriteBufferIdx][3], lastWritePos - 3);
+  sendLastBuffer ();
 
-      char in = gpsSerial.read();
+  prepareNextBuffer ();
+  lastWritePos = collectLeakData(sensorBuffer[currWriteBufferIdx]);
+  calcChecksum(&sensorBuffer[currWriteBufferIdx][3], lastWritePos - 3);
+  while (lastWritePos++ < MAX_MSG_SIZE -1) {
+          sensorBuffer[currWriteBufferIdx][lastWritePos] = '%';
+    }
+  sendLastBuffer ();
 
-      //Detected a new GPS String:
-      if (in == '$') {
+  //collectCompassData(sensorBuffer[currWriteBufferIdx]);
 
-        // increase buffer size and update to next index.
-        currBufferSize++;
-        currWriteBufferIdx++;
-        currentByteCount = 0;
+}
 
-        if (currWriteBufferIdx >= BUFFER_SIZE) {
-          currWriteBufferIdx = 0;
+// Here, the last buffer shall be send via ttl
+void sendLastBuffer () {
+  if (DEBUG) {
+    
+    Serial.write(sensorBuffer[currWriteBufferIdx], sizeof(sensorBuffer[currWriteBufferIdx])); //MAX_MSG_SIZE);
+    Serial.print("=> ");
+    Serial.println(currWriteBufferIdx);
+  }
+
+  if (DEBUG_LCD) {
+    if (sensorBuffer[currWriteBufferIdx][3] == 'a' && sensorBuffer[currWriteBufferIdx][19] == ',') {
+      lcd.setCursor (0, 0);
+      lcd.print (" ");
+      lcd.write (sensorBuffer[currWriteBufferIdx][20]);
+      lcd.write (sensorBuffer[currWriteBufferIdx][21]);
+      lcd.print ("N");
+      lcd.write (sensorBuffer[currWriteBufferIdx][22]);
+      lcd.write (sensorBuffer[currWriteBufferIdx][23]);
+      lcd.print (",");
+      lcd.write (sensorBuffer[currWriteBufferIdx][25]);
+      lcd.write (sensorBuffer[currWriteBufferIdx][26]);
+      lcd.write (sensorBuffer[currWriteBufferIdx][27]);
+      lcd.write (sensorBuffer[currWriteBufferIdx][28]);
+      lcd.setCursor (0, 1);
+      lcd.write (sensorBuffer[currWriteBufferIdx][33]);
+      lcd.write (sensorBuffer[currWriteBufferIdx][34]);
+      lcd.write (sensorBuffer[currWriteBufferIdx][35]);
+      lcd.print ("E");
+      lcd.write (sensorBuffer[currWriteBufferIdx][36]);
+      lcd.write (sensorBuffer[currWriteBufferIdx][37]);
+      lcd.print (",");
+      lcd.write (sensorBuffer[currWriteBufferIdx][39]);
+      lcd.write (sensorBuffer[currWriteBufferIdx][40]);
+      lcd.write (sensorBuffer[currWriteBufferIdx][41]);
+      lcd.write (sensorBuffer[currWriteBufferIdx][42]);
+
+    } else if (sensorBuffer[currWriteBufferIdx][3] == 'b') {
+      lcd.setCursor (13, 0);
+      lcd.write (sensorBuffer[currWriteBufferIdx][4]);
+      if (sensorBuffer[currWriteBufferIdx][5] != '.') {
+        lcd.write (sensorBuffer[currWriteBufferIdx][5]);
+        if (sensorBuffer[currWriteBufferIdx][6] != '.') {
+          lcd.write (sensorBuffer[currWriteBufferIdx][6]);
+        } else {
+          lcd.write (" ");
         }
-        if (currBufferSize >= BUFFER_SIZE) {
-          if (DEBUG)
-            Serial.println("WARN: Buffer overflow");
-          currBufferSize = 0;
-        }
-
-        // write protocol marker
-        buffer[currWriteBufferIdx][currentByteCount++] = 'T';
-        buffer[currWriteBufferIdx][currentByteCount++] = 'D';
-        buffer[currWriteBufferIdx][currentByteCount++] = 'K';
-        buffer[currWriteBufferIdx][currentByteCount++] = 'a';
-
-        //Got a new character of the gps string
-      } else if (currentByteCount > 0
-                 && currentByteCount < (MAX_MSG_SIZE - 4) && in > 31
-                 && in < 128) {
-
-        buffer[currWriteBufferIdx][currentByteCount++] = in;
+      } else {
+        lcd.write ("  ");
       }
+    } else if (sensorBuffer[currWriteBufferIdx][3] == 'c') {
 
-      // last character war a termination char
-      if (in == '*' || currentByteCount > (MAX_MSG_SIZE - 4)) {
-        calcChecksum(&buffer[currWriteBufferIdx][3],  currentByteCount - 3);
-        currentByteCount += 2;
-
-        //  while (currentByteCount < MAX_MSG_SIZE ) {
-        //   buffer[currWriteBufferIdx][currentByteCount++] = '%';
-        //   }
-
-        // byte chkS1 = gpsSerial.read();
-        // byte chkS2 = gpsSerial.read();
-
-        // buffer[currWriteBufferIdx][currentByteCount++] = chkS1;
-        // buffer[currWriteBufferIdx][currentByteCount++] = chkS2;
-        // buffer[currWriteBufferIdx][currentByteCount+3] = '\0';
-
-
-        if (DEBUG) {
-          Serial.write(buffer[currWriteBufferIdx],
-                       sizeof(buffer[currWriteBufferIdx])); //MAX_MSG_SIZE);
-          Serial.print("=> ");
-          Serial.println(currWriteBufferIdx);
-        }
-        complete = true;
+      lcd.setCursor (12, 2);
+      if (sensorBuffer[currWriteBufferIdx][6] > 47 && sensorBuffer[currWriteBufferIdx][6] < 58) {
+      
+        lcd.print ("Beer");
+      } else {
+        lcd.print (" Dry");
       }
     }
   }
+}
+
+void prepareNextBuffer() {
+  currBufferSize++;
+  currWriteBufferIdx++;
+
+  if (currWriteBufferIdx >= BUFFER_SIZE) {
+    currWriteBufferIdx = 0;
+  }
+  if (currBufferSize >= BUFFER_SIZE) {
+    if (DEBUG)
+      Serial.println("WARN: Buffer overflow");
+    currBufferSize = 0;
+  }
+
+  // write protocol marker
+  sensorBuffer[currWriteBufferIdx][0] = 'T';
+  sensorBuffer[currWriteBufferIdx][1] = 'D';
+  sensorBuffer[currWriteBufferIdx][2] = 'K';
+}
+
+
+short collectLeakData (byte sensorBuffer  []) {
+  sensorBuffer[3] = 'c';
+  int sensorValue = analogRead(A0);
+  String result = printDouble (sensorValue, 0);
+  result.getBytes(&sensorBuffer[4], 4) ;
+  sensorBuffer[7] = '*';
+  return 8;
+}
+
+short collectCompassData (byte sensorBuffer  []) {
+  
+    /* Get a new sensor event */
+  sensors_event_t event;
+  mag.getEvent(&event);
+
+  /* Display the results (magnetic vector values are in micro-Tesla (uT)) */
+  //Serial.print("X: "); Serial.print(event.magnetic.x); Serial.print("  ");
+  //Serial.print("Y: "); Serial.print(event.magnetic.y); Serial.print("  ");
+  //Serial.print("Z: "); Serial.print(event.magnetic.z); Serial.print("  "); Serial.println("uT");
+
+  // Hold the module so that Z is pointing 'up' and you can measure the heading with x&y
+  // Calculate heading when the magnetometer is level, then correct for signs of axis.
+  float heading = atan2(event.magnetic.y, event.magnetic.x);
+
+  // Once you have your heading, you must then add your 'Declination Angle', which is the 'Error' of the magnetic field in your location.
+  // Find yours here: http://www.magnetic-declination.com/
+  // Mine is: -13* 2' W, which is ~13 Degrees, or (which we need) 0.22 radians
+  // If you cannot find your Declination, comment out these two lines, your compass will be slightly off.
+  float declinationAngle = 0.22;
+  heading += declinationAngle;
+
+  // Correct for when signs are reversed.
+  if (heading < 0)
+    heading += 2 * PI;
+
+  // Check for wrap due to addition of declination.
+  if (heading > 2 * PI)
+    heading -= 2 * PI;
+
+  // Convert radians to degrees for readability.
+  float headingDegrees = heading * 180 / M_PI;
+
+  uint8_t *p = (uint8_t*)&headingDegrees;
+
+  sensorBuffer[3] = 'b';
+
+  //Serial.print("Heading (degrees): ");
+  //Serial.println(headingDegrees);
+
+  String result = printDouble (headingDegrees, 3);
+  result.getBytes(&sensorBuffer[4], 5) ;
+  sensorBuffer[8] = '*';
+  return 9;
+
+}
+
+
+short collectGPSData (byte sensorBuffer []) {
+
+  boolean started = false;
+  boolean complete = false;
+
+  short currentByteCount = 3;
+  if (gpsSerial.available()) {
+    while (!complete ) {
+      char in = gpsSerial.read();
+      if (in == '$') {
+        sensorBuffer[currentByteCount++] = 'a';
+        started = true;
+      } else if (started && in > 31 && in < 128) {
+        sensorBuffer[currentByteCount++] = in;
+      }
+
+      if (started) {
+        complete = (in == '*' || currentByteCount > (MAX_MSG_SIZE - 5));
+      }
+
+    }
+  }
+
+  return currentByteCount;
 }
 
 void configureGPS() {
@@ -282,7 +416,7 @@ void configureGPS() {
 
 }
 
-void calcChecksum(byte *checksumPayload, byte payloadSize) {
+void calcChecksum(byte * checksumPayload, byte payloadSize) {
   byte CK_A = 0, CK_B = 0;
   for (int i = 0; i < payloadSize; i++) {
     CK_A = CK_A + *checksumPayload;
@@ -294,7 +428,7 @@ void calcChecksum(byte *checksumPayload, byte payloadSize) {
   *checksumPayload = CK_B;
 }
 
-void sendUBX(byte *UBXmsg, byte msgLength) {
+void sendUBX(byte * UBXmsg, byte msgLength) {
   for (int i = 0; i < msgLength; i++) {
     gpsSerial.write(UBXmsg[i]);
     gpsSerial.flush();
@@ -351,12 +485,11 @@ byte getUBX_ACK(byte * msgID) {
     Serial.print(" - ACK Checksum Fail: ");
     printHex(ackPacket, sizeof(ackPacket));
     Serial.println();
-    delay(1000);
     return 1;
   }
 }
 
-void printHex(uint8_t *data, uint8_t length) // prints 8-bit data in hex
+void printHex(uint8_t * data, uint8_t length) // prints 8-bit data in hex
 {
   char tmp[length * 2 + 1];
   byte first;
@@ -428,12 +561,12 @@ void sendData() {
   Wire.write("TDKb12345612345*4");
   return;
   if ( currBufferSize > 0 && currReadBufferIdx != currWriteBufferIdx) {
-    Wire.write(buffer[currReadBufferIdx], sizeof(buffer[currReadBufferIdx]));
+    Wire.write(sensorBuffer[currReadBufferIdx], sizeof(sensorBuffer[currReadBufferIdx]));
     //Wire.write("TDKb12345612345*4");
     //  Wire.write("TDKa");
     if (DEBUG) {
-      Serial.write(buffer[currReadBufferIdx],
-                   sizeof(buffer[currReadBufferIdx]));
+      Serial.write(sensorBuffer[currReadBufferIdx],
+                   sizeof(sensorBuffer[currReadBufferIdx]));
       Serial.println("=> SENT");
     }
 
@@ -449,5 +582,36 @@ void sendData() {
     //Wire.write("TDKb12345612345*4");
   }
 
+}
+
+
+String printDouble(double val, byte precision) {
+  // prints val with number of decimal places determine by precision
+  // precision is a number from 0 to 6 indicating the desired decimial places
+  // example: printDouble( 3.1415, 2); // prints 3.14 (two decimal places)
+
+  String output = "";
+  output += int(val);
+  if ( precision > 0) {
+    output += ".";
+    unsigned long frac;
+    unsigned long mult = 1;
+    byte padding = precision - 1;
+    while (precision--)
+      mult *= 10;
+
+    if (val >= 0)
+      frac = (val - int(val)) * mult;
+    else
+      frac = (int(val) - val ) * mult;
+    unsigned long frac1 = frac;
+    while ( frac1 /= 10 )
+      padding--;
+    while (  padding--)
+      output += "0";
+    output += frac;
+  }
+ 
+  return output;
 }
 
