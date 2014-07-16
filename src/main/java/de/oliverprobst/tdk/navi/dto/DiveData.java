@@ -36,7 +36,7 @@ public class DiveData extends AbstractModel implements Cloneable {
 	private int runtimeScooter;
 	private int timeSinceLastGPS;
 	private float temperature;
-	private int pitch;
+	private String pitch;
 	private int freeText;
 	private int humidity;
 	private float voltage;
@@ -214,7 +214,7 @@ public class DiveData extends AbstractModel implements Cloneable {
 	/**
 	 * @return the pitch
 	 */
-	public int getPitch() {
+	public String getPitch() {
 		return pitch;
 	}
 
@@ -222,7 +222,7 @@ public class DiveData extends AbstractModel implements Cloneable {
 	 * @param pitch
 	 *            the pitch to set
 	 */
-	public void setPitch(int pitch) {
+	public void setPitch(String pitch) {
 		super.propertyChangeSupport.firePropertyChange(
 				DiveDataProperties.PROP_PITCH, this.pitch, pitch);
 		this.pitch = pitch;

@@ -22,7 +22,8 @@ public class PitchPanel extends JPanel implements PropertyChangeListener {
 	private static final long serialVersionUID = -5013078238389083700L;
 
 	private HorizonPanel hpanel = new HorizonPanel();
-	private JLabel lblPitch = new JLabel("");
+	private JLabel lblPitchFrontRear = new JLabel("");
+	private JLabel lblPitchLeftRight = new JLabel("");
 
 	/**
 	 * ctor
@@ -34,34 +35,36 @@ public class PitchPanel extends JPanel implements PropertyChangeListener {
 		this.setLayout(gbl);
 
 		GridBagConstraints gbc = new GridBagConstraints(0, 0, 2, 1, 0.0d, 1.0d,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				new Insets(0, 0, 0, 0), 2, 2);
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
+						0, 0, 0, 0), 2, 2);
 		hpanel.setPreferredSize(new Dimension(60, 60));
 		layout.layout(hpanel, false);
 		this.add(hpanel, gbc);
 
-		gbc = new GridBagConstraints(1, 1, 1, 1, 0.0d, 0.0d,
-				GridBagConstraints.EAST, GridBagConstraints.BOTH,
-				new Insets(0, 0, 0, 2), 2, 2);
+		gbc = new GridBagConstraints(1, 1, 1, 1, 1.0d, 0.0d,
+				GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0,
+						0, 0, 2), 2, 2);
 
-		JLabel lblDesc = new JLabel("Pitch");
-		layout.layoutTinyDescriptionLabel(lblDesc);
-		this.add(lblDesc, gbc);
+		layout.layoutTinyLabel(lblPitchLeftRight);
+		this.add(lblPitchLeftRight, gbc);
 
-		gbc = new GridBagConstraints(0, 1, 1, 1, 0.0d, 0.0d,
-				GridBagConstraints.EAST, GridBagConstraints.BOTH,
-				new Insets(0, 6, 0, 1), 2, 2);
+		gbc = new GridBagConstraints(0, 1, 1, 1, 1.0d, 0.0d,
+				GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(0,
+						6, 0, 1), 2, 2);
 
-		layout.layoutTinyLabel(lblPitch);
-		this.add(lblPitch, gbc);
+		layout.layoutTinyLabel(lblPitchFrontRear);
+		this.add(lblPitchFrontRear, gbc);
 
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_PITCH)) {
-			int newVal = (Integer) evt.getNewValue();
-			this.hpanel.setPitch(newVal);
-			lblPitch.setText(newVal + " %");
+			String newVal = (String) evt.getNewValue();
+			String[] values = newVal.split(",");
+			this.hpanel.setPitch(Integer.parseInt(values[0]),
+					Integer.parseInt(values[1]));
+			lblPitchFrontRear.setText("↕ " + values[0] + "");
+			lblPitchLeftRight.setText("↔ " + values[1] + "");
 		}
 
 	}
@@ -72,21 +75,16 @@ public class PitchPanel extends JPanel implements PropertyChangeListener {
 		 * 
 		 */
 		private static final long serialVersionUID = -7121296781027383584L;
-		private int pitch = 0;
-
-		/**
-		 * @return the pitch
-		 */
-		public int getPitch() {
-			return pitch;
-		}
+		private int pitchFrontRear = 0;
+		private int pitchLeftRight = 0;
 
 		/**
 		 * @param pitch
 		 *            the pitch to set
 		 */
-		public void setPitch(int pitch) {
-			this.pitch = pitch;
+		public void setPitch(int pitchFrontRear, int pitchLeftRight) {
+			this.pitchFrontRear = pitchFrontRear;
+			this.pitchLeftRight = pitchLeftRight;
 			this.updateUI();
 			this.repaint();
 
@@ -108,24 +106,43 @@ public class PitchPanel extends JPanel implements PropertyChangeListener {
 			int horizon = drawingHeight / 2;
 			int offset = calculatePitchOffset(drawingHeight) * -1;
 
+			int ypitchoffset = pitchLeftRight / 5;
+			if (ypitchoffset > 15) {
+				ypitchoffset = 15;
+			} else if (ypitchoffset < -15) {
+				ypitchoffset = -15;
+			}
+
 			// air
-			g.fillRect(offsetX + 1, offsetY + 1, comWidth - offsetX * 2 - 1,
-					horizon - offset);
+			g.fillPolygon(new int[] { offsetX + 1, offsetX + 1,
+					comWidth - offsetX, comWidth - offsetX }, new int[] {
+					offsetY + 1, horizon - offset + 2 - ypitchoffset,
+					horizon - offset + 2 + ypitchoffset, offsetY + 1 }, 4
+
+			);
 
 			// ground
 			g.setColor(new Color(10, 200, 10));
-			g.fillRect(offsetX + 1, horizon - offset + offsetY + 1, comWidth
-					- offsetX * 2 - 1, horizon + offset);
+			g.fillPolygon(new int[] { offsetX + 1, offsetX + 1,
+					comWidth - offsetX, comWidth - offsetX
+
+			}, new int[] { drawingHeight, horizon - offset + 2 - ypitchoffset,
+					horizon - offset + 2 + ypitchoffset, drawingHeight }, 4
+
+			);
 
 			// helper tick lines
+
 			g.setColor(new Color(10, 155, 10));// ground
-			for (int i = horizon - pitch * -1 + offsetY + 1; i < comHeight
+			for (int i = horizon - pitchFrontRear * -1 + offsetY + 1; i < comHeight
 					- offsetY * 2; i += 10) {
-				g.drawLine(offsetX + 1, i, comWidth - offsetX - 1, i);
+				g.drawLine(offsetX + 1, i - ypitchoffset, comWidth - offsetX
+						- 1, i + ypitchoffset);
 			}
 			g.setColor(new Color(10, 10, 200));// air
-			for (int i = horizon - pitch * -1 + offsetY + 1; i > offsetY + 1; i -= 10) {
-				g.drawLine(offsetX + 1, i, comWidth - offsetX - 1, i);
+			for (int i = horizon - pitchFrontRear * -1 + offsetY + 1; i > offsetY + 1; i -= 10) {
+				g.drawLine(offsetX + 1, i - ypitchoffset, comWidth - offsetX
+						- 1, i + ypitchoffset);
 			}
 
 			// border and middle line
@@ -147,13 +164,13 @@ public class PitchPanel extends JPanel implements PropertyChangeListener {
 		}
 
 		private int calculatePitchOffset(int height) {
-			if (pitch < height / 2 * -1) {
+			if (pitchFrontRear < height / 2 * -1) {
 				return height / 2 * -1;
 			}
-			if (pitch > height / 2) {
+			if (pitchFrontRear > height / 2) {
 				return height / 2;
 			}
-			return pitch;
+			return pitchFrontRear;
 		}
 
 	}
