@@ -147,7 +147,7 @@ public class App {
 				.getDefaultScreenDevice();
 		int height = gd.getDisplayMode().getHeight();
 
-		if (height > 480) {
+		if (height > 900) {
 			log.info("Screen is big enough to display help screen.");
 			DemoDialog dlg = new DemoDialog();
 
