@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -26,6 +25,7 @@ import de.oliverprobst.tdk.navi.HaversineConverter;
 import de.oliverprobst.tdk.navi.NmeaParser;
 import de.oliverprobst.tdk.navi.config.Waypoint;
 import de.oliverprobst.tdk.navi.controller.DiveDataProperties;
+import de.oliverprobst.tdk.navi.dto.Location;
 import de.oliverprobst.tdk.navi.dto.StructuralIntegrity;
 import de.oliverprobst.tdk.navi.dto.StructuralIntegrity.Status;
 
@@ -43,7 +43,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 	private BufferedImage image;
 	int lastCourse = 0;
-	ArrayList<Point> locations = new ArrayList<Point>();
+	ArrayList<MapPoint> locations = new ArrayList<MapPoint>();
 
 	public MapPanel(Collection<Waypoint> wps, String imageLocation) {
 		this.wps = wps;
@@ -90,21 +90,28 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		if (locations.isEmpty()) {
 			return;
 		}
-		g.setColor(new Color(255, 150, 150));
-		Point lastLocation = null;
+		
+		MapPoint lastLocation = null;
 
 		int stepSize = (int) (((double) (locations.size() + 26) / 50) + 0.5);
 		for (int i = 0; i < locations.size(); i += stepSize) {
-			Point location = locations.get(i);
+			MapPoint location = locations.get(i);
 
 			// last 10 records in red:
 			if (i > locations.size() - 11 * stepSize) {
-				g.setColor(new Color(255, 100, 100));
+				if (location.isEstimated()){
+				    g.setColor(new Color(80, 130, 250));
+				} else {
+					g.setColor(new Color(250, 180, 30));
+				}
+			} else {
+				if (location.isEstimated()){
+				    g.setColor(new Color(180, 180, 250));
+				} else {
+					g.setColor(new Color(255, 180, 180));
+				}				 
 			}
-			// last 3 records in dark red:
-			if (i > locations.size() - 4 * stepSize) {
-				g.setColor(new Color(255, 50, 00));
-			}
+			 
 			if (lastLocation != null) {
 				g.drawLine(lastLocation.x, lastLocation.y, location.x,
 						location.y);
@@ -127,7 +134,8 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		HaversineConverter hc = HaversineConverter.getInstance();
 
 		for (Waypoint wp : wps) {
-			Point loc = hc.xyProjection(d, wp.getLongitude(), wp.getLatitude());
+			MapPoint loc = hc.xyProjection(d, wp.getLongitude(),
+					wp.getLatitude());
 
 			int distance = -1;
 			int bearing = -1;
@@ -212,9 +220,14 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_GPSFIX)) {
-			drawLocation(evt.getNewValue());
+			drawLocation((String) evt.getNewValue());
 
 		}
+		if (evt.getPropertyName().equals(DiveDataProperties.PROP_ESTIMATED)) {
+			drawLocation((Location) evt.getNewValue(), true);
+
+		}
+
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_COURSE)) {
 			lastCourse = (Integer) evt.getNewValue();
 			drawLocation(null);
@@ -233,12 +246,36 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 	}
 
+	/**  
+	 * 
+	 * TODO This could be a bit nicer, it is more or less a duplicate of the other drawLocation
+	 * @param newValue
+	 * @param b
+	 */
+	private void drawLocation(Location newValue, boolean b) {
+		if (newValue != null) {
+			Dimension d = new Dimension(image.getWidth(), image.getHeight());
+			HaversineConverter hc = HaversineConverter.getInstance();
+
+			lastLatitude = newValue.getLatitude();
+			lastLongitude = newValue.getLongitude();
+			MapPoint location = hc.xyProjection(d, lastLongitude, lastLatitude);
+			location.setEstimated(b);
+			if (!locations.get(locations.size() - 1).equals(location)) {
+				locations.add(location);
+			}
+		}
+		this.updateUI();
+		this.repaint();
+
+	}
+
 	private String warning = null;
 
 	private double lastLongitude = 0;
 	private double lastLatitude = 0;
 
-	private void drawLocation(Object newValue) {
+	private void drawLocation(String newValue) {
 
 		if (newValue != null) {
 			Dimension d = new Dimension(image.getWidth(), image.getHeight());
@@ -246,10 +283,16 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			NmeaParser p = new NmeaParser((String) newValue);
 			lastLatitude = p.getLatitude();
 			lastLongitude = p.getLongitude();
-			Point location = hc.xyProjection(d, p.getLongitude(),
+			MapPoint location = hc.xyProjection(d, p.getLongitude(),
 					p.getLatitude());
 
-			locations.add(location);
+			if (!locations.isEmpty()
+					&& !locations.get(locations.size() - 1).equals(location)) {
+				locations.add(location);
+			}
+			if (locations.isEmpty()) {
+				locations.add(location);
+			}
 
 		}
 		this.updateUI();

@@ -3,7 +3,7 @@
 	<!-- Navigation System configuration file -->
 
 	<settings>
-		<demomode>true</demomode>
+		<demomode>true</demomode> <!-- Starting in demo mode -->
 		<notes>
      <![CDATA[<html>
 		<p><b>Dive Notes</b></p>
@@ -14,7 +14,18 @@
 		<tr><td>12m-5min</td><td>3m-29min</td></tr>
 		</table></html>]]>
 		</notes>
-		<forcemap>demo</forcemap>
+		<forcemap>demo</forcemap> <!-- This map will be used -->
+		<speed> <!-- Scooter gear and corresponding speed -->
+			<gear>10</gear> <!-- 1 -->
+			<gear>16</gear> <!-- 2 -->
+			<gear>32</gear> <!-- 3 -->
+			<gear>36</gear> <!-- 4 -->
+			<gear>42</gear> <!-- 5 -->
+			<gear>46</gear> <!-- 6 -->
+			<gear>48</gear> <!-- 7 -->
+			<gear>52</gear> <!-- 8 -->
+			<gear>56</gear> <!-- 9 -->
+		</speed>
 	</settings>
 
 	<map id="Gernsbach" image="${user.home}/tdk-navi/Gernsbach.png">

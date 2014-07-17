@@ -2,6 +2,8 @@ package de.oliverprobst.tdk.navi.controller;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,8 +11,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.oliverprobst.tdk.navi.HaversineConverter;
+import de.oliverprobst.tdk.navi.NmeaParser;
+import de.oliverprobst.tdk.navi.config.Configuration;
 import de.oliverprobst.tdk.navi.config.Waypoint;
 import de.oliverprobst.tdk.navi.dto.DiveData;
+import de.oliverprobst.tdk.navi.dto.Location;
 import de.oliverprobst.tdk.navi.dto.StructuralIntegrity;
 
 public class DefaultController {
@@ -22,7 +28,10 @@ public class DefaultController {
 	private String notes = "";
 
 	private String mapImage = "";
-	
+
+	private long lastGPSfix = 0;
+	private long lastPosEstimation = -1;
+
 	/**
 	 * @return the mapImage
 	 */
@@ -31,7 +40,8 @@ public class DefaultController {
 	}
 
 	/**
-	 * @param mapImage the mapImage to set
+	 * @param mapImage
+	 *            the mapImage to set
 	 */
 	public void setMapImage(String mapImage) {
 		this.mapImage = mapImage;
@@ -153,6 +163,7 @@ public class DefaultController {
 	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setCourse(int)
 	 */
 	public void setCourse(int course) {
+		estimateLocation();
 		currentRecord.setCourse(course);
 	}
 
@@ -193,6 +204,8 @@ public class DefaultController {
 	}
 
 	public void setGGA(String message) {
+		lastPosEstimation = -1;
+		lastGPSfix = System.currentTimeMillis();
 		currentRecord.setGga(message);
 	}
 
@@ -228,10 +241,12 @@ public class DefaultController {
 	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setInclination(int)
 	 */
 	public void setPitch(String string) {
+		estimateLocation();
 		currentRecord.setPitch(string);
 	}
 
 	public void setSpeed(int speed) {
+		estimateLocation();
 		currentRecord.setSpeed(speed);
 	}
 
@@ -256,4 +271,83 @@ public class DefaultController {
 		firePropertyChange(DiveDataProperties.PROP_UPDATEPROFILE, null, record);
 	}
 
+	private final ArrayList<Integer> gearSpeed = new ArrayList<Integer>(10);
+
+	/**
+	 * @return the gearSpeed
+	 */
+	public ArrayList<Integer> getGearSpeed() {
+		return gearSpeed;
+	}
+
+	/**
+	 * @param config
+	 *            the loaded configuration which will be loaded into the
+	 *            gearSpeed array
+	 */
+	public void setGearSpeed(Configuration config) {
+		this.gearSpeed.clear();
+		for (BigInteger bi : config.getSettings().getSpeed().getGear()) {
+			this.gearSpeed.add(bi.intValue());
+		}
+
+	}
+
+	public void estimateLocation() {
+
+		// first try 20 sec after last fix or 10 seconds after last estimate
+		if (System.currentTimeMillis() - lastGPSfix < 5000
+				|| System.currentTimeMillis() - lastPosEstimation < 5000) {
+			return;
+		}
+
+		// only if pitch is inside tolerance
+		final int pitchTolerance = 10;
+
+		if (currentRecord.getFrontRearPitch() < pitchTolerance * -1
+				&& currentRecord.getFrontRearPitch() > pitchTolerance
+				&& currentRecord.getLeftRightPitch() < pitchTolerance * -1
+				&& currentRecord.getLeftRightPitch() > pitchTolerance) {
+			return;
+		}
+
+		// no speed, no new location...
+		if (currentRecord.getSpeed() == 0) {
+			return;
+		}
+
+		if (currentRecord.getGga() == null) {
+			return;
+		}
+
+		// determine last position (preferable by GPS)
+		double latitude = 0;
+		double longitude = 0;
+		long timeSinceLastLoc = System.currentTimeMillis() - lastPosEstimation;
+		int heading = currentRecord.getCourse();
+		Location lastEstimation = currentRecord.getEstimatedLocation();
+		if (lastPosEstimation == -1) {
+			NmeaParser parser = new NmeaParser(currentRecord.getGga());
+			latitude = parser.getLatitude();
+			longitude = parser.getLongitude();
+			timeSinceLastLoc = System.currentTimeMillis() - this.lastGPSfix;
+		} else {
+			latitude = lastEstimation.getLatitude();
+			longitude = lastEstimation.getLongitude();
+		}
+
+		// let's do the new estimation:
+		lastPosEstimation = System.currentTimeMillis();
+		double distance = (((double) timeSinceLastLoc / 60000d) * calcCurrentScooterSpeed());
+		Location estimatedLocation = HaversineConverter.getInstance()
+				.calculateNewLocation(latitude, longitude, heading, distance);
+
+		currentRecord.setEstimatedLocation(estimatedLocation);
+
+	}
+
+	private int calcCurrentScooterSpeed() {
+		// this.getGearSpeed().get(currentRecord.getSpeed());
+		return 35;
+	}
 }

@@ -34,13 +34,13 @@ public class NmeaParser {
 	public String getFormattedLongitude() {
 
 		int splitLen = ggaSplit[4].length();
-		return ggaSplit[4].substring(0, 3) + "° " + getNSHemisphere() + " "
+		return ggaSplit[4].substring(0, 3) + "° " + getEWHemisphere() + " "
 				+ ggaSplit[4].substring(3, splitLen);
 	}
 
 	public String getFormattedLatitude() {
 		int splitLen = ggaSplit[2].length();
-		return ggaSplit[2].substring(0, 2) + "° " + getEWHemisphere() + " "
+		return ggaSplit[2].substring(0, 2) + "° " + getNSHemisphere() + " "
 				+ ggaSplit[2].substring(2, splitLen);
 	}
 

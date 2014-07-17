@@ -38,7 +38,7 @@ public class MainDialog extends JFrame {
 		this.setResizable(false);
 		this.setUndecorated(true);
 		this.setVisible(true);
-		createMainGridLayout();		
+		createMainGridLayout();
 	}
 
 	private void createMainGridLayout() {
@@ -149,25 +149,16 @@ public class MainDialog extends JFrame {
 		panel.add(gpsPanel, gbc);
 		dc.registerModelPropertyListener(gpsPanel);
 
-		gbc = new GridBagConstraints(0, 1, 1, 1, 1.0d, 1.0d,
+		gbc = new GridBagConstraints(0, 1, 2, 1, 1.0d, 1.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
 				0, 0);
 
-		MaxDepthPanel maxDepthPanel = new MaxDepthPanel(layouter);
+		EstimatedCoordPanel estimatedCoordPanel = new EstimatedCoordPanel(
+				layouter);
 
-		gbl.setConstraints(maxDepthPanel, gbc);
-		panel.add(maxDepthPanel, gbc);
-		dc.registerModelPropertyListener(maxDepthPanel);
-
-		gbc = new GridBagConstraints(1, 1, 1, 1, 1.0d, 1.0d,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
-				0, 0);
-
-		LastFixPanel lastFixPanel = new LastFixPanel(layouter);
-
-		gbl.setConstraints(lastFixPanel, gbc);
-		panel.add(lastFixPanel, gbc);
-		dc.registerModelPropertyListener(lastFixPanel);
+		gbl.setConstraints(estimatedCoordPanel, gbc);
+		panel.add(estimatedCoordPanel, gbc);
+		dc.registerModelPropertyListener(estimatedCoordPanel);
 
 		gbc = new GridBagConstraints(0, 2, 1, 1, 1.0d, 1.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
