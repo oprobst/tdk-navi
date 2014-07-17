@@ -38,8 +38,7 @@ public class MainDialog extends JFrame {
 		this.setResizable(false);
 		this.setUndecorated(true);
 		this.setVisible(true);
-		createMainGridLayout();
-		this.addKeyListener(new DemoKeyListener(dc));
+		createMainGridLayout();		
 	}
 
 	private void createMainGridLayout() {

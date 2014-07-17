@@ -23,6 +23,7 @@ import de.oliverprobst.tdk.navi.config.loader.ConfigurationFailureException;
 import de.oliverprobst.tdk.navi.config.loader.ConfigurationLoader;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.gui.DemoDialog;
+import de.oliverprobst.tdk.navi.gui.DemoKeyListener;
 import de.oliverprobst.tdk.navi.gui.MainDialog;
 import de.oliverprobst.tdk.navi.i2c.I2CPackage;
 import de.oliverprobst.tdk.navi.threads.DataProcessingThread;
@@ -165,7 +166,7 @@ public class App {
 			md.requestFocus();
 		}
 
-		Thread collectorThread = new DemoDataCollectThread(dc);
+		DemoDataCollectThread collectorThread = new DemoDataCollectThread(dc);
 		collectorThread
 				.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 					public void uncaughtException(Thread t, Throwable e) {
@@ -176,6 +177,7 @@ public class App {
 					}
 				});
 
+		md.addKeyListener(new DemoKeyListener(dc, collectorThread));
 		collectorThread.start();
 
 	}

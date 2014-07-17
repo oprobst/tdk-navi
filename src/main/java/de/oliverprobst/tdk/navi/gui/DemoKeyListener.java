@@ -2,8 +2,6 @@ package de.oliverprobst.tdk.navi.gui;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,15 +9,19 @@ import org.slf4j.LoggerFactory;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.dto.DiveData;
 import de.oliverprobst.tdk.navi.dto.StructuralIntegrity.Status;
+import de.oliverprobst.tdk.navi.threads.DemoDataCollectThread;
 
 public class DemoKeyListener implements KeyListener {
 
 	private static Logger log = LoggerFactory.getLogger(DemoKeyListener.class);
 	private final DefaultController dc;
+	private final DemoDataCollectThread collectorThread;
 
-	public DemoKeyListener(DefaultController dc) {
+	public DemoKeyListener(DefaultController dc,
+			DemoDataCollectThread collectorThread) {
 		super();
 		this.dc = dc;
+		this.collectorThread = collectorThread;
 	}
 
 	public void keyTyped(KeyEvent e) {
@@ -78,12 +80,7 @@ public class DemoKeyListener implements KeyListener {
 			break;
 		case 32: // space
 		case 82: // r
-			SimpleDateFormat dateFormatGmt = new SimpleDateFormat("HH:mm:ss.00");
-			dateFormatGmt.setTimeZone(TimeZone.getTimeZone("GMT"));
-			String message = "$GPGGA,161718.53,4738.55555,N,00912.82288,E,1,10,1.63,190.9,M,47.4,M,,*59";
-			// (checksum invalid)
-			dc.setGGA(message);
-
+			collectorThread.setGpsActive(!collectorThread.isGpsActive());
 			break;
 		case 107: // +
 			int speed = dd.getSpeed();
@@ -128,7 +125,7 @@ public class DemoKeyListener implements KeyListener {
 				lrPitxh = -180;
 			}
 			dc.setPitch(frPitch + "," + lrPitxh);
-			break;	
+			break;
 
 		case 71: // g
 			if (lastIntegrityCode >= 100000) {
