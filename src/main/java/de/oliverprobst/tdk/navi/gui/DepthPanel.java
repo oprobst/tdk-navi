@@ -98,7 +98,7 @@ public class DepthPanel extends JPanel implements PropertyChangeListener {
 		}
 
 		if (curAvg10 > 0) {		 
-			avg += ( " ∅↓:"+ depthFormat.format(curAvg10) + "");
+			avg += ( "↓:"+ depthFormat.format(curAvg10) + "");
 		}
 		lblAvgDepth.setText(avg);
 	}
