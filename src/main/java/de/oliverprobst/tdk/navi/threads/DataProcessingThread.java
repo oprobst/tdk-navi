@@ -17,7 +17,7 @@ public class DataProcessingThread extends Thread {
 
 	private final DefaultController dc;
 
-	public final static int MAX_BUFFER_SIZE = 100;
+	public final static int MAX_BUFFER_SIZE = 10;
 	public final static int MAX_BUFFER_DELETE_OFFSET = 10;
 
 	public DataProcessingThread(ConcurrentLinkedQueue<SerialPackage> incoming,

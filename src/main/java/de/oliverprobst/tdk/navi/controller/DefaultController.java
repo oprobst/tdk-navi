@@ -96,7 +96,7 @@ public class DefaultController {
 						}
 					}
 					try {
-						Thread.sleep(1000);
+						Thread.sleep(5000);
 					} catch (InterruptedException e) {
 						log.error("Thread sleep interrupted!", e);
 						if (errcount++ > 50) {
