@@ -24,9 +24,6 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_HMC5883_U.h>
-#include <LiquidCrystal.h>
-
-LiquidCrystal lcd(2, 3, 7, 6, 5, 4);
 
 Adafruit_HMC5883_Unified mag = Adafruit_HMC5883_Unified(12345);
 
@@ -41,39 +38,31 @@ SoftwareSerial gpsSerial = SoftwareSerial(RX_PIN_GPS, TX_PIN_GPS);
 
 // Serial port
 #define SERIAL_SPEED 9600
-#define DEBUG false
-#define DEBUG_LCD true
+#define DEBUG true
 
 //current sensor buffer
-const short BUFFER_SIZE = 2;
 const short MAX_MSG_SIZE = 80;
 short currBufferSize = -1;
-short currReadBufferIdx = 0;
-short currWriteBufferIdx = -1;
-byte sensorBuffer[BUFFER_SIZE][MAX_MSG_SIZE];
+byte sensorBuffer[MAX_MSG_SIZE];
 
 /*
  * Main setup routine
  */
 void setup() {
-  lcd.begin(16, 2);
-  lcd.print("Tief Dunkel Kalt");
-  lcd.setCursor(0, 1);
-  lcd.print("Init Navi...");
 
-  if (DEBUG)
-    Serial.begin(9600);
+  Serial.begin(SERIAL_SPEED);
 
-  configureI2C();
   configureGPS();
 
   pinMode(12, OUTPUT);
   digitalWrite(10, LOW);
 
-  lcd.clear();
   mag.begin();
-  if (DEBUG)
-    Serial.println("Setup done.");
+
+  // write protocol marker
+  sensorBuffer[0] = '$';
+
+  gpsSerial.listen();
 }
 
 
@@ -81,171 +70,84 @@ void setup() {
  * Main loop
  */
 void loop() {
-  delay (30);
-   short lastWritePos = 0;
-  unsigned long lastGPS = 0;
-if (millis() - lastGPS > 1000) {
-    lastGPS = millis();
-    //once per second
-    prepareNextBuffer ();
-    lastWritePos = collectGPSData(sensorBuffer[currWriteBufferIdx]);
-    calcChecksum(&sensorBuffer[currWriteBufferIdx][3], lastWritePos - 3);
-    sendLastBuffer ();
+  //delay (30);
+  short lastWritePos = 0;
+
+  //GPS data
+  if (gpsSerial.available() > 40) {
+    lastWritePos = collectGPSData(sensorBuffer);
+    calcChecksum(&sensorBuffer[1], lastWritePos - 1);
+    sendLastBuffer (lastWritePos + 2);
   }
 
-  prepareNextBuffer ();
-  lastWritePos = collectCompassData(sensorBuffer[currWriteBufferIdx]);
-  calcChecksum(&sensorBuffer[currWriteBufferIdx][3], lastWritePos - 3);
-  sendLastBuffer ();
 
-  prepareNextBuffer ();
-  lastWritePos = collectLeakData(sensorBuffer[currWriteBufferIdx]);
-  calcChecksum(&sensorBuffer[currWriteBufferIdx][3], lastWritePos - 3);
-  while (lastWritePos++ < MAX_MSG_SIZE -1) {
-          sensorBuffer[currWriteBufferIdx][lastWritePos] = '%';
-    }
-  sendLastBuffer ();
+  //Compass data
+  lastWritePos = collectCompassData(sensorBuffer);
+  calcChecksum(&sensorBuffer[1], lastWritePos - 1);
+  sendLastBuffer (lastWritePos + 2);
 
-  //collectCompassData(sensorBuffer[currWriteBufferIdx]);
+  //Leak detection
+  lastWritePos = collectLeakData(sensorBuffer);
+  calcChecksum(&sensorBuffer[1], lastWritePos - 1);
+  sendLastBuffer (lastWritePos + 2);
 
 }
+
+
 
 // Here, the last buffer shall be send via ttl
-void sendLastBuffer () {
-  if (DEBUG) {
-    
-    Serial.write(sensorBuffer[currWriteBufferIdx], sizeof(sensorBuffer[currWriteBufferIdx])); //MAX_MSG_SIZE);
-    Serial.print("=> ");
-    Serial.println(currWriteBufferIdx);
-  }
+void sendLastBuffer (unsigned short lastWritePos) {
 
-  if (DEBUG_LCD) {
-    if (sensorBuffer[currWriteBufferIdx][3] == 'a' && sensorBuffer[currWriteBufferIdx][19] == ',') {
-      lcd.setCursor (0, 0);
-      lcd.print (" ");
-      lcd.write (sensorBuffer[currWriteBufferIdx][20]);
-      lcd.write (sensorBuffer[currWriteBufferIdx][21]);
-      lcd.print ("N");
-      lcd.write (sensorBuffer[currWriteBufferIdx][22]);
-      lcd.write (sensorBuffer[currWriteBufferIdx][23]);
-      lcd.print (",");
-      lcd.write (sensorBuffer[currWriteBufferIdx][25]);
-      lcd.write (sensorBuffer[currWriteBufferIdx][26]);
-      lcd.write (sensorBuffer[currWriteBufferIdx][27]);
-      lcd.write (sensorBuffer[currWriteBufferIdx][28]);
-      lcd.setCursor (0, 1);
-      lcd.write (sensorBuffer[currWriteBufferIdx][33]);
-      lcd.write (sensorBuffer[currWriteBufferIdx][34]);
-      lcd.write (sensorBuffer[currWriteBufferIdx][35]);
-      lcd.print ("E");
-      lcd.write (sensorBuffer[currWriteBufferIdx][36]);
-      lcd.write (sensorBuffer[currWriteBufferIdx][37]);
-      lcd.print (",");
-      lcd.write (sensorBuffer[currWriteBufferIdx][39]);
-      lcd.write (sensorBuffer[currWriteBufferIdx][40]);
-      lcd.write (sensorBuffer[currWriteBufferIdx][41]);
-      lcd.write (sensorBuffer[currWriteBufferIdx][42]);
-
-    } else if (sensorBuffer[currWriteBufferIdx][3] == 'b') {
-      lcd.setCursor (13, 0);
-      lcd.write (sensorBuffer[currWriteBufferIdx][4]);
-      if (sensorBuffer[currWriteBufferIdx][5] != '.') {
-        lcd.write (sensorBuffer[currWriteBufferIdx][5]);
-        if (sensorBuffer[currWriteBufferIdx][6] != '.') {
-          lcd.write (sensorBuffer[currWriteBufferIdx][6]);
-        } else {
-          lcd.write (" ");
-        }
-      } else {
-        lcd.write ("  ");
-      }
-    } else if (sensorBuffer[currWriteBufferIdx][3] == 'c') {
-
-      lcd.setCursor (12, 2);
-      if (sensorBuffer[currWriteBufferIdx][6] > 47 && sensorBuffer[currWriteBufferIdx][6] < 58) {
-      
-        lcd.print ("Beer");
-      } else {
-        lcd.print (" Dry");
-      }
+  if (Serial.available())  {
+    for (unsigned short b = 0; b < lastWritePos; b++) {
+      Serial.write(sensorBuffer[b]);
     }
   }
 }
 
-void prepareNextBuffer() {
-  currBufferSize++;
-  currWriteBufferIdx++;
-
-  if (currWriteBufferIdx >= BUFFER_SIZE) {
-    currWriteBufferIdx = 0;
-  }
-  if (currBufferSize >= BUFFER_SIZE) {
-    if (DEBUG)
-      Serial.println("WARN: Buffer overflow");
-    currBufferSize = 0;
-  }
-
-  // write protocol marker
-  sensorBuffer[currWriteBufferIdx][0] = 'T';
-  sensorBuffer[currWriteBufferIdx][1] = 'D';
-  sensorBuffer[currWriteBufferIdx][2] = 'K';
-}
-
-
 short collectLeakData (byte sensorBuffer  []) {
-  sensorBuffer[3] = 'c';
+  sensorBuffer[1] = 'c';
   int sensorValue = analogRead(A0);
-  String result = printDouble (sensorValue, 0);
-  result.getBytes(&sensorBuffer[4], 4) ;
-  sensorBuffer[7] = '*';
-  return 8;
+  String result = printDouble (sensorValue, 5);
+  result.getBytes(&sensorBuffer[2], 5) ;
+  sensorBuffer[6] = '*';
+  return 7;
 }
 
 short collectCompassData (byte sensorBuffer  []) {
-  
-    /* Get a new sensor event */
+
   sensors_event_t event;
   mag.getEvent(&event);
-
-  /* Display the results (magnetic vector values are in micro-Tesla (uT)) */
-  //Serial.print("X: "); Serial.print(event.magnetic.x); Serial.print("  ");
-  //Serial.print("Y: "); Serial.print(event.magnetic.y); Serial.print("  ");
-  //Serial.print("Z: "); Serial.print(event.magnetic.z); Serial.print("  "); Serial.println("uT");
-
-  // Hold the module so that Z is pointing 'up' and you can measure the heading with x&y
-  // Calculate heading when the magnetometer is level, then correct for signs of axis.
   float heading = atan2(event.magnetic.y, event.magnetic.x);
 
-  // Once you have your heading, you must then add your 'Declination Angle', which is the 'Error' of the magnetic field in your location.
-  // Find yours here: http://www.magnetic-declination.com/
-  // Mine is: -13* 2' W, which is ~13 Degrees, or (which we need) 0.22 radians
-  // If you cannot find your Declination, comment out these two lines, your compass will be slightly off.
   float declinationAngle = 0.22;
   heading += declinationAngle;
 
-  // Correct for when signs are reversed.
   if (heading < 0)
     heading += 2 * PI;
 
-  // Check for wrap due to addition of declination.
   if (heading > 2 * PI)
     heading -= 2 * PI;
 
-  // Convert radians to degrees for readability.
   float headingDegrees = heading * 180 / M_PI;
 
   uint8_t *p = (uint8_t*)&headingDegrees;
 
-  sensorBuffer[3] = 'b';
-
-  //Serial.print("Heading (degrees): ");
-  //Serial.println(headingDegrees);
+  sensorBuffer[1] = 'b';
 
   String result = printDouble (headingDegrees, 3);
-  result.getBytes(&sensorBuffer[4], 5) ;
-  sensorBuffer[8] = '*';
-  return 9;
-
+  result.getBytes(&sensorBuffer[2], 5) ;
+  sensorBuffer[5] = ',';
+  result = printDouble (event.magnetic.x, 6);
+  result.getBytes(&sensorBuffer[6], 4) ;
+  sensorBuffer[10] = ',';
+  result = printDouble (event.magnetic.y, 6);
+  result.getBytes(&sensorBuffer[11], 4) ;
+  sensorBuffer[15] = ',';
+  result = printDouble (event.magnetic.z, 6);
+  result.getBytes(&sensorBuffer[16], 4) ;
+  sensorBuffer[20] = '*';
+  return 21;
 }
 
 
@@ -254,7 +156,7 @@ short collectGPSData (byte sensorBuffer []) {
   boolean started = false;
   boolean complete = false;
 
-  short currentByteCount = 3;
+  short currentByteCount = 1;
   if (gpsSerial.available()) {
     while (!complete ) {
       char in = gpsSerial.read();
@@ -276,8 +178,6 @@ short collectGPSData (byte sensorBuffer []) {
 }
 
 void configureGPS() {
-  if (DEBUG)
-    Serial.println("Conf. GPS");
 
   gpsSerial.begin(GPS_SERIAL_SPEED);
 
@@ -328,23 +228,17 @@ void configureGPS() {
                     0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x46
                   };
 
-  delay(500);
-
   while (gpsSetSuccess < 5) {
 
     while (gpsSetSuccess < 3) {
-      Serial.print("Set Data Upd. Rate");
       sendUBX(&setDataRate[0], sizeof(setDataRate));  //Send UBX Packet
       gpsSetSuccess += getUBX_ACK(&setDataRate[2]); //Passes Class ID and Message ID to the ACK Receive function
       if (gpsSetSuccess == 5 | gpsSetSuccess == 6)
         gpsSetSuccess -= 4;
     }
-    if (gpsSetSuccess == 3 && DEBUG)
-      Serial.println("...failed.");
+
     gpsSetSuccess = 0;
 
-    if (DEBUG)
-      Serial.print("Set Sea Mode");
     sendUBX(&setNav[0], sizeof(setNav));  //Send UBX Packet
     gpsSetSuccess += getUBX_ACK(&setNav[2]); //Passes Class ID and Message ID to the ACK Receive function
 
@@ -352,65 +246,48 @@ void configureGPS() {
       gpsSetSuccess -= 4;
   }
 
-  if (gpsSetSuccess == 3 && DEBUG)
-    Serial.println("...failed.");
-
   gpsSetSuccess = 0;
-
-
   while (gpsSetSuccess < 3) {
-    Serial.print("Deact. NMEA GLL");
     sendUBX(setGLL, sizeof(setGLL));
     gpsSetSuccess += getUBX_ACK(&setGLL[2]);
     if (gpsSetSuccess == 5 | gpsSetSuccess == 6)
       gpsSetSuccess -= 4;
   }
-  if (gpsSetSuccess == 3 && DEBUG)
-    Serial.println("...failed.");
   gpsSetSuccess = 0;
 
   while (gpsSetSuccess < 3) {
-    Serial.print("Deact. NMEA GSA");
     sendUBX(setGSA, sizeof(setGSA));
     gpsSetSuccess += getUBX_ACK(&setGSA[2]);
     if (gpsSetSuccess == 5 | gpsSetSuccess == 6)
       gpsSetSuccess -= 4;
   }
-  if (gpsSetSuccess == 3 && DEBUG)
-    Serial.println("...failed.");
   gpsSetSuccess = 0;
 
   while (gpsSetSuccess < 3) {
-    Serial.print("Deact. NMEA GSV");
     sendUBX(setGSV, sizeof(setGSV));
     gpsSetSuccess += getUBX_ACK(&setGSV[2]);
     if (gpsSetSuccess == 5 | gpsSetSuccess == 6)
       gpsSetSuccess -= 4;
   }
-  if (gpsSetSuccess == 3 && DEBUG)
-    Serial.println("...failed.");
+
   gpsSetSuccess = 0;
 
   while (gpsSetSuccess < 3) {
-    Serial.print("Deact. NMEA RMC");
     sendUBX(setRMC, sizeof(setRMC));
     gpsSetSuccess += getUBX_ACK(&setRMC[2]);
     if (gpsSetSuccess == 5 | gpsSetSuccess == 6)
       gpsSetSuccess -= 4;
   }
-  if (gpsSetSuccess == 3 && DEBUG)
-    Serial.println("...failed.");
+
   gpsSetSuccess = 0;
 
   while (gpsSetSuccess < 3) {
-    Serial.print("Deact. NMEA VTG");
+
     sendUBX(setVTG, sizeof(setVTG));
     gpsSetSuccess += getUBX_ACK(&setVTG[2]);
     if (gpsSetSuccess == 5 | gpsSetSuccess == 6)
       gpsSetSuccess -= 4;
   }
-  if (gpsSetSuccess == 3 && DEBUG)
-    Serial.println("...failed.");
 
   gpsSetSuccess = 0;
 
@@ -462,11 +339,9 @@ byte getUBX_ACK(byte * msgID) {
     if (i > 9)
       break;
     if ((millis() - ackWait) > 2500) {
-      Serial.println(" - ACK Timeout ");
       return 5;
     }
     if (i == 4 && ackPacket[3] == 0x00) {
-      Serial.println(" - NAK ");
       return 1;
     }
   }
@@ -477,14 +352,10 @@ byte getUBX_ACK(byte * msgID) {
   }
   if (msgID[0] == ackPacket[6] && msgID[1] == ackPacket[7]
       && CK_A == ackPacket[8] && CK_B == ackPacket[9]) {
-    Serial.print(" - ACK ");
     printHex(ackPacket, sizeof(ackPacket));
-    Serial.println();
     return 10;
   } else {
-    Serial.print(" - ACK Checksum Fail: ");
     printHex(ackPacket, sizeof(ackPacket));
-    Serial.println();
     return 1;
   }
 }
@@ -511,78 +382,20 @@ void printHex(uint8_t * data, uint8_t length) // prints 8-bit data in hex
   }
   tmp[length * 2] = 0;
   for (byte i = 0, j = 0; i < sizeof(tmp); i++) {
-    Serial.print(tmp[i]);
+
     if (j == 1) {
-      Serial.print(" ");
+
       j = 0;
     } else
       j++;
   }
-  //Serial.println();
+
 }
 
 //
 //  I2C
 //
 
-/*
- * Configure all settings required to establish I2C connectivity to all clients.
- */
-void configureI2C() {
-  if (DEBUG)
-    Serial.println("Conf. I2C");
-  Wire.begin(ARDUINO_ADDR);
-  Wire.onReceive(receiveData);
-  Wire.onRequest(sendData);
-}
-
-/*
- * Callback for received data.
- */
-void receiveData(int byteCount) {
-  //  return;
-  while (Wire.available()) {
-    int number = Wire.read();
-    if (number == 00) {
-      // if (DEBUG)
-      //   Serial.println("Received HIGH signal on i2c");
-      digitalWrite(12, HIGH); // set the LED on
-    } else {
-      // if (DEBUG)
-      //   Serial.println("Received LOW signal on i2c");
-      digitalWrite(12, LOW); // set the LED off
-    }
-  }
-}
-
-// callback for sending data
-void sendData() {
-
-  Wire.write("TDKb12345612345*4");
-  return;
-  if ( currBufferSize > 0 && currReadBufferIdx != currWriteBufferIdx) {
-    Wire.write(sensorBuffer[currReadBufferIdx], sizeof(sensorBuffer[currReadBufferIdx]));
-    //Wire.write("TDKb12345612345*4");
-    //  Wire.write("TDKa");
-    if (DEBUG) {
-      Serial.write(sensorBuffer[currReadBufferIdx],
-                   sizeof(sensorBuffer[currReadBufferIdx]));
-      Serial.println("=> SENT");
-    }
-
-    currReadBufferIdx++;
-
-    if (currReadBufferIdx >= BUFFER_SIZE) {
-      currReadBufferIdx = 0;
-    }
-
-    currBufferSize--;
-  } else {
-    //    Wire.write (0xFF);
-    //Wire.write("TDKb12345612345*4");
-  }
-
-}
 
 
 String printDouble(double val, byte precision) {
@@ -611,7 +424,7 @@ String printDouble(double val, byte precision) {
       output += "0";
     output += frac;
   }
- 
+
   return output;
 }
 
