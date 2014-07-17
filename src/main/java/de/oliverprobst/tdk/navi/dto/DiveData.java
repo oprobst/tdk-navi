@@ -4,6 +4,46 @@ import de.oliverprobst.tdk.navi.controller.DiveDataProperties;
 
 public class DiveData extends AbstractModel implements Cloneable {
 
+	private int course;
+
+	private float depth;
+
+	private long divetime;
+	private int freeText;
+	private int frontRearPitch = 0;
+	private String gga;
+	private int humidity;
+	private StructuralIntegrity integrity = new StructuralIntegrity();
+	private int leftRightPitch = 0;
+	private String pitch;
+	private int runtimeScooter;
+	private int speed;
+	private long surfacetime;
+	private float temperature;
+	private int timeSinceLastGPS;
+	private float voltage;
+	private Location estimatedLocation = new Location();
+
+	/**
+	 * @return the estimatedLocation
+	 */
+	public Location getEstimatedLocation() {
+		return estimatedLocation;
+	}
+
+	/**
+	 * @param estimatedLocation the estimatedLocation to set
+	 */
+	public void setEstimatedLocation(Location estimatedLocation) {
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_ESTIMATED, this.estimatedLocation, estimatedLocation);
+		this.estimatedLocation = estimatedLocation;
+	}
+
+	public DiveData() {
+		super();
+	}
+
 	public DiveData clone() {
 		DiveData clone = new DiveData();
 		clone.setTimestamp(getTimestamp());
@@ -21,33 +61,178 @@ public class DiveData extends AbstractModel implements Cloneable {
 		clone.voltage = voltage;
 		clone.speed = speed;
 		clone.integrity = integrity.clone();
+		clone.estimatedLocation = estimatedLocation.clone();
 		return clone;
 	}
 
-	public DiveData() {
-		super();
+	/**
+	 * @return the course
+	 */
+	public int getCourse() {
+		return course;
 	}
 
-	private float depth;
-	private long divetime;
-	private long surfacetime;
-	private int course;
-	private String gga;
-	private int runtimeScooter;
-	private int timeSinceLastGPS;
-	private float temperature;
-	private String pitch;
-	private int freeText;
-	private int humidity;
-	private float voltage;
-	private int speed;
-	private StructuralIntegrity integrity = new StructuralIntegrity();
+	/**
+	 * @return the depth
+	 */
+	public float getDepth() {
+		return depth;
+	}
+
+	/**
+	 * @return the divetime
+	 */
+	public long getDivetime() {
+		return divetime;
+	}
+
+	/**
+	 * @return the freeText
+	 */
+	public int getFreeText() {
+		return freeText;
+	}
+
+	/**
+	 * @return the frontRearPitch
+	 */
+	public int getFrontRearPitch() {
+		return frontRearPitch;
+	}
+
+	/**
+	 * @return the lastNMEA
+	 */
+	public String getGga() {
+		return gga;
+	}
+
+	/**
+	 * @return the humidity
+	 */
+	public int getHumidity() {
+		return humidity;
+	}
 
 	/**
 	 * @return the integrity
 	 */
 	public StructuralIntegrity getIntegrity() {
 		return integrity;
+	}
+
+	/**
+	 * @return the leftRightPitch
+	 */
+	public int getLeftRightPitch() {
+		return leftRightPitch;
+	}
+
+	/**
+	 * @return the pitch
+	 */
+	public String getPitch() {
+		return pitch;
+	}
+
+	/**
+	 * @return the runtimeScooter
+	 */
+	public int getRuntimeScooter() {
+		return runtimeScooter;
+	}
+
+	/**
+	 * @return the speed
+	 */
+	public int getSpeed() {
+		return speed;
+	}
+
+	/**
+	 * @return the surfacetime
+	 */
+	public long getSurfacetime() {
+		return surfacetime;
+	}
+
+	/**
+	 * @return the temperature
+	 */
+	public float getTemperature() {
+		return temperature;
+	}
+
+	/**
+	 * @return the timeSinceLastGPS
+	 */
+	public int getTimeSinceLastGPS() {
+		return timeSinceLastGPS;
+	}
+
+	/**
+	 * @return the voltage
+	 */
+	public float getVoltage() {
+		return voltage;
+	}
+
+	/**
+	 * @param course
+	 *            the course to set
+	 */
+	public void setCourse(int course) {
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_COURSE, this.course, course);
+		this.course = course;
+	}
+
+	/**
+	 * @param depth
+	 *            the depth to set
+	 */
+	public void setDepth(float depth) {
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_DEPTH, this.depth, depth);
+		this.depth = depth;
+	}
+
+	/**
+	 * @param divetime
+	 *            the divetime to set
+	 */
+	public void setDivetime(long divetime) {
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_DIVETIME, this.divetime, divetime);
+		this.divetime = divetime;
+	}
+
+	/**
+	 * @param freeText
+	 *            the freeText to set
+	 */
+	public void setFreeText(int freeText) {
+		this.freeText = freeText;
+	}
+
+	/**
+	 * @param gga
+	 *            the lastNMEA to set
+	 */
+	public void setGga(String gga) {
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_GPSFIX, this.gga, gga);
+		this.gga = gga;
+	}
+
+	/**
+	 * @param humidity
+	 *            the humidity to set
+	 */
+	public void setHumidity(int humidity) {
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_HUMIDITY, this.humidity, humidity);
+		this.humidity = humidity;
 	}
 
 	/**
@@ -61,10 +246,24 @@ public class DiveData extends AbstractModel implements Cloneable {
 	}
 
 	/**
-	 * @return the speed
+	 * @param pitch
+	 *            the pitch to set
 	 */
-	public int getSpeed() {
-		return speed;
+	public void setPitch(String pitch) {
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_PITCH, this.pitch, pitch);
+		this.pitch = pitch;
+		String[] values = pitch.split(",");
+		frontRearPitch = Integer.parseInt(values[0]);
+		leftRightPitch = Integer.parseInt(values[1]);
+	}
+
+	/**
+	 * @param runtimeScooter
+	 *            the runtimeScooter to set
+	 */
+	public void setRuntimeScooter(int runtimeScooter) {
+		this.runtimeScooter = runtimeScooter;
 	}
 
 	/**
@@ -75,13 +274,6 @@ public class DiveData extends AbstractModel implements Cloneable {
 		super.propertyChangeSupport.firePropertyChange(
 				DiveDataProperties.PROP_SPEED, this.speed, speed);
 		this.speed = speed;
-	}
-
-	/**
-	 * @return the surfacetime
-	 */
-	public long getSurfacetime() {
-		return surfacetime;
 	}
 
 	/**
@@ -96,111 +288,6 @@ public class DiveData extends AbstractModel implements Cloneable {
 	}
 
 	/**
-	 * @return the depth
-	 */
-	public float getDepth() {
-		return depth;
-	}
-
-	/**
-	 * @param depth
-	 *            the depth to set
-	 */
-	public void setDepth(float depth) {
-		super.propertyChangeSupport.firePropertyChange(
-				DiveDataProperties.PROP_DEPTH, this.depth, depth);
-		this.depth = depth;
-	}
-
-	/**
-	 * @return the divetime
-	 */
-	public long getDivetime() {
-		return divetime;
-	}
-
-	/**
-	 * @param divetime
-	 *            the divetime to set
-	 */
-	public void setDivetime(long divetime) {
-		super.propertyChangeSupport.firePropertyChange(
-				DiveDataProperties.PROP_DIVETIME, this.divetime, divetime);
-		this.divetime = divetime;
-	}
-
-	/**
-	 * @return the course
-	 */
-	public int getCourse() {
-		return course;
-	}
-
-	/**
-	 * @param course
-	 *            the course to set
-	 */
-	public void setCourse(int course) {
-		super.propertyChangeSupport.firePropertyChange(
-				DiveDataProperties.PROP_COURSE, this.course, course);
-		this.course = course;
-	}
-
-	/**
-	 * @return the lastNMEA
-	 */
-	public String getGga() {
-		return gga;
-	}
-
-	/**
-	 * @param gga
-	 *            the lastNMEA to set
-	 */
-	public void setGga(String gga) {
-		super.propertyChangeSupport.firePropertyChange(
-				DiveDataProperties.PROP_GPSFIX, this.gga, gga);
-		this.gga = gga;
-	}
-
-	/**
-	 * @return the runtimeScooter
-	 */
-	public int getRuntimeScooter() {
-		return runtimeScooter;
-	}
-
-	/**
-	 * @param runtimeScooter
-	 *            the runtimeScooter to set
-	 */
-	public void setRuntimeScooter(int runtimeScooter) {
-		this.runtimeScooter = runtimeScooter;
-	}
-
-	/**
-	 * @return the timeSinceLastGPS
-	 */
-	public int getTimeSinceLastGPS() {
-		return timeSinceLastGPS;
-	}
-
-	/**
-	 * @param timeSinceLastGPS
-	 *            the timeSinceLastGPS to set
-	 */
-	public void setTimeSinceLastGPS(int timeSinceLastGPS) {
-		this.timeSinceLastGPS = timeSinceLastGPS;
-	}
-
-	/**
-	 * @return the temperature
-	 */
-	public float getTemperature() {
-		return temperature;
-	}
-
-	/**
 	 * @param temperature
 	 *            the temperature to set
 	 */
@@ -212,59 +299,11 @@ public class DiveData extends AbstractModel implements Cloneable {
 	}
 
 	/**
-	 * @return the pitch
+	 * @param timeSinceLastGPS
+	 *            the timeSinceLastGPS to set
 	 */
-	public String getPitch() {
-		return pitch;
-	}
-
-	/**
-	 * @param pitch
-	 *            the pitch to set
-	 */
-	public void setPitch(String pitch) {
-		super.propertyChangeSupport.firePropertyChange(
-				DiveDataProperties.PROP_PITCH, this.pitch, pitch);
-		this.pitch = pitch;
-	}
-
-	/**
-	 * @return the freeText
-	 */
-	public int getFreeText() {
-		return freeText;
-	}
-
-	/**
-	 * @param freeText
-	 *            the freeText to set
-	 */
-	public void setFreeText(int freeText) {
-		this.freeText = freeText;
-	}
-
-	/**
-	 * @return the humidity
-	 */
-	public int getHumidity() {
-		return humidity;
-	}
-
-	/**
-	 * @param humidity
-	 *            the humidity to set
-	 */
-	public void setHumidity(int humidity) {
-		super.propertyChangeSupport.firePropertyChange(
-				DiveDataProperties.PROP_HUMIDITY, this.humidity, humidity);
-		this.humidity = humidity;
-	}
-
-	/**
-	 * @return the voltage
-	 */
-	public float getVoltage() {
-		return voltage;
+	public void setTimeSinceLastGPS(int timeSinceLastGPS) {
+		this.timeSinceLastGPS = timeSinceLastGPS;
 	}
 
 	/**

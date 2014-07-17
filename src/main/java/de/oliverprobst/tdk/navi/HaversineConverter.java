@@ -1,11 +1,13 @@
 package de.oliverprobst.tdk.navi;
 
 import java.awt.Dimension;
-import java.awt.Point;
 import java.text.DecimalFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.oliverprobst.tdk.navi.dto.Location;
+import de.oliverprobst.tdk.navi.gui.MapPoint;
 
 public class HaversineConverter {
 
@@ -22,7 +24,7 @@ public class HaversineConverter {
 
 	private Logger log = LoggerFactory.getLogger(App.class);
 
-	public final static double AVERAGE_RADIUS_OF_EARTH = 6371;
+	public final static double AVERAGE_RADIUS_OF_EARTH = 6371.0;
 
 	private static HaversineConverter instance = new HaversineConverter();
 
@@ -84,6 +86,45 @@ public class HaversineConverter {
 
 	}
 
+	public Location calculateNewLocation(double fromLat, double fromLng,
+			double bearing, double distance) {
+
+		// Formula: φ2 = asin( sin φ1 ⋅ cos δ + cos φ1 ⋅ sin δ ⋅ cos θ )
+		// λ2 = λ1 + atan2( sin θ ⋅ sin δ ⋅ cos φ1, cos δ − sin φ1 ⋅ sin φ2 )
+
+		// where φ is latitude, λ is longitude, θ is the bearing (in radians,
+		// clockwise from north), δ is the angular distance (in radians) d/R; d
+		// being the distance travelled, R the earth’s radius
+
+		// JavaScript:
+		// var φ2 = Math.asin( Math.sin(φ1)*Math.cos(d/R) +
+		// Math.cos(φ1)*Math.sin(d/R)*Math.cos(brng) );
+		// var λ2 = λ1 + Math.atan2(Math.sin(brng)*Math.sin(d/R)*Math.cos(φ1),
+		// Math.cos(d/R)-Math.sin(φ1)*Math.sin(φ2));
+
+		// from http://www.movable-type.co.uk/scripts/latlong.html
+
+		distance = distance / 1000;
+		double finalBearing = Math.toRadians(bearing);
+		double angularDistance = distance / AVERAGE_RADIUS_OF_EARTH;
+		double fromLatR = Math.toRadians(fromLat);
+		double fromLonR = Math.toRadians(fromLng);
+
+		double toLat = Math.asin(Math.sin(fromLatR) * Math.cos(angularDistance)
+				+ Math.cos(fromLatR) * Math.sin(angularDistance)
+				* Math.cos(finalBearing));
+		double toLng = Math.toDegrees(((fromLonR + Math.atan2(
+				Math.sin(finalBearing) * Math.sin(angularDistance)
+						* Math.cos(fromLonR),
+				Math.cos(angularDistance) - Math.sin(fromLatR)
+						* Math.sin(toLat))) + 3 * Math.PI)
+				% (2 * Math.PI) - Math.PI);
+		toLat = Math.toDegrees(toLat);
+
+		return new Location(toLat, toLng);
+
+	}
+
 	/**
 	 * @return the nwCornerLat
 	 */
@@ -130,7 +171,8 @@ public class HaversineConverter {
 		this.seCornerLng = seCornerLng;
 	}
 
-	public Point xyProjection(Dimension size, double longitude, double latitude) {
+	public MapPoint xyProjection(Dimension size, double longitude,
+			double latitude) {
 
 		int distanceEtoLat = this.calculateDistance(latitude, seCornerLng,
 				latitude, longitude);
@@ -166,7 +208,7 @@ public class HaversineConverter {
 					+ distanceEtoLat + ") projection to Point (" + x + "/" + y
 					+ ").");
 		}
-		return new Point(x, y);
+		return new MapPoint(x, y);
 	}
 
 	public int calculateBearing(double fromLat, double fromLng, double toLat,

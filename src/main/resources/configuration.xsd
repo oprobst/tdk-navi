@@ -39,9 +39,20 @@
 			<element name="demomode" type="boolean" default="false" minOccurs="0" />
 			<element name="notes" type="string" />
 			<element name="forcemap" type="IDREF" minOccurs="0" />
+			<element name="speed" type="tns:speed" minOccurs="1" maxOccurs="1">
+				<annotation>
+					<documentation>Definition of the scooter speed in meter per minute
+					</documentation>
+				</annotation>
+			</element>
 		</sequence>
 	</complexType>
 
+	<complexType name="speed">
+		<sequence>
+			<element name="gear" type="integer" minOccurs="2" maxOccurs="10"/>
+		</sequence>
+	</complexType>
 
 
 	<complexType name="naviMap">
