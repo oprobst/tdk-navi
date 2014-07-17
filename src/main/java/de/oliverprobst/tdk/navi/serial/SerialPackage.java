@@ -1,6 +1,4 @@
-package de.oliverprobst.tdk.navi.i2c;
-
-import java.io.UnsupportedEncodingException;
+package de.oliverprobst.tdk.navi.serial;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,81 +45,65 @@ import org.slf4j.LoggerFactory;
  *         Oliver Probst <a
  *         href="mailto:oliverprobst@gmx.de">oliverprobst@gmx.de</a>
  */
-public class I2CPackage {
+public class SerialPackage {
 
-	private static Logger log = LoggerFactory.getLogger(I2CPackage.class);
+	private static Logger log = LoggerFactory.getLogger(SerialPackage.class);
 
-	private final byte[] message;
+	private final byte[] messageBytes;
+	private final String msg;
 
-	public I2CPackage(byte b[]) {
-		if (b.length < 6) {
-			throw new IllegalArgumentException("Message size < 6 byte (= "
-					+ b.length + ")");
-		} else if (b.length > 128) {
-			throw new IllegalArgumentException(
-					"Could not read received message, payload bigger than 120 bytes (="
-							+ b.length + " bytes).");
+	public SerialPackage(String message) {
+
+		this.messageBytes = message.getBytes();
+		 if (isValid()) {		 
+			this.msg = message.substring(2, message.indexOf('*'));
+		} else {
+			this.msg = null;
 		}
-
-		else if (b[b.length - 2] != 0x2a) {
-			throw new IllegalArgumentException(
-					"Received byte did not contain any termination byte 0x2a.");
-		}
-
-		this.message = b;
 	}
 
 	public int getReceivedChecksum() throws IllegalArgumentException {
-		int checksum_A = message[message.length - 2];
-		int checksum_B = message[message.length - 1];
+		if (messageBytes.length < 3) {
+			return -2;
+		}
+		int checksum_A = messageBytes[messageBytes.length - 2];
+		int checksum_B = messageBytes[messageBytes.length - 1];
 		return ((int) checksum_A + 256) + (int) checksum_B;
 
 	}
 
 	public boolean isValid() {
-		return getCalculatedCheckSum() == getReceivedChecksum();
+		return messageBytes.length > 3; // TODO
+		//return getCalculatedCheckSum() == getReceivedChecksum();
 	}
 
 	public MessageType getType() {
-		return MessageType.getMessageType(message[3]);
+		return MessageType.getMessageType(messageBytes[1]);
 	}
 
 	public String getPayload() {
-
-		int i = 0;
-		for (i = message.length - 1; i > 0; i--) {
-			if (message[i] == 0x2a) {
-				break;
-			}
-		}
-		String out;
-		try {
-			out = new String(message, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
-		out = out.substring(4, i);
-
-		return out;
+		return msg;
 	}
 
 	public int getCalculatedCheckSum() {
-
-		int pos = 0;
+		if (messageBytes.length < 3) {
+			return -1;
+		}
+		int pos = 1;
 		int checksum_A = 0;
 		int checksum_B = 0;
 
 		boolean foundTermination = false;
 		do {
-			if (message[pos] == 0x2a) {
+			if (messageBytes[pos] == '*') {
 
 				foundTermination = true;
 				break;
 
 			}
-			checksum_A = checksum_A + message[pos];
+			checksum_A = checksum_A + messageBytes[pos];
 			checksum_B = checksum_B + checksum_A;
-		} while (pos++ < message.length);
+		} while (pos++ < messageBytes.length - 1);
 
 		if (!foundTermination) {
 			return -1;

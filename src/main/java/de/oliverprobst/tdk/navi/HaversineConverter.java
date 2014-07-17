@@ -95,13 +95,6 @@ public class HaversineConverter {
 		// where φ is latitude, λ is longitude, θ is the bearing (in radians,
 		// clockwise from north), δ is the angular distance (in radians) d/R; d
 		// being the distance travelled, R the earth’s radius
-
-		// JavaScript:
-		// var φ2 = Math.asin( Math.sin(φ1)*Math.cos(d/R) +
-		// Math.cos(φ1)*Math.sin(d/R)*Math.cos(brng) );
-		// var λ2 = λ1 + Math.atan2(Math.sin(brng)*Math.sin(d/R)*Math.cos(φ1),
-		// Math.cos(d/R)-Math.sin(φ1)*Math.sin(φ2));
-
 		// from http://www.movable-type.co.uk/scripts/latlong.html
 
 		distance = distance / 1000;

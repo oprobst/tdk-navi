@@ -25,19 +25,23 @@ import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.gui.DemoDialog;
 import de.oliverprobst.tdk.navi.gui.DemoKeyListener;
 import de.oliverprobst.tdk.navi.gui.MainDialog;
-import de.oliverprobst.tdk.navi.i2c.I2CPackage;
+import de.oliverprobst.tdk.navi.serial.SerialPackage;
 import de.oliverprobst.tdk.navi.threads.DataProcessingThread;
 import de.oliverprobst.tdk.navi.threads.DemoDataCollectThread;
-import de.oliverprobst.tdk.navi.threads.I2CDataCollectThread;
+import de.oliverprobst.tdk.navi.threads.SerialDataCollectThread;
 
 /**
  *  
- *
+ *TODO
+  // Once you have your heading, you must then add your 'Declination Angle', which is the 'Error' of the magnetic field in your location.
+  // Find yours here: http://www.magnetic-declination.com/
+  // Mine is: -13* 2' W, which is ~13 Degrees, or (which we need) 0.22 radians
+  // If you cannot find your Declination, comment out these two lines, your compass will be slightly off.
  */
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
 
-	private final static ConcurrentLinkedQueue<I2CPackage> incoming = new ConcurrentLinkedQueue<I2CPackage>();
+	private final static ConcurrentLinkedQueue<SerialPackage> incoming = new ConcurrentLinkedQueue<SerialPackage>();
 	private static MainDialog md = null;
 
 	public static void main(String[] args) {
@@ -108,12 +112,12 @@ public class App {
 	}
 
 	private static DataProcessingThread dataProcessingThread = null;
-	private static I2CDataCollectThread collectorThread = null;
+	private static SerialDataCollectThread collectorThread = null;
 
 	private static void startDataCollect(final DefaultController dc,
 			final Configuration config) throws Exception {
 
-		collectorThread = new I2CDataCollectThread(incoming);
+		collectorThread = new SerialDataCollectThread(incoming);
 		dataProcessingThread = new DataProcessingThread(incoming, dc);
 
 		UncaughtExceptionHandler uch = new UncaughtExceptionHandler() {

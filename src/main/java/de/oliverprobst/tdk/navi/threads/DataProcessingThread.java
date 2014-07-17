@@ -6,21 +6,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.oliverprobst.tdk.navi.controller.DefaultController;
-import de.oliverprobst.tdk.navi.i2c.I2CPackage;
+import de.oliverprobst.tdk.navi.serial.SerialPackage;
 
 public class DataProcessingThread extends Thread {
 
 	private static Logger log = LoggerFactory
 			.getLogger(DataProcessingThread.class);
 
-	private final ConcurrentLinkedQueue<I2CPackage> incoming;
+	private final ConcurrentLinkedQueue<SerialPackage> incoming;
 
 	private final DefaultController dc;
 
 	public final static int MAX_BUFFER_SIZE = 100;
 	public final static int MAX_BUFFER_DELETE_OFFSET = 10;
 
-	public DataProcessingThread(ConcurrentLinkedQueue<I2CPackage> incoming,
+	public DataProcessingThread(ConcurrentLinkedQueue<SerialPackage> incoming,
 			DefaultController dc) {
 		this.incoming = incoming;
 		this.dc = dc;
@@ -44,25 +44,28 @@ public class DataProcessingThread extends Thread {
 				} catch (InterruptedException e) {
 					log.error("Thread sleep interrupted!", e);
 				}
-			} else if (incoming.size() > MAX_BUFFER_SIZE) {
-				int diff = MAX_BUFFER_SIZE - incoming.size()
-						+ MAX_BUFFER_DELETE_OFFSET;
-				for (int i = 0; i < diff; i++) {
-					incoming.remove();
-				}
-				log.warn("Incoming event buffer full. Discarding " + diff
-						+ " messages!");
 			} else {
 				handle(incoming.remove());
+			}
+			if (incoming.size() > MAX_BUFFER_SIZE) {
+				log.warn("Incoming event buffer full. Discarding "
+						+ incoming.size() + " messages!");
+				incoming.clear();
+				/*
+				 * int diff = MAX_BUFFER_SIZE - incoming.size() +
+				 * MAX_BUFFER_DELETE_OFFSET; for (int i = 0; i < diff; i++) {
+				 * incoming.remove(); }
+				 */
+
 			}
 		}
 		log.info("Ended Data Processing Thread");
 	}
 
-	private void handle(I2CPackage message) {
+	private void handle(SerialPackage message) {
 
 		String payload = message.getPayload();
-		// TODO
+
 		switch (message.getType()) {
 
 		case NMEA_GGA:
@@ -70,7 +73,7 @@ public class DataProcessingThread extends Thread {
 			break;
 
 		case COURSE:
-
+			parseCourse(payload);
 			break;
 
 		case DEPTH:
@@ -83,10 +86,18 @@ public class DataProcessingThread extends Thread {
 
 		case HUMIDITY:
 			parseHumidity(payload);
+
 		default:
 			break;
 		}
 
+	}
+
+	private void parseCourse(String payload) {
+		String[] split = payload.split(",");
+		dc.setCourse((int) (Double.parseDouble(split[0]) + 0.5));
+		dc.setPitch(((int) (Double.parseDouble(split[1]) + 0.5)) + ","
+				+ ((int) (Double.parseDouble(split[2]) + 0.5)));// well... :-(
 	}
 
 	private void parseGga(String payload) {

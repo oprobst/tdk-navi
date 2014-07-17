@@ -37,7 +37,7 @@ SoftwareSerial gpsSerial = SoftwareSerial(RX_PIN_GPS, TX_PIN_GPS);
 #define GPS_SERIAL_SPEED 9600
 
 // Serial port
-#define SERIAL_SPEED 9600
+#define SERIAL_SPEED 38400
 #define DEBUG true
 
 //current sensor buffer
@@ -76,20 +76,19 @@ void loop() {
   //GPS data
   if (gpsSerial.available() > 40) {
     lastWritePos = collectGPSData(sensorBuffer);
-    calcChecksum(&sensorBuffer[1], lastWritePos - 1);
-    sendLastBuffer (lastWritePos + 2);
+    calcChecksum(&sensorBuffer[1], lastWritePos);
+    sendLastBuffer (lastWritePos + 3);
   }
-
 
   //Compass data
   lastWritePos = collectCompassData(sensorBuffer);
-  calcChecksum(&sensorBuffer[1], lastWritePos - 1);
-  sendLastBuffer (lastWritePos + 2);
+  calcChecksum(&sensorBuffer[1], lastWritePos);
+  sendLastBuffer (lastWritePos + 3);
 
   //Leak detection
   lastWritePos = collectLeakData(sensorBuffer);
-  calcChecksum(&sensorBuffer[1], lastWritePos - 1);
-  sendLastBuffer (lastWritePos + 2);
+  calcChecksum(&sensorBuffer[1], lastWritePos);
+  sendLastBuffer (lastWritePos + 3);
 
 }
 
@@ -111,7 +110,7 @@ short collectLeakData (byte sensorBuffer  []) {
   String result = printDouble (sensorValue, 5);
   result.getBytes(&sensorBuffer[2], 5) ;
   sensorBuffer[6] = '*';
-  return 7;
+  return 6;
 }
 
 short collectCompassData (byte sensorBuffer  []) {
@@ -147,7 +146,7 @@ short collectCompassData (byte sensorBuffer  []) {
   result = printDouble (event.magnetic.z, 6);
   result.getBytes(&sensorBuffer[16], 4) ;
   sensorBuffer[20] = '*';
-  return 21;
+  return 20;
 }
 
 

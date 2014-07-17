@@ -1,4 +1,4 @@
-package de.oliverprobst.tdk.navi.i2c;
+package de.oliverprobst.tdk.navi.serial;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.oliverprobst.tdk.navi.threads.I2CDataCollectThread;
+import de.oliverprobst.tdk.navi.threads.SerialDataCollectThread;
 
 /**
  * This standalone application is for debugging purposes. It listens at the I2C
@@ -17,12 +17,12 @@ import de.oliverprobst.tdk.navi.threads.I2CDataCollectThread;
  *         Oliver Probst <a
  *         href="mailto:oliverprobst@gmx.de">oliverprobst@gmx.de</a>
  */
-public class I2CTrafficListenerApp {
+public class TrafficListenerApp {
 
 	private static Logger log = LoggerFactory
-			.getLogger(I2CTrafficListenerApp.class);
+			.getLogger(TrafficListenerApp.class);
 
-	private final static ConcurrentLinkedQueue<I2CPackage> incoming = new ConcurrentLinkedQueue<I2CPackage>();
+	private final static ConcurrentLinkedQueue<SerialPackage> incoming = new ConcurrentLinkedQueue<SerialPackage>();
 
 	/**
 	 * @param args
@@ -32,8 +32,8 @@ public class I2CTrafficListenerApp {
 	public static void main(String[] args) throws Exception {
 
 		log.info("Starting I2C Traffic Listener of Tief-Dunkel-Kalt.org");
-		I2CDataCollectThread collectorThread = null;
-		collectorThread = new I2CDataCollectThread(incoming);
+		SerialDataCollectThread collectorThread = null;
+		collectorThread = new SerialDataCollectThread(incoming);
 
 		collectorThread
 				.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
@@ -69,7 +69,7 @@ public class I2CTrafficListenerApp {
 		}
 	}
 
-	private static void handle(I2CPackage msg) {
+	private static void handle(SerialPackage msg) {
 		log.info("--- New Message ------------------------- buffer size ="
 				+ incoming.size());
 		log.info("type    : " + msg.getType());
