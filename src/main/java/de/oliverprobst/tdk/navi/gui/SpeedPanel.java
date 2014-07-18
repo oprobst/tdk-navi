@@ -18,6 +18,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.dial.DialBackground;
 import org.jfree.chart.plot.dial.DialCap;
 import org.jfree.chart.plot.dial.DialPlot;
+import org.jfree.chart.plot.dial.DialValueIndicator;
 import org.jfree.chart.plot.dial.StandardDialFrame;
 import org.jfree.chart.plot.dial.StandardDialRange;
 import org.jfree.chart.plot.dial.StandardDialScale;
@@ -42,20 +43,20 @@ public class SpeedPanel extends JPanel implements PropertyChangeListener {
 		this.setLayout(gbl);
 
 		GridBagConstraints gbc = new GridBagConstraints(0, 0, 2, 1, 0.0d, 1.0d,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				new Insets(0, 0, 0, 0), 2, 2);
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
+						0, 0, 0, 0), 2, 2);
 
 		ChartPanel panel = createDial(layout);
 		this.add(panel, gbc);
 
-		
 		gbc = new GridBagConstraints(1, 1, 1, 1, 0.0d, 0.0d,
-		GridBagConstraints.SOUTHEAST, GridBagConstraints.BOTH, new
-		 Insets(0, 0, 0, 3), 2, 2);
-		 
+				GridBagConstraints.SOUTHEAST, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 3), 2, 2);
+
 		JLabel lblDesc = new JLabel("Speed");
-		layout.layoutTinyDescriptionLabel(lblDesc); this.add(lblDesc, gbc);
-		
+		layout.layoutTinyDescriptionLabel(lblDesc);
+		this.add(lblDesc, gbc);
+
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
@@ -65,7 +66,7 @@ public class SpeedPanel extends JPanel implements PropertyChangeListener {
 		}
 	}
 
-	DefaultValueDataset dataset = new DefaultValueDataset(10D);
+	DefaultValueDataset dataset = new DefaultValueDataset(9D);
 
 	private ChartPanel createDial(Layouter layout) {
 		dataset.setValue(0);
@@ -118,11 +119,23 @@ public class SpeedPanel extends JPanel implements PropertyChangeListener {
 		pointer.setFillPaint(Color.RED);
 		dialplot.addPointer(pointer);
 
+		DialValueIndicator dialvalueindicator = new DialValueIndicator(0);
+		Font font = new Font("Dialog", Font.BOLD, 40);
+ 
+		dialvalueindicator.setPaint(Color.WHITE);
+		dialvalueindicator.setFont(font);
+		dialvalueindicator.setOutlinePaint(Color.black);
+		dialvalueindicator.setNumberFormat(new DecimalFormat("0.0"));
+		dialvalueindicator.setRadius(0.45D);
+		dialvalueindicator.setAngle(-110D);
+		dialvalueindicator.setBackgroundPaint(Color.BLACK);
+
+		dialplot.addLayer(dialvalueindicator);
+
 		ChartPanel chartpanel = new ChartPanel(jfreechart);
 		chartpanel.setPreferredSize(new Dimension(60, 60));
 		chartpanel.setBackground(Color.BLACK);
 		jfreechart.setBackgroundPaint(Color.BLACK);
 		return chartpanel;
 	}
-
 }
