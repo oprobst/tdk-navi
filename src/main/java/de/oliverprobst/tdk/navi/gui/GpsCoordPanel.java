@@ -116,6 +116,9 @@ public class GpsCoordPanel extends JPanel implements PropertyChangeListener {
 
 	private void updateLocation(String locationGgaString) {
 		NmeaParser p = new NmeaParser(locationGgaString);
+		if (!p.isValid()) {
+			return;
+		}
 		int gpsQuality = Integer.parseInt(p.getSignalQuality());
 		if (gpsQuality > 0) {
 			String longitude = p.getFormattedLongitude();
@@ -126,10 +129,10 @@ public class GpsCoordPanel extends JPanel implements PropertyChangeListener {
 			lblEWHemisphere.setText(longitude);
 			lblPrecision.setText("✅" + p.getDiluentOfPrecision());
 			if (gpsQuality > 1) {
-				Color lightBlue = new Color(150, 150, 250);
-				lblNSHemisphere.setForeground(lightBlue);
-				lblEWHemisphere.setForeground(lightBlue);
-				lblPrecision.setForeground(lightBlue);
+				Color lightGreen = new Color(150, 250, 200);
+				lblNSHemisphere.setForeground(lightGreen);
+				lblEWHemisphere.setForeground(lightGreen);
+				lblPrecision.setForeground(lightGreen);
 				lblSat.setForeground(Color.CYAN);
 
 			} else {

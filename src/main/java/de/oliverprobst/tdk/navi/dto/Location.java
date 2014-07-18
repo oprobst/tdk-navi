@@ -1,5 +1,7 @@
 package de.oliverprobst.tdk.navi.dto;
 
+import java.text.DecimalFormat;
+
 public class Location implements Cloneable {
 
 	public Location() {
@@ -53,5 +55,23 @@ public class Location implements Cloneable {
 		clone.latitude = latitude;
 		clone.longitude = longitude;
 		return clone;
+	}
+
+	public String getFormattedLongitude() {
+
+		int lonDeg = (int) longitude;
+		int lonMin = (int) ((longitude - lonDeg) * 60);
+		int lonSec = (int) ((((longitude - lonDeg) * 60) - lonMin) * 1000);
+
+		return lonDeg + "° N " + lonMin + "." + lonSec;
+
+	}
+
+	public String getFormattedLatitude() {
+		int latDeg = (int) latitude;
+		int latMin = (int) ((latitude - latDeg) * 60);
+		int latSec = (int) ((((latitude - latDeg) * 60) - latMin) * 1000);
+		DecimalFormat formatterLng = new DecimalFormat("000");
+		return formatterLng.format(latDeg) + "° E " + latMin + "." + latSec;
 	}
 }

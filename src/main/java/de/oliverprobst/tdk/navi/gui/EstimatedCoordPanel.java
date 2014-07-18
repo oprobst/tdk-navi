@@ -6,7 +6,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -75,9 +74,14 @@ public class EstimatedCoordPanel extends JPanel implements
 						0, 0, 1), 0, 0);
 
 		layout.layoutMicroLabel(lblSat);
+
+		Color lightBlue = new Color(180, 180, 250);
+		lblNSHemisphere.setForeground(lightBlue);
+		lblEWHemisphere.setForeground(lightBlue);
+		lblPrecision.setForeground(lightBlue);
+
 		this.add(lblSat, gbc);
 	}
- 
 
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_ESTIMATED)) {
@@ -89,52 +93,11 @@ public class EstimatedCoordPanel extends JPanel implements
 			lastFixTimestamp = System.currentTimeMillis();
 
 		}
-		//updateLastFixLabel();
-	}
-
-	private void updateLastFixLabel() {
-
-		if (lastFixTimestamp > 0) {
-			long lastFix = System.currentTimeMillis() - lastFixTimestamp;
-			String lastFixString = String.format(
-					"%d:%02d",
-					TimeUnit.MILLISECONDS.toMinutes(lastFix),
-					TimeUnit.MILLISECONDS.toSeconds(lastFix)
-							- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
-									.toMinutes(lastFix)));
-			lblLastFix.setText("⌛" + lastFixString);
-
-			if (lastFix > 15000) {
-				int red = 255;
-				int notRed = (int) (220 - 220 * lastFix / 600000);
-				if (notRed < 0) {
-					notRed = 0;
-				}
-				Color ageColor = new Color(red, notRed, notRed);
-				lblNSHemisphere.setForeground(ageColor);
-				lblEWHemisphere.setForeground(ageColor);
-				lblSat.setForeground(ageColor);
-				lblPrecision.setForeground(ageColor);
-				lblLastFix.setVisible(true);
-			} else {
-				lblLastFix.setVisible(false);
-			}
-		}
 	}
 
 	private void updateLocation(Location location) {
-
-		int latDeg = (int) location.getLatitude();
-		int latMin = (int) ((location.getLatitude() - latDeg) * 60);
-		int latSec = (int) ((((location.getLatitude() - latDeg) * 60) - latMin) * 1000);
-
-		int lonDeg = (int) location.getLongitude();
-		int lonMin = (int) ((location.getLongitude() - lonDeg) * 60);
-		int lonSec = (int) ((((location.getLongitude() - lonDeg) * 60) - lonMin) * 1000);
-
-		lblNSHemisphere.setText(latDeg + "° " + latMin + "," + latSec);
-		lblEWHemisphere.setText(lonDeg + "° " + lonMin + "," + lonSec);
-
+		lblNSHemisphere.setText(location.getFormattedLatitude());
+		lblEWHemisphere.setText(location.getFormattedLongitude());
 	}
 
 }

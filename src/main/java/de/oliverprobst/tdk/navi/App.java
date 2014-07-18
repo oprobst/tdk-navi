@@ -42,7 +42,8 @@ import de.oliverprobst.tdk.navi.threads.SerialDataCollectThread;
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
 
-	private final static AbstractQueue<SerialPackage> incoming = new ArrayBlockingQueue<SerialPackage>(15);
+	private final static AbstractQueue<SerialPackage> incoming = new ArrayBlockingQueue<SerialPackage>(
+			DataProcessingThread.MAX_BUFFER_SIZE + 5);
 	private static MainDialog md = null;
 
 	public static void main(String[] args) {

@@ -17,8 +17,7 @@ public class DataProcessingThread extends Thread {
 
 	private final DefaultController dc;
 
-	public final static int MAX_BUFFER_SIZE = 15;
-	public final static int MAX_BUFFER_DELETE_OFFSET = 10;
+	public final static int MAX_BUFFER_SIZE = 20;
 
 	public DataProcessingThread(AbstractQueue<SerialPackage> incoming,
 			DefaultController dc) {
@@ -39,11 +38,7 @@ public class DataProcessingThread extends Thread {
 
 		while (!end) {
 			if (incoming.isEmpty()) {
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					log.error("Thread sleep interrupted!", e);
-				}
+			
 			} else {
 				handle(incoming.remove());
 			}
@@ -51,12 +46,7 @@ public class DataProcessingThread extends Thread {
 				log.warn("Incoming event buffer full. Discarding "
 						+ incoming.size() + " messages!");
 				incoming.clear();
-				/*
-				 * int diff = MAX_BUFFER_SIZE - incoming.size() +
-				 * MAX_BUFFER_DELETE_OFFSET; for (int i = 0; i < diff; i++) {
-				 * incoming.remove(); }
-				 */
-
+			
 			}
 		}
 		log.info("Ended Data Processing Thread");
