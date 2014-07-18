@@ -76,8 +76,8 @@ public class LocationEstimator {
 		double remaining = (gear - round) * (hiSpeed - lowSpeed);
 
 		double result = lowSpeed + remaining;
-		if (log.isInfoEnabled()) {
-			log.info("Calculated speed for gear " + gear + ": " + result
+		if (log.isDebugEnabled()) {
+			log.debug("Calculated speed for gear " + gear + ": " + result
 					+ " which is " + lowSpeed  + " plus "+ remaining + " on the way between " + hiSpeed
 					+ " and " + lowSpeed);
 		}
