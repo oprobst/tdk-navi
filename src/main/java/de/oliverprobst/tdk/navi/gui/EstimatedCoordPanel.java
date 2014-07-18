@@ -91,6 +91,10 @@ public class EstimatedCoordPanel extends JPanel implements
 
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_GPSFIX)) {
 			lastFixTimestamp = System.currentTimeMillis();
+			lblNSHemisphere.setText("GPS");
+			lblEWHemisphere.setText("active");
+			lblNSHemisphere.setForeground(Color.GRAY);
+			lblEWHemisphere.setForeground(Color.GRAY);
 
 		}
 	}
