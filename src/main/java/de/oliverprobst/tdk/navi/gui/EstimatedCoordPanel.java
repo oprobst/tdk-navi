@@ -24,6 +24,8 @@ public class EstimatedCoordPanel extends JPanel implements
 	private final JLabel lblNSHemisphere;
 	private final JLabel lblEWHemisphere;
 
+	private final Color lightBlue = new Color(180, 180, 250);
+
 	private final JLabel lblLastFix = new JLabel("");
 	private final JLabel lblSat = new JLabel("");
 	private final JLabel lblPrecision = new JLabel("");
@@ -75,7 +77,6 @@ public class EstimatedCoordPanel extends JPanel implements
 
 		layout.layoutMicroLabel(lblSat);
 
-		Color lightBlue = new Color(180, 180, 250);
 		lblNSHemisphere.setForeground(lightBlue);
 		lblEWHemisphere.setForeground(lightBlue);
 		lblPrecision.setForeground(lightBlue);
@@ -86,7 +87,9 @@ public class EstimatedCoordPanel extends JPanel implements
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_ESTIMATED)) {
 			updateLocation((Location) evt.getNewValue());
-
+			lblNSHemisphere.setForeground(lightBlue);
+			lblEWHemisphere.setForeground(lightBlue);
+			lblPrecision.setForeground(lightBlue);
 		}
 
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_GPSFIX)) {
