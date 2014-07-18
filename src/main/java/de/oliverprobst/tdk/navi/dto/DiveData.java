@@ -7,37 +7,20 @@ public class DiveData extends AbstractModel implements Cloneable {
 	private float depth;
 
 	private long divetime;
+	private Location estimatedLocation = new Location();
 	private int freeText;
+	private double gear;
 	private String gga;
 	private int humidity;
 	private StructuralIntegrity integrity = new StructuralIntegrity();
 	private PitchAndCourse pitchAndCourse = new PitchAndCourse(0, 0, 0);
+
 	private int runtimeScooter;
-	private int speed;
+
 	private long surfacetime;
 	private float temperature;
 	private int timeSinceLastGPS;
 	private float voltage;
-	private Location estimatedLocation = new Location();
-
-	/**
-	 * @return the estimatedLocation
-	 */
-	public Location getEstimatedLocation() {
-		return estimatedLocation;
-	}
-
-	/**
-	 * @param estimatedLocation
-	 *            the estimatedLocation to set
-	 */
-	public void setEstimatedLocation(Location estimatedLocation) {
-		super.propertyChangeSupport.firePropertyChange(
-				DiveDataProperties.PROP_ESTIMATED, this.estimatedLocation,
-				estimatedLocation);
-		this.estimatedLocation = estimatedLocation;
-	}
-
 	public DiveData() {
 		super();
 	}
@@ -55,7 +38,7 @@ public class DiveData extends AbstractModel implements Cloneable {
 		clone.humidity = humidity;
 		clone.freeText = freeText;
 		clone.voltage = voltage;
-		clone.speed = speed;
+		clone.gear = gear;
 		clone.pitchAndCourse = pitchAndCourse.clone();
 		clone.integrity = integrity.clone();
 		clone.estimatedLocation = estimatedLocation.clone();
@@ -77,10 +60,24 @@ public class DiveData extends AbstractModel implements Cloneable {
 	}
 
 	/**
+	 * @return the estimatedLocation
+	 */
+	public Location getEstimatedLocation() {
+		return estimatedLocation;
+	}
+
+	/**
 	 * @return the freeText
 	 */
 	public int getFreeText() {
 		return freeText;
+	}
+
+	/**
+	 * @return the gear
+	 */
+	public double getGear() {
+		return gear;
 	}
 
 	/**
@@ -105,17 +102,17 @@ public class DiveData extends AbstractModel implements Cloneable {
 	}
 
 	/**
+	 * @return the pitchAndCourse
+	 */
+	public PitchAndCourse getPitchAndCourse() {
+		return pitchAndCourse;
+	}
+
+	/**
 	 * @return the runtimeScooter
 	 */
 	public int getRuntimeScooter() {
 		return runtimeScooter;
-	}
-
-	/**
-	 * @return the speed
-	 */
-	public int getSpeed() {
-		return speed;
 	}
 
 	/**
@@ -167,11 +164,32 @@ public class DiveData extends AbstractModel implements Cloneable {
 	}
 
 	/**
+	 * @param estimatedLocation
+	 *            the estimatedLocation to set
+	 */
+	public void setEstimatedLocation(Location estimatedLocation) {
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_ESTIMATED, this.estimatedLocation,
+				estimatedLocation);
+		this.estimatedLocation = estimatedLocation;
+	}
+
+	/**
 	 * @param freeText
 	 *            the freeText to set
 	 */
 	public void setFreeText(int freeText) {
 		this.freeText = freeText;
+	}
+
+	/**
+	 * @param speed
+	 *            the speed to set
+	 */
+	public void setGear(double gear) {
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_SPEED, this.gear, gear);
+		this.gear = gear;
 	}
 
 	/**
@@ -204,22 +222,22 @@ public class DiveData extends AbstractModel implements Cloneable {
 		this.integrity = integrity;
 	}
 
+	public void setPitchAndCourse(PitchAndCourse pAc) {
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_COURSE,
+				this.pitchAndCourse.getCourse(), pAc.getCourse());
+
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_PITCH, this.pitchAndCourse, pAc);
+		this.pitchAndCourse = pAc;
+	}
+
 	/**
 	 * @param runtimeScooter
 	 *            the runtimeScooter to set
 	 */
 	public void setRuntimeScooter(int runtimeScooter) {
 		this.runtimeScooter = runtimeScooter;
-	}
-
-	/**
-	 * @param speed
-	 *            the speed to set
-	 */
-	public void setSpeed(int speed) {
-		super.propertyChangeSupport.firePropertyChange(
-				DiveDataProperties.PROP_SPEED, this.speed, speed);
-		this.speed = speed;
 	}
 
 	/**
@@ -260,23 +278,6 @@ public class DiveData extends AbstractModel implements Cloneable {
 		super.propertyChangeSupport.firePropertyChange(
 				DiveDataProperties.PROP_VOLTAGE, this.voltage, voltage);
 		this.voltage = voltage;
-	}
-
-	public void setPitchAndCourse(PitchAndCourse pAc) {
-		super.propertyChangeSupport.firePropertyChange(
-				DiveDataProperties.PROP_COURSE,
-				this.pitchAndCourse.getCourse(), pAc.getCourse());
-
-		super.propertyChangeSupport.firePropertyChange(
-				DiveDataProperties.PROP_PITCH, this.pitchAndCourse, pAc);
-		this.pitchAndCourse = pAc;
-	}
-
-	/**
-	 * @return the pitchAndCourse
-	 */
-	public PitchAndCourse getPitchAndCourse() {
-		return pitchAndCourse;
 	}
 
 }

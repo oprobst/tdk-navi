@@ -5,6 +5,7 @@ import java.util.AbstractQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.oliverprobst.tdk.navi.LocationEstimator;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.dto.PitchAndCourse;
 import de.oliverprobst.tdk.navi.serial.SerialPackage;
@@ -67,6 +68,10 @@ public class DataProcessingThread extends Thread {
 			parseCourse(payload);
 			break;
 
+		case SPEED:
+			parseSpeed(payload);
+			break;
+
 		case DEPTH:
 			parseDepth(payload);
 			break;
@@ -82,6 +87,14 @@ public class DataProcessingThread extends Thread {
 			break;
 		}
 
+	}
+
+	private void parseSpeed(String payload) {
+		try {
+			dc.setGear(Integer.parseInt(payload));
+		} catch (NumberFormatException e) {
+			log.warn("Received a speed message containing no number.", e);
+		}
 	}
 
 	private void parseCourse(String payload) {

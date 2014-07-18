@@ -2,8 +2,6 @@ package de.oliverprobst.tdk.navi.controller;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.oliverprobst.tdk.navi.HaversineConverter;
+import de.oliverprobst.tdk.navi.LocationEstimator;
 import de.oliverprobst.tdk.navi.NmeaParser;
-import de.oliverprobst.tdk.navi.config.Configuration;
 import de.oliverprobst.tdk.navi.config.Waypoint;
 import de.oliverprobst.tdk.navi.dto.DiveData;
 import de.oliverprobst.tdk.navi.dto.Location;
@@ -235,9 +233,11 @@ public class DefaultController {
 		this.notes = notes;
 	}
 
-	public void setSpeed(int speed) {
+	public void setGear(int speedByVibration) {
+		double gear = LocationEstimator.getInstance().calcScooterGear(
+				speedByVibration);
 		estimateLocation();
-		currentRecord.setSpeed(speed);
+		currentRecord.setGear(gear);
 	}
 
 	/**
@@ -259,28 +259,6 @@ public class DefaultController {
 
 	private void updateDiveProfile() {
 		firePropertyChange(DiveDataProperties.PROP_UPDATEPROFILE, null, record);
-	}
-
-	private final ArrayList<Integer> gearSpeed = new ArrayList<Integer>(10);
-
-	/**
-	 * @return the gearSpeed
-	 */
-	public ArrayList<Integer> getGearSpeed() {
-		return gearSpeed;
-	}
-
-	/**
-	 * @param config
-	 *            the loaded configuration which will be loaded into the
-	 *            gearSpeed array
-	 */
-	public void setGearSpeed(Configuration config) {
-		this.gearSpeed.clear();
-		for (BigInteger bi : config.getSettings().getSpeed().getGear()) {
-			this.gearSpeed.add(bi.intValue());
-		}
-
 	}
 
 	public void estimateLocation() {
@@ -308,7 +286,7 @@ public class DefaultController {
 		}
 
 		// no speed, no new location...
-		if (currentRecord.getSpeed() == 0) {
+		if (currentRecord.getGear() == 0) {
 			return;
 		}
 
@@ -334,17 +312,13 @@ public class DefaultController {
 
 		// let's do the new estimation:
 		lastPosEstimation = System.currentTimeMillis();
-		double distance = (((double) timeSinceLastLoc / 60000d) * calcCurrentScooterSpeed());
+		double distance = (((double) timeSinceLastLoc / 60000d) * LocationEstimator
+				.getInstance().calcScooterSpeed(currentRecord.getGear()));
 		Location estimatedLocation = HaversineConverter.getInstance()
 				.calculateNewLocation(latitude, longitude, heading, distance);
 
 		currentRecord.setEstimatedLocation(estimatedLocation);
 
-	}
-
-	private int calcCurrentScooterSpeed() {
-		// this.getGearSpeed().get(currentRecord.getSpeed());
-		return 35;
 	}
 
 	/**

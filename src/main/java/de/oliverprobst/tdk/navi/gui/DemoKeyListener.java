@@ -79,21 +79,21 @@ public class DemoKeyListener implements KeyListener {
 		case 82: // r
 			collectorThread.setGpsActive(!collectorThread.isGpsActive());
 			break;
-		case 107: // +
-			int speed = dd.getSpeed();
-			speed += 1;
-			if (speed > 10) {
-				speed = 10;
-			}
-			dc.setSpeed(speed);
-			break;
 		case 109: // -
-			speed = dd.getSpeed();
-			speed -= 1;
-			if (speed < 0) {
-				speed = 0;
+			int vib = collectorThread.getSimulatedVibration();
+			vib += 4;
+			if (vib > 400) {
+				vib = 400;
 			}
-			dc.setSpeed(speed);
+			collectorThread.setSimulatedVibration(vib);
+			break;
+		case 107: // +
+			vib = collectorThread.getSimulatedVibration();
+			vib -= 4;
+			if (vib < 0) {
+				vib = 0;
+			}
+			collectorThread.setSimulatedVibration(vib);
 			break;
 		case 34:// pageDown
 			frPitch -= 1;

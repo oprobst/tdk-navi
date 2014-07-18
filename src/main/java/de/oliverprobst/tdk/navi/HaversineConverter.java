@@ -22,7 +22,7 @@ public class HaversineConverter {
 		return instance;
 	}
 
-	private Logger log = LoggerFactory.getLogger(App.class);
+	private Logger log = LoggerFactory.getLogger(HaversineConverter.class);
 
 	public final static double AVERAGE_RADIUS_OF_EARTH = 6371.0;
 

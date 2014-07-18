@@ -24,6 +24,7 @@ import org.jfree.chart.plot.dial.StandardDialRange;
 import org.jfree.chart.plot.dial.StandardDialScale;
 import org.jfree.data.general.DefaultValueDataset;
 
+import de.oliverprobst.tdk.navi.LocationEstimator;
 import de.oliverprobst.tdk.navi.controller.DiveDataProperties;
 
 public class SpeedPanel extends JPanel implements PropertyChangeListener {
@@ -32,9 +33,9 @@ public class SpeedPanel extends JPanel implements PropertyChangeListener {
 	 * sid
 	 */
 	private static final long serialVersionUID = -5013078838389083700L;
-	
+
 	JLabel lblSpeed = new JLabel("m/s");
-	
+
 	/**
 	 * ctor
 	 */
@@ -55,7 +56,6 @@ public class SpeedPanel extends JPanel implements PropertyChangeListener {
 				GridBagConstraints.SOUTHEAST, GridBagConstraints.BOTH,
 				new Insets(0, 0, 0, 3), 2, 2);
 
-		
 		layout.layoutMicroLabel(lblSpeed);
 		this.add(lblSpeed, gbc);
 
@@ -63,8 +63,11 @@ public class SpeedPanel extends JPanel implements PropertyChangeListener {
 
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_SPEED)) {
-			Integer value = (Integer) evt.getNewValue();
+			Double value = (Double) evt.getNewValue();
 			dataset.setValue(value);
+			DecimalFormat f = new DecimalFormat("00");
+			lblSpeed.setText(f.format(LocationEstimator.getInstance()
+					.calcScooterSpeed(value)) + " m/min");
 		}
 	}
 

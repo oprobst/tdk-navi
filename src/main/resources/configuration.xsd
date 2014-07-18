@@ -50,8 +50,24 @@
 
 	<complexType name="speed">
 		<sequence>
-			<element name="gear" type="integer" minOccurs="2" maxOccurs="10"/>
+			<element name="gear" type="tns:gear" minOccurs="2" maxOccurs="10">
+			</element>
 		</sequence>
+	</complexType>
+
+	<complexType name="gear">
+		<attribute name="speed" type="integer">
+			<annotation>
+				<documentation>The sensor value to identify the gear level
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="sensor" type="integer" use="required">
+			<annotation>
+				<documentation>The sensor value to identify the gear level
+				</documentation>
+			</annotation>
+		</attribute>
 	</complexType>
 
 

@@ -16,15 +16,15 @@
 		</notes>
 		<forcemap>demo</forcemap> <!-- This map will be used -->
 		<speed> <!-- Scooter gear and corresponding speed -->
-			<gear>10</gear> <!-- 1 -->
-			<gear>16</gear> <!-- 2 -->
-			<gear>32</gear> <!-- 3 -->
-			<gear>36</gear> <!-- 4 -->
-			<gear>42</gear> <!-- 5 -->
-			<gear>46</gear> <!-- 6 -->
-			<gear>48</gear> <!-- 7 -->
-			<gear>52</gear> <!-- 8 -->
-			<gear>56</gear> <!-- 9 -->
+			<gear sensor="200" speed="10" /> <!-- 1 -->
+			<gear sensor="180" speed="16" /> <!-- 2 -->
+			<gear sensor="160" speed="32" /> <!-- 3 -->
+			<gear sensor="140" speed="36" /> <!-- 4 -->
+			<gear sensor="120" speed="42" /> <!-- 5 -->
+			<gear sensor="80" speed="46" /> <!-- 6 -->
+			<gear sensor="60" speed="48" /> <!-- 7 -->
+			<gear sensor="50" speed="52" /> <!-- 8 -->
+			<gear sensor="30" speed="56" /> <!-- 9 -->
 		</speed>
 	</settings>
 

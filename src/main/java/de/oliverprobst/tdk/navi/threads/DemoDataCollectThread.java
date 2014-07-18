@@ -24,6 +24,8 @@ public class DemoDataCollectThread extends Thread {
 
 	private boolean gpsActive = true;
 
+	private final AbstractQueue<SerialPackage> incoming;
+
 	private int iteration = 0;
 
 	// jura
@@ -31,7 +33,7 @@ public class DemoDataCollectThread extends Thread {
 
 	double lastGPSLong = 912.825; // = 009.213739
 
-	private final AbstractQueue<SerialPackage> incoming;
+	private int simulatedVibration = 130;
 
 	public DemoDataCollectThread(DefaultController dc,
 			AbstractQueue<SerialPackage> incoming2) {
@@ -39,9 +41,23 @@ public class DemoDataCollectThread extends Thread {
 		this.incoming = incoming2;
 		dc.setTemperature(24.2f);
 		dc.setDepth(0.0f);
-		dc.setSpeed(3);
+		dc.setGear(130);
 		dc.setIntegrityCode(998);
 		dc.setPitchAndCourse(new PitchAndCourse(000, -4, 0));
+	}
+
+	public String generateChecksum(String msg) {
+		String chksum = "todo"; // TODO
+
+		String msgOut = msg + chksum;
+		return msgOut;
+	}
+
+	/**
+	 * @return the simulatedVibration
+	 */
+	public int getSimulatedVibration() {
+		return simulatedVibration;
 	}
 
 	/**
@@ -83,12 +99,31 @@ public class DemoDataCollectThread extends Thread {
 		}
 	}
 
+	public void setCourse(int course, int frPitch, int lrPitxh) {
+		String msg = "$b" + course + "," + frPitch + "," + lrPitxh + "*";
+		msg = generateChecksum(msg);
+		this.incoming.add(new SerialPackage(msg));
+	}
+
 	/**
 	 * @param gpsActive
 	 *            the gpsActive to set
 	 */
 	public void setGpsActive(boolean gpsActive) {
 		this.gpsActive = gpsActive;
+	}
+
+	/**
+	 * @param simulatedVibration
+	 *            the simulatedVibration to set
+	 */
+	public void setSimulatedVibration(int simulatedVibration) {
+		this.simulatedVibration = simulatedVibration;
+		String message = "$d" + simulatedVibration + "*";
+		log.debug(message);
+		message = generateChecksum(message);
+
+		incoming.add(new SerialPackage(message));
 	}
 
 	private void writeCourse() {
@@ -191,7 +226,7 @@ public class DemoDataCollectThread extends Thread {
 				offY = +.5;
 				offX = -.5;
 			}
-			double speed = dc.getCurrentRecordClone().getSpeed();
+			double speed = dc.getCurrentRecord().getGear();
 			if (speed > 0) {
 				speed = speed / 500 + .003;
 			}
@@ -266,19 +301,6 @@ public class DemoDataCollectThread extends Thread {
 			dc.setVoltage(((float) (Math.random() + 10.5) * 10) / 10);
 		}
 
-	}
-
-	public void setCourse(int course, int frPitch, int lrPitxh) {
-		String msg = "$b" + course + "," + frPitch + "," + lrPitxh + "*";
-		msg = generateChecksum(msg);
-		this.incoming.add(new SerialPackage(msg));
-	}
-
-	public String generateChecksum(String msg) {
-		String chksum = "todo"; // TODO
-
-		String msgOut = msg + chksum;
-		return msgOut;
 	}
 
 }
