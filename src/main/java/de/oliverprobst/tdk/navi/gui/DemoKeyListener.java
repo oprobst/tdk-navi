@@ -29,14 +29,11 @@ public class DemoKeyListener implements KeyListener {
 
 	public void keyPressed(KeyEvent e) {
 
-		DiveData dd = dc.getCurrentRecordClone();
+		DiveData dd = dc.getCurrentRecord();
 		int lastIntegrityCode = dd.getIntegrity().getLastCode();
 
-		String pitch = (String) dd.getPitch();
-		String[] pitchValues = pitch.split(",");
-
-		int frPitch = Integer.parseInt(pitchValues[0]);
-		int lrPitxh = Integer.parseInt(pitchValues[1]);
+		int frPitch = dd.getPitchAndCourse().getFrontRearPitch();
+		int lrPitch = dd.getPitchAndCourse().getLeftRightPitch();
 
 		switch (e.getKeyCode()) {
 		case 81: // q
@@ -62,21 +59,21 @@ public class DemoKeyListener implements KeyListener {
 
 		case 69: // e
 		case 39: // arr right
-			int course = dd.getCourse();
+			int course = dd.getPitchAndCourse().getCourse();
 			course += 2;
 			if (course > 359) {
 				course = 0;
 			}
-			collectorThread.setCourse(course, frPitch, lrPitxh);
+			collectorThread.setCourse(course, frPitch, lrPitch);
 			break;
 		case 68: // d
 		case 37: // arr left
-			course = dd.getCourse();
+			course = dd.getPitchAndCourse().getCourse();
 			course -= 2;
 			if (course < 0) {
 				course = 359;
 			}
-			collectorThread.setCourse(course, frPitch, lrPitxh);
+			collectorThread.setCourse(course, frPitch, lrPitch);
 			break;
 		case 32: // space
 		case 82: // r
@@ -103,28 +100,32 @@ public class DemoKeyListener implements KeyListener {
 			if (frPitch < -180) {
 				frPitch = +180;
 			}
-			collectorThread.setCourse(dd.getCourse(), frPitch, lrPitxh);
-			 break;
+			collectorThread.setCourse(dd.getPitchAndCourse().getCourse(),
+					frPitch, lrPitch);
+			break;
 		case 33: // pageUp
 			frPitch += 1;
 			if (frPitch > 180) {
 				frPitch = -180;
 			}
-			collectorThread.setCourse(dd.getCourse(), frPitch, lrPitxh);
+			collectorThread.setCourse(dd.getPitchAndCourse().getCourse(),
+					frPitch, lrPitch);
 			break;
 		case 36:// home
-			lrPitxh -= 1;
-			if (lrPitxh < -180) {
-				lrPitxh = +180;
+			lrPitch -= 1;
+			if (lrPitch < -180) {
+				lrPitch = +180;
 			}
-			collectorThread.setCourse(dd.getCourse(), frPitch, lrPitxh);
+			collectorThread.setCourse(dd.getPitchAndCourse().getCourse(),
+					frPitch, lrPitch);
 			break;
 		case 35: // end
-			lrPitxh += 1;
-			if (lrPitxh > 180) {
-				lrPitxh = -180;
+			lrPitch += 1;
+			if (lrPitch > 180) {
+				lrPitch = -180;
 			}
-			collectorThread.setCourse(dd.getCourse(), frPitch, lrPitxh);
+			collectorThread.setCourse(dd.getPitchAndCourse().getCourse(),
+					frPitch, lrPitch);
 			break;
 
 		case 71: // g

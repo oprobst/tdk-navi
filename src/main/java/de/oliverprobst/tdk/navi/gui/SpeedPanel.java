@@ -32,7 +32,9 @@ public class SpeedPanel extends JPanel implements PropertyChangeListener {
 	 * sid
 	 */
 	private static final long serialVersionUID = -5013078838389083700L;
-
+	
+	JLabel lblSpeed = new JLabel("m/s");
+	
 	/**
 	 * ctor
 	 */
@@ -53,9 +55,9 @@ public class SpeedPanel extends JPanel implements PropertyChangeListener {
 				GridBagConstraints.SOUTHEAST, GridBagConstraints.BOTH,
 				new Insets(0, 0, 0, 3), 2, 2);
 
-		JLabel lblDesc = new JLabel("Speed");
-		layout.layoutTinyDescriptionLabel(lblDesc);
-		this.add(lblDesc, gbc);
+		
+		layout.layoutMicroLabel(lblSpeed);
+		this.add(lblSpeed, gbc);
 
 	}
 
@@ -116,12 +118,12 @@ public class SpeedPanel extends JPanel implements PropertyChangeListener {
 
 		dialplot.removePointer(0);
 		org.jfree.chart.plot.dial.DialPointer.Pointer pointer = new org.jfree.chart.plot.dial.DialPointer.Pointer();
-		pointer.setFillPaint(Color.RED);
+		pointer.setFillPaint(Color.WHITE);
 		dialplot.addPointer(pointer);
 
 		DialValueIndicator dialvalueindicator = new DialValueIndicator(0);
 		Font font = new Font("Dialog", Font.BOLD, 40);
- 
+
 		dialvalueindicator.setPaint(Color.WHITE);
 		dialvalueindicator.setFont(font);
 		dialvalueindicator.setOutlinePaint(Color.black);

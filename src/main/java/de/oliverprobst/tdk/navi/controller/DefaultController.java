@@ -17,11 +17,19 @@ import de.oliverprobst.tdk.navi.config.Configuration;
 import de.oliverprobst.tdk.navi.config.Waypoint;
 import de.oliverprobst.tdk.navi.dto.DiveData;
 import de.oliverprobst.tdk.navi.dto.Location;
+import de.oliverprobst.tdk.navi.dto.PitchAndCourse;
 import de.oliverprobst.tdk.navi.dto.StructuralIntegrity;
 
 public class DefaultController {
 
 	private final List<DiveData> record = new LinkedList<DiveData>();
+
+	/**
+	 * @return the currentRecord
+	 */
+	public DiveData getCurrentRecord() {
+		return currentRecord;
+	}
 
 	private final Collection<Waypoint> wps = new LinkedList<Waypoint>();
 
@@ -159,15 +167,6 @@ public class DefaultController {
 	}
 
 	/**
-	 * @param course
-	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setCourse(int)
-	 */
-	public void setCourse(int course) {
-		estimateLocation();
-		currentRecord.setCourse(course);
-	}
-
-	/**
 	 * @param depth
 	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setDepth(float)
 	 */
@@ -236,15 +235,6 @@ public class DefaultController {
 		this.notes = notes;
 	}
 
-	/**
-	 * @param inclination
-	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setInclination(int)
-	 */
-	public void setPitch(String string) {
-		estimateLocation();
-		currentRecord.setPitch(string);
-	}
-
 	public void setSpeed(int speed) {
 		estimateLocation();
 		currentRecord.setSpeed(speed);
@@ -304,10 +294,16 @@ public class DefaultController {
 		// only if pitch is inside tolerance
 		final int pitchTolerance = 10;
 
-		if (currentRecord.getFrontRearPitch() < pitchTolerance * -1
-				&& currentRecord.getFrontRearPitch() > pitchTolerance
-				&& currentRecord.getLeftRightPitch() < pitchTolerance * -1
-				&& currentRecord.getLeftRightPitch() > pitchTolerance) {
+		if (currentRecord.getPitchAndCourse() == null) {
+			return;
+		}
+
+		if (currentRecord.getPitchAndCourse().getFrontRearPitch() < pitchTolerance
+				* -1
+				&& currentRecord.getPitchAndCourse().getFrontRearPitch() > pitchTolerance
+				&& currentRecord.getPitchAndCourse().getLeftRightPitch() < pitchTolerance
+						* -1
+				&& currentRecord.getPitchAndCourse().getLeftRightPitch() > pitchTolerance) {
 			return;
 		}
 
@@ -324,7 +320,7 @@ public class DefaultController {
 		double latitude = 0;
 		double longitude = 0;
 		long timeSinceLastLoc = System.currentTimeMillis() - lastPosEstimation;
-		int heading = currentRecord.getCourse();
+		int heading = currentRecord.getPitchAndCourse().getCourse();
 		Location lastEstimation = currentRecord.getEstimatedLocation();
 		if (lastPosEstimation == -1) {
 			NmeaParser parser = new NmeaParser(currentRecord.getGga());
@@ -349,5 +345,16 @@ public class DefaultController {
 	private int calcCurrentScooterSpeed() {
 		// this.getGearSpeed().get(currentRecord.getSpeed());
 		return 35;
+	}
+
+	/**
+	 * Send a new pitch and course measurement to the current data set.
+	 * 
+	 * @param pAc
+	 *            Measured pitch and course
+	 */
+	public void setPitchAndCourse(PitchAndCourse pAc) {
+		estimateLocation();
+		currentRecord.setPitchAndCourse(pAc);
 	}
 }

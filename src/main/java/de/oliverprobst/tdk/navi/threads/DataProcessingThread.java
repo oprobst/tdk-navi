@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.oliverprobst.tdk.navi.controller.DefaultController;
+import de.oliverprobst.tdk.navi.dto.PitchAndCourse;
 import de.oliverprobst.tdk.navi.serial.SerialPackage;
 
 public class DataProcessingThread extends Thread {
@@ -38,7 +39,7 @@ public class DataProcessingThread extends Thread {
 
 		while (!end) {
 			if (incoming.isEmpty()) {
-			
+
 			} else {
 				handle(incoming.remove());
 			}
@@ -46,7 +47,7 @@ public class DataProcessingThread extends Thread {
 				log.warn("Incoming event buffer full. Discarding "
 						+ incoming.size() + " messages!");
 				incoming.clear();
-			
+
 			}
 		}
 		log.info("Ended Data Processing Thread");
@@ -84,10 +85,10 @@ public class DataProcessingThread extends Thread {
 	}
 
 	private void parseCourse(String payload) {
-		String[] split = payload.split(",");
-		dc.setCourse((int) Math.round(Double.parseDouble(split[0])));
-		dc.setPitch(((int) Math.round(Double.parseDouble(split[1]))) + ","
-				+ ((int) Math.round(Double.parseDouble(split[2]))));// well... :-(
+		PitchAndCourse pAc = PitchAndCourse.construct(payload);
+		if (pAc != null) {
+			dc.setPitchAndCourse(pAc);
+		}
 	}
 
 	private void parseGga(String payload) {

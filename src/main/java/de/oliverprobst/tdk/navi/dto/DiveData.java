@@ -4,18 +4,14 @@ import de.oliverprobst.tdk.navi.controller.DiveDataProperties;
 
 public class DiveData extends AbstractModel implements Cloneable {
 
-	private int course;
-
 	private float depth;
 
 	private long divetime;
 	private int freeText;
-	private int frontRearPitch = 0;
 	private String gga;
 	private int humidity;
 	private StructuralIntegrity integrity = new StructuralIntegrity();
-	private int leftRightPitch = 0;
-	private String pitch;
+	private PitchAndCourse pitchAndCourse = new PitchAndCourse(0, 0, 0);
 	private int runtimeScooter;
 	private int speed;
 	private long surfacetime;
@@ -52,28 +48,18 @@ public class DiveData extends AbstractModel implements Cloneable {
 		clone.depth = depth;
 		clone.divetime = divetime;
 		clone.surfacetime = surfacetime;
-		clone.course = course;
 		clone.gga = gga;
 		clone.runtimeScooter = runtimeScooter;
 		clone.timeSinceLastGPS = timeSinceLastGPS;
 		clone.temperature = temperature;
-		clone.pitch = pitch;
 		clone.humidity = humidity;
 		clone.freeText = freeText;
 		clone.voltage = voltage;
 		clone.speed = speed;
-		clone.leftRightPitch = leftRightPitch;
-		clone.frontRearPitch = frontRearPitch;
+		clone.pitchAndCourse = pitchAndCourse.clone();
 		clone.integrity = integrity.clone();
 		clone.estimatedLocation = estimatedLocation.clone();
 		return clone;
-	}
-
-	/**
-	 * @return the course
-	 */
-	public int getCourse() {
-		return course;
 	}
 
 	/**
@@ -98,13 +84,6 @@ public class DiveData extends AbstractModel implements Cloneable {
 	}
 
 	/**
-	 * @return the frontRearPitch
-	 */
-	public int getFrontRearPitch() {
-		return frontRearPitch;
-	}
-
-	/**
 	 * @return the lastNMEA
 	 */
 	public String getGga() {
@@ -123,20 +102,6 @@ public class DiveData extends AbstractModel implements Cloneable {
 	 */
 	public StructuralIntegrity getIntegrity() {
 		return integrity;
-	}
-
-	/**
-	 * @return the leftRightPitch
-	 */
-	public int getLeftRightPitch() {
-		return leftRightPitch;
-	}
-
-	/**
-	 * @return the pitch
-	 */
-	public String getPitch() {
-		return pitch;
 	}
 
 	/**
@@ -179,16 +144,6 @@ public class DiveData extends AbstractModel implements Cloneable {
 	 */
 	public float getVoltage() {
 		return voltage;
-	}
-
-	/**
-	 * @param course
-	 *            the course to set
-	 */
-	public void setCourse(int course) {
-		super.propertyChangeSupport.firePropertyChange(
-				DiveDataProperties.PROP_COURSE, this.course, course);
-		this.course = course;
 	}
 
 	/**
@@ -250,19 +205,6 @@ public class DiveData extends AbstractModel implements Cloneable {
 	}
 
 	/**
-	 * @param pitch
-	 *            the pitch to set
-	 */
-	public void setPitch(String pitch) {
-		super.propertyChangeSupport.firePropertyChange(
-				DiveDataProperties.PROP_PITCH, this.pitch, pitch);
-		this.pitch = pitch;
-		String[] values = pitch.split(",");
-		frontRearPitch = Integer.parseInt(values[0]);
-		leftRightPitch = Integer.parseInt(values[1]);
-	}
-
-	/**
 	 * @param runtimeScooter
 	 *            the runtimeScooter to set
 	 */
@@ -318,6 +260,23 @@ public class DiveData extends AbstractModel implements Cloneable {
 		super.propertyChangeSupport.firePropertyChange(
 				DiveDataProperties.PROP_VOLTAGE, this.voltage, voltage);
 		this.voltage = voltage;
+	}
+
+	public void setPitchAndCourse(PitchAndCourse pAc) {
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_COURSE,
+				this.pitchAndCourse.getCourse(), pAc.getCourse());
+
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_PITCH, this.pitchAndCourse, pAc);
+		this.pitchAndCourse = pAc;
+	}
+
+	/**
+	 * @return the pitchAndCourse
+	 */
+	public PitchAndCourse getPitchAndCourse() {
+		return pitchAndCourse;
 	}
 
 }

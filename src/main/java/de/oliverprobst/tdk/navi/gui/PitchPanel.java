@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import de.oliverprobst.tdk.navi.controller.DiveDataProperties;
+import de.oliverprobst.tdk.navi.dto.PitchAndCourse;
 
 public class PitchPanel extends JPanel implements PropertyChangeListener {
 
@@ -59,12 +60,12 @@ public class PitchPanel extends JPanel implements PropertyChangeListener {
 
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_PITCH)) {
-			String newVal = (String) evt.getNewValue();
-			String[] values = newVal.split(",");
-			this.hpanel.setPitch(Integer.parseInt(values[0]),
-					Integer.parseInt(values[1]));
-			lblPitchFrontRear.setText("↕ " + values[0] + "");
-			lblPitchLeftRight.setText("↔ " + values[1] + "");
+			PitchAndCourse newVal = (PitchAndCourse) evt.getNewValue();
+
+			this.hpanel.setPitch(newVal.getFrontRearPitch(),
+					newVal.getLeftRightPitch());
+			lblPitchFrontRear.setText("↕ " + newVal.getFrontRearPitch() + "");
+			lblPitchLeftRight.setText("↔ " + newVal.getLeftRightPitch() + "");
 		}
 
 	}

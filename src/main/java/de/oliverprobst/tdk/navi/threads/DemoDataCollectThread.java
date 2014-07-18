@@ -4,7 +4,6 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.AbstractQueue;
 import java.util.TimeZone;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +12,7 @@ import de.oliverprobst.tdk.navi.HaversineConverter;
 import de.oliverprobst.tdk.navi.NmeaParser;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.dto.DiveData;
+import de.oliverprobst.tdk.navi.dto.PitchAndCourse;
 import de.oliverprobst.tdk.navi.serial.SerialPackage;
 
 public class DemoDataCollectThread extends Thread {
@@ -39,10 +39,9 @@ public class DemoDataCollectThread extends Thread {
 		this.incoming = incoming2;
 		dc.setTemperature(24.2f);
 		dc.setDepth(0.0f);
-		dc.setCourse(045);
 		dc.setSpeed(3);
-		dc.setPitch("-8,1");
 		dc.setIntegrityCode(998);
+		dc.setPitchAndCourse(new PitchAndCourse(000, -4, 0));
 	}
 
 	/**
@@ -94,8 +93,8 @@ public class DemoDataCollectThread extends Thread {
 
 	private void writeCourse() {
 
-		DiveData record = dc.getCurrentRecordClone();
-		int course = record.getCourse();
+		DiveData record = dc.getCurrentRecord();
+		int course = record.getPitchAndCourse().getCourse();
 
 		int c = (int) (((Math.random()) - .5) * 0.8) + course;
 		if (c > 360) {
@@ -126,7 +125,8 @@ public class DemoDataCollectThread extends Thread {
 			}
 		}
 
-		setCourse(c, record.getFrontRearPitch(), record.getLeftRightPitch());
+		setCourse(c, record.getPitchAndCourse().getFrontRearPitch(), record
+				.getPitchAndCourse().getLeftRightPitch());
 
 	}
 
@@ -164,7 +164,8 @@ public class DemoDataCollectThread extends Thread {
 			// EW: 00913.672 - 00912.710
 			double offY = 0;
 			double offX = 0;
-			int course = dc.getCurrentRecordClone().getCourse();
+			int course = dc.getCurrentRecordClone().getPitchAndCourse()
+					.getCourse();
 			if (course > 336 || course < 22) {
 				offY = +1.0;
 				offX = 0;

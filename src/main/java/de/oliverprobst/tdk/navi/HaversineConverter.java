@@ -89,12 +89,6 @@ public class HaversineConverter {
 	public Location calculateNewLocation(double fromLat, double fromLng,
 			double bearing, double distance) {
 
-		// Formula: φ2 = asin( sin φ1 ⋅ cos δ + cos φ1 ⋅ sin δ ⋅ cos θ )
-		// λ2 = λ1 + atan2( sin θ ⋅ sin δ ⋅ cos φ1, cos δ − sin φ1 ⋅ sin φ2 )
-
-		// where φ is latitude, λ is longitude, θ is the bearing (in radians,
-		// clockwise from north), δ is the angular distance (in radians) d/R; d
-		// being the distance travelled, R the earth’s radius
 		// from http://www.movable-type.co.uk/scripts/latlong.html
 
 		distance = distance / 1000;
