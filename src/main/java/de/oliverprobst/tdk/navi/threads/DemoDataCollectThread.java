@@ -2,7 +2,9 @@ package de.oliverprobst.tdk.navi.threads;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.AbstractQueue;
 import java.util.TimeZone;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +13,7 @@ import de.oliverprobst.tdk.navi.HaversineConverter;
 import de.oliverprobst.tdk.navi.NmeaParser;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.dto.DiveData;
+import de.oliverprobst.tdk.navi.serial.SerialPackage;
 
 public class DemoDataCollectThread extends Thread {
 
@@ -28,8 +31,12 @@ public class DemoDataCollectThread extends Thread {
 
 	double lastGPSLong = 912.825; // = 009.213739
 
-	public DemoDataCollectThread(DefaultController dc) {
+	private final AbstractQueue<SerialPackage> incoming;
+
+	public DemoDataCollectThread(DefaultController dc,
+			AbstractQueue<SerialPackage> incoming2) {
 		this.dc = dc;
+		this.incoming = incoming2;
 		dc.setTemperature(24.2f);
 		dc.setDepth(0.0f);
 		dc.setCourse(045);
@@ -86,6 +93,7 @@ public class DemoDataCollectThread extends Thread {
 	}
 
 	private void writeCourse() {
+
 		DiveData record = dc.getCurrentRecordClone();
 		int course = record.getCourse();
 
@@ -118,7 +126,8 @@ public class DemoDataCollectThread extends Thread {
 			}
 		}
 
-		dc.setCourse(c);
+		setCourse(c, record.getFrontRearPitch(), record.getLeftRightPitch());
+
 	}
 
 	private void writeDepth() {
@@ -199,13 +208,15 @@ public class DemoDataCollectThread extends Thread {
 			int isDGPS = 0;
 			isDGPS = (int) (Math.random() + 1.10);
 
-			String message = "$GPGGA,161725.62,"
+			String message = "$aGPGGA,161725.62,"
 					+ formatterLng.format(lastGPSLat) + ",N,"
 					+ formatterLat.format(lastGPSLong) + ",E," + isDGPS
 					+ ",06,1.10,193.6,M,47.4,M,,*59";
 			log.debug(message);
-			// (checksum invalid)
-			dc.setGGA(message);
+
+			message = generateChecksum(message);
+
+			incoming.add(new SerialPackage(message));
 		}
 	}
 
@@ -254,6 +265,19 @@ public class DemoDataCollectThread extends Thread {
 			dc.setVoltage(((float) (Math.random() + 10.5) * 10) / 10);
 		}
 
+	}
+
+	public void setCourse(int course, int frPitch, int lrPitxh) {
+		String msg = "$b" + course + "," + frPitch + "," + lrPitxh + "*";
+		msg = generateChecksum(msg);
+		this.incoming.add(new SerialPackage(msg));
+	}
+
+	public String generateChecksum(String msg) {
+		String chksum = "todo"; // TODO
+
+		String msgOut = msg + chksum;
+		return msgOut;
 	}
 
 }

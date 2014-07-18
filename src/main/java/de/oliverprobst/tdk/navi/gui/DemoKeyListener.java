@@ -67,7 +67,7 @@ public class DemoKeyListener implements KeyListener {
 			if (course > 359) {
 				course = 0;
 			}
-			dc.setCourse(course);
+			collectorThread.setCourse(course, frPitch, lrPitxh);
 			break;
 		case 68: // d
 		case 37: // arr left
@@ -76,7 +76,7 @@ public class DemoKeyListener implements KeyListener {
 			if (course < 0) {
 				course = 359;
 			}
-			dc.setCourse(course);
+			collectorThread.setCourse(course, frPitch, lrPitxh);
 			break;
 		case 32: // space
 		case 82: // r
@@ -103,28 +103,28 @@ public class DemoKeyListener implements KeyListener {
 			if (frPitch < -180) {
 				frPitch = +180;
 			}
-			dc.setPitch(frPitch + "," + lrPitxh);
-			break;
+			collectorThread.setCourse(dd.getCourse(), frPitch, lrPitxh);
+			 break;
 		case 33: // pageUp
 			frPitch += 1;
 			if (frPitch > 180) {
 				frPitch = -180;
 			}
-			dc.setPitch(frPitch + "," + lrPitxh);
+			collectorThread.setCourse(dd.getCourse(), frPitch, lrPitxh);
 			break;
 		case 36:// home
 			lrPitxh -= 1;
 			if (lrPitxh < -180) {
 				lrPitxh = +180;
 			}
-			dc.setPitch(frPitch + "," + lrPitxh);
+			collectorThread.setCourse(dd.getCourse(), frPitch, lrPitxh);
 			break;
 		case 35: // end
 			lrPitxh += 1;
 			if (lrPitxh > 180) {
 				lrPitxh = -180;
 			}
-			dc.setPitch(frPitch + "," + lrPitxh);
+			collectorThread.setCourse(dd.getCourse(), frPitch, lrPitxh);
 			break;
 
 		case 71: // g

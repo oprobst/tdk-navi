@@ -32,11 +32,13 @@ public class DiveData extends AbstractModel implements Cloneable {
 	}
 
 	/**
-	 * @param estimatedLocation the estimatedLocation to set
+	 * @param estimatedLocation
+	 *            the estimatedLocation to set
 	 */
 	public void setEstimatedLocation(Location estimatedLocation) {
 		super.propertyChangeSupport.firePropertyChange(
-				DiveDataProperties.PROP_ESTIMATED, this.estimatedLocation, estimatedLocation);
+				DiveDataProperties.PROP_ESTIMATED, this.estimatedLocation,
+				estimatedLocation);
 		this.estimatedLocation = estimatedLocation;
 	}
 
@@ -60,6 +62,8 @@ public class DiveData extends AbstractModel implements Cloneable {
 		clone.freeText = freeText;
 		clone.voltage = voltage;
 		clone.speed = speed;
+		clone.leftRightPitch = leftRightPitch;
+		clone.frontRearPitch = frontRearPitch;
 		clone.integrity = integrity.clone();
 		clone.estimatedLocation = estimatedLocation.clone();
 		return clone;

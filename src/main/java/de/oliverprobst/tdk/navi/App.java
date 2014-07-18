@@ -8,8 +8,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.AbstractQueue;
 import java.util.Locale;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import javax.swing.JFrame;
 
@@ -31,17 +32,17 @@ import de.oliverprobst.tdk.navi.threads.DemoDataCollectThread;
 import de.oliverprobst.tdk.navi.threads.SerialDataCollectThread;
 
 /**
- *  
- *TODO
-  // Once you have your heading, you must then add your 'Declination Angle', which is the 'Error' of the magnetic field in your location.
-  // Find yours here: http://www.magnetic-declination.com/
-  // Mine is: -13* 2' W, which is ~13 Degrees, or (which we need) 0.22 radians
-  // If you cannot find your Declination, comment out these two lines, your compass will be slightly off.
+ * 
+ * TODO // Once you have your heading, you must then add your 'Declination
+ * Angle', which is the 'Error' of the magnetic field in your location. // Find
+ * yours here: http://www.magnetic-declination.com/ // Mine is: -13* 2' W, which
+ * is ~13 Degrees, or (which we need) 0.22 radians // If you cannot find your
+ * Declination, comment out these two lines, your compass will be slightly off.
  */
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
 
-	private final static ConcurrentLinkedQueue<SerialPackage> incoming = new ConcurrentLinkedQueue<SerialPackage>();
+	private final static AbstractQueue<SerialPackage> incoming = new ArrayBlockingQueue<SerialPackage>(15);
 	private static MainDialog md = null;
 
 	public static void main(String[] args) {
@@ -120,25 +121,6 @@ public class App {
 		collectorThread = new SerialDataCollectThread(incoming);
 		dataProcessingThread = new DataProcessingThread(incoming, dc);
 
-		UncaughtExceptionHandler uch = new UncaughtExceptionHandler() {
-			public void uncaughtException(Thread t, Throwable e) {
-				if (dataProcessingThread != null) {
-					dataProcessingThread.end();
-				}
-				if (collectorThread != null) {
-					collectorThread.end();
-				}
-				log.error(
-						"Thread "
-								+ t.getName()
-								+ " died. Exited the other Thread and ending data collection.",
-						e);
-
-				log.info("Entering DEMO Mode due to previous exception.");
-				runInDemoMode(dc, config);
-			}
-		};
-
 		dataProcessingThread.setUncaughtExceptionHandler(uch);
 		collectorThread.setUncaughtExceptionHandler(uch);
 
@@ -170,21 +152,28 @@ public class App {
 			md.requestFocus();
 		}
 
-		DemoDataCollectThread collectorThread = new DemoDataCollectThread(dc);
-		collectorThread
-				.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-					public void uncaughtException(Thread t, Throwable e) {
-						log.error("Demo Thread " + t.getName()
-								+ " died. Ending Application.", e);
+		DemoDataCollectThread collectorThread = new DemoDataCollectThread(dc,
+				incoming);
 
-						System.exit(-1);
-					}
-				});
+		dataProcessingThread = new DataProcessingThread(incoming, dc);
 
-		md.addKeyListener(new DemoKeyListener(dc, collectorThread));
+		dataProcessingThread.setUncaughtExceptionHandler(uch);
+		collectorThread.setUncaughtExceptionHandler(uch);
+
+		dataProcessingThread.start();
 		collectorThread.start();
 
+		md.addKeyListener(new DemoKeyListener(dc, collectorThread));
+
 	}
+
+	private static UncaughtExceptionHandler uch = new UncaughtExceptionHandler() {
+		public void uncaughtException(Thread t, Throwable e) {
+			log.error("Thread " + t.getName()
+					+ " died. Trying to restart Thread.", e);
+			t.start();
+		}
+	};
 
 	/**
 	 * @param dc

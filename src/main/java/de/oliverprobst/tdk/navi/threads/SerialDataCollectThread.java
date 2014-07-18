@@ -1,6 +1,6 @@
 package de.oliverprobst.tdk.navi.threads;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.AbstractQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +15,9 @@ public class SerialDataCollectThread extends Thread {
 	private static Logger log = LoggerFactory
 			.getLogger(SerialDataCollectThread.class);
 
-	private final ConcurrentLinkedQueue<SerialPackage> incoming;
+	private final AbstractQueue<SerialPackage> incoming;
 
-	public SerialDataCollectThread(ConcurrentLinkedQueue<SerialPackage> incoming) {
+	public SerialDataCollectThread(AbstractQueue<SerialPackage> incoming) {
 		this.incoming = incoming;
 	}
 
@@ -37,7 +37,7 @@ public class SerialDataCollectThread extends Thread {
 		serial.open(Serial.DEFAULT_COM_PORT, 38400);
 
 		StringBuilder sb = new StringBuilder();
-		//int iteration = 0;
+		// int iteration = 0;
 
 		while (!end) {
 			if (serial.isOpen() && serial.availableBytes() > 90) {

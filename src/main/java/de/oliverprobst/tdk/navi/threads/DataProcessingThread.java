@@ -1,6 +1,6 @@
 package de.oliverprobst.tdk.navi.threads;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.AbstractQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,14 +13,14 @@ public class DataProcessingThread extends Thread {
 	private static Logger log = LoggerFactory
 			.getLogger(DataProcessingThread.class);
 
-	private final ConcurrentLinkedQueue<SerialPackage> incoming;
+	private final AbstractQueue<SerialPackage> incoming;
 
 	private final DefaultController dc;
 
-	public final static int MAX_BUFFER_SIZE = 10;
+	public final static int MAX_BUFFER_SIZE = 15;
 	public final static int MAX_BUFFER_DELETE_OFFSET = 10;
 
-	public DataProcessingThread(ConcurrentLinkedQueue<SerialPackage> incoming,
+	public DataProcessingThread(AbstractQueue<SerialPackage> incoming,
 			DefaultController dc) {
 		this.incoming = incoming;
 		this.dc = dc;
@@ -95,9 +95,9 @@ public class DataProcessingThread extends Thread {
 
 	private void parseCourse(String payload) {
 		String[] split = payload.split(",");
-		dc.setCourse((int) (Double.parseDouble(split[0]) + 0.5));
-		dc.setPitch(((int) (Double.parseDouble(split[1]) + 0.5)) + ","
-				+ ((int) (Double.parseDouble(split[2]) + 0.5)));// well... :-(
+		dc.setCourse((int) Math.round(Double.parseDouble(split[0])));
+		dc.setPitch(((int) Math.round(Double.parseDouble(split[1]))) + ","
+				+ ((int) Math.round(Double.parseDouble(split[2]))));// well... :-(
 	}
 
 	private void parseGga(String payload) {
