@@ -8,7 +8,7 @@ public class NmeaParser {
 
 	public NmeaParser(String gga) {
 		ggaSplit = gga.split(",");
-		valid = (ggaSplit[4].length() > 0);
+		valid = (ggaSplit[5].length() > 0);
 		// todo verify (Length, Checksum)
 	}
 
