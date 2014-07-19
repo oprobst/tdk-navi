@@ -21,9 +21,10 @@ public class SerialDataCollectThread extends Thread {
 		this.incoming = incoming;
 	}
 
-	public static final int DELAY = 10;
+	public static final int DELAY = 1;
 
 	final Serial serial = SerialFactory.createInstance();
+	private int iteration = 0;
 
 	/*
 	 * (non-Javadoc)
@@ -40,7 +41,7 @@ public class SerialDataCollectThread extends Thread {
 		// int iteration = 0;
 
 		while (!end) {
-			if (serial.isOpen() && serial.availableBytes() > 90) {
+			if (serial.isOpen() && serial.availableBytes() > 3) {
 				// reset buffer data
 				sb.setLength(0);
 
@@ -82,16 +83,17 @@ public class SerialDataCollectThread extends Thread {
 
 				}
 
-				// if (iteration == 1) {
-				// log.trace("Send 0.");
-				// serial.write((byte) 0x00);
-				// serial.flush();
-				// } else if (iteration > 1) {
-				// serial.write((byte) 0x01);
-				// serial.flush();
-				// log.trace("Send 1.");
-				// iteration = 0;
-				// }
+				iteration++;
+				if (iteration == 1000) {
+					log.trace("Send 0.");
+					serial.write((byte) 0x00);
+					// serial.flush();
+				} else if (iteration == 2000) {
+					serial.write((byte) 0x01);
+					// serial.flush();
+					log.trace("Send 1.");
+					iteration = 0;
+				}
 
 				// wait for a small interval before attempting to read
 				// serial data again
