@@ -19,6 +19,8 @@
  * Recompile your sketch and reupload it. "
  * From http://neophob.com/2013/04/i2c-communication-between-a-rpi-and-a-arduino/
 
+Changed in SoftwareSerial
+#define _SS_MAX_RX_BUFF 128 // RX buffer size 
  */
 #include <SoftwareSerial.h>
 #include <Wire.h>
@@ -70,11 +72,11 @@ void setup() {
  * Main loop
  */
 void loop() {
-  delay (15);
+  delay (10);
   short lastWritePos = 0;
 
   //GPS data
-  if (gpsSerial.available() > 40) {
+  if (gpsSerial.available() > 96) {
     lastWritePos = collectGPSData(sensorBuffer);
     calcChecksum(&sensorBuffer[1], lastWritePos);
     sendLastBuffer (lastWritePos + 3);
@@ -91,14 +93,14 @@ void loop() {
   sendLastBuffer (lastWritePos + 3);
 
   //Connectivity feedback via LED
- // if (Serial.available()) {
- //   byte in = Serial.read();
- //   if (in == 0x01) {
- //     digitalWrite(12, HIGH);
- //   } else if (in == 0x00) {
-  //    digitalWrite(12, LOW);
- //   }
- // }
+  //if (Serial.available() > 0) {
+    char incoming = Serial.read();
+    if (incoming == 0x6F) {
+      digitalWrite(12, HIGH);
+    } else if (incoming == 0x70) {
+      digitalWrite(12, LOW);
+    }
+  //}
 }
 
 
