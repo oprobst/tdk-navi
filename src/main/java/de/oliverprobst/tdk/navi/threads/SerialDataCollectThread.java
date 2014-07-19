@@ -84,24 +84,24 @@ public class SerialDataCollectThread extends Thread {
 				}
 
 				iteration++;
-				if (iteration == 1000) {
+				if (iteration == 50) {
 					log.trace("Send 0.");
-					serial.write((byte) 0x00);
-					// serial.flush();
-				} else if (iteration == 2000) {
-					serial.write((byte) 0x01);
-					// serial.flush();
+					serial.write((byte) 0x6F);					
+				} else if (iteration == 100) {
+					serial.write((byte) 0x70);
 					log.trace("Send 1.");
 					iteration = 0;
+				} else {
+					serial.write((byte) 0x00);
 				}
 
 				// wait for a small interval before attempting to read
 				// serial data again
-				try {
-					Thread.sleep(DELAY);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				//try {
+				//	Thread.sleep(DELAY);
+				//} catch (InterruptedException e) {
+				//	e.printStackTrace();
+				//}
 			}
 		}
 		log.info("Ended Data Collector for Serial Bus");

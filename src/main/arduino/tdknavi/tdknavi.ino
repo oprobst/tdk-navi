@@ -70,7 +70,7 @@ void setup() {
  * Main loop
  */
 void loop() {
-  //delay (30);
+  delay (15);
   short lastWritePos = 0;
 
   //GPS data
@@ -91,14 +91,14 @@ void loop() {
   sendLastBuffer (lastWritePos + 3);
 
   //Connectivity feedback via LED
-  if (Serial.available()) {
-    byte in = Serial.read();
-    if (in == 0x01) {
-      digitalWrite(12, HIGH);
-    } else if (in == 0x00) {
-      digitalWrite(12, LOW);
-    }
-  }
+ // if (Serial.available()) {
+ //   byte in = Serial.read();
+ //   if (in == 0x01) {
+ //     digitalWrite(12, HIGH);
+ //   } else if (in == 0x00) {
+  //    digitalWrite(12, LOW);
+ //   }
+ // }
 }
 
 
