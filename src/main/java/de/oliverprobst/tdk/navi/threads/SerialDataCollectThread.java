@@ -21,7 +21,7 @@ public class SerialDataCollectThread extends Thread {
 		this.incoming = incoming;
 	}
 
-	public static final int DELAY = 1;
+	public static final int DELAY = 50;
 
 	final Serial serial = SerialFactory.createInstance();
 	private int iteration = 0;
@@ -95,13 +95,13 @@ public class SerialDataCollectThread extends Thread {
 					serial.write((byte) 0x00);
 				}
 
-				// wait for a small interval before attempting to read
-				// serial data again
-				//try {
-				//	Thread.sleep(DELAY);
-				//} catch (InterruptedException e) {
-				//	e.printStackTrace();
-				//}
+				
+			} else {
+				try {
+					Thread.sleep(DELAY);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		log.info("Ended Data Collector for Serial Bus");
