@@ -19,7 +19,7 @@ public class DataProcessingThread extends Thread {
 
 	private final DefaultController dc;
 
-	public final static int MAX_BUFFER_SIZE = 20;
+	public final static int MAX_BUFFER_SIZE = 25;
 
 	public DataProcessingThread(AbstractQueue<SerialPackage> incoming,
 			DefaultController dc) {
@@ -43,13 +43,7 @@ public class DataProcessingThread extends Thread {
 
 			} else {
 				handle(incoming.remove());
-			}
-			if (incoming.size() > MAX_BUFFER_SIZE) {
-				log.warn("Incoming event buffer full. Discarding "
-						+ incoming.size() + " messages!");
-				incoming.clear();
-
-			}
+			}			
 		}
 		log.info("Ended Data Processing Thread");
 	}

@@ -43,7 +43,7 @@ public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
 
 	private final static AbstractQueue<SerialPackage> incoming = new ArrayBlockingQueue<SerialPackage>(
-			DataProcessingThread.MAX_BUFFER_SIZE + 5);
+			DataProcessingThread.MAX_BUFFER_SIZE);
 	private static MainDialog md = null;
 
 	public static void main(String[] args) {

@@ -67,7 +67,13 @@ public class SerialDataCollectThread extends Thread {
 				SerialPackage received = new SerialPackage(message);
 
 				if (received.isValid()) {
-					incoming.add(received);
+					try {
+						incoming.add(received);
+					} catch (IllegalStateException e) {
+						log.warn("Incoming Queue full. Discarding "
+								+ incoming.size() + " messages.");
+						incoming.clear();
+					}
 				} else {
 					log.warn("Discarded invalid Serial Event: '" + message
 							+ "'. Checksum is "
