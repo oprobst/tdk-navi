@@ -20,7 +20,7 @@
  * From http://neophob.com/2013/04/i2c-communication-between-a-rpi-and-a-arduino/
 
 Changed in SoftwareSerial
-#define _SS_MAX_RX_BUFF 128 // RX buffer size 
+#define _SS_MAX_RX_BUFF 128 // RX buffer size
  */
 #include <SoftwareSerial.h>
 #include <Wire.h>
@@ -47,6 +47,13 @@ const short MAX_MSG_SIZE = 80;
 short currBufferSize = -1;
 byte sensorBuffer[MAX_MSG_SIZE];
 
+//current GPS sensor buffer
+const short MAX_GPS_MSG_SIZE = 80;
+short currGpsBufferSize = 1;
+byte gpsSensorBuffer[MAX_GPS_MSG_SIZE];
+boolean gpsReceivedCompleteMsg = false;
+boolean gpsStringStarted = false;
+
 /*
  * Main setup routine
  */
@@ -63,6 +70,7 @@ void setup() {
 
   // write protocol marker
   sensorBuffer[0] = '$';
+  gpsSensorBuffer[0] = '$';
 
   gpsSerial.listen();
 }
@@ -72,45 +80,49 @@ void setup() {
  * Main loop
  */
 void loop() {
-  delay (10);
+  delay (2);
   short lastWritePos = 0;
 
+
   //GPS data
-  if (gpsSerial.available() > 96) {
-    lastWritePos = collectGPSData(sensorBuffer);
-    calcChecksum(&sensorBuffer[1], lastWritePos);
-    sendLastBuffer (lastWritePos + 3);
+  currGpsBufferSize = collectGPSData(gpsSensorBuffer, currGpsBufferSize);
+  if (gpsReceivedCompleteMsg) {
+    calcChecksum(&gpsSensorBuffer[1], currGpsBufferSize - 1);
+    sendLastBuffer (gpsSensorBuffer, currGpsBufferSize + 2 );
+    gpsReceivedCompleteMsg = false;
+    currGpsBufferSize = 1;
+    gpsStringStarted = false;
   }
 
   //Compass data
   lastWritePos = collectCompassData(sensorBuffer);
   calcChecksum(&sensorBuffer[1], lastWritePos);
-  sendLastBuffer (lastWritePos + 3);
+  sendLastBuffer (sensorBuffer, lastWritePos + 3);
 
   //Leak detection
   lastWritePos = collectLeakData(sensorBuffer);
   calcChecksum(&sensorBuffer[1], lastWritePos);
-  sendLastBuffer (lastWritePos + 3);
+  sendLastBuffer (sensorBuffer, lastWritePos + 3);
 
   //Connectivity feedback via LED
   //if (Serial.available() > 0) {
-    char incoming = Serial.read();
-    if (incoming == 0x6F) {
-      digitalWrite(12, HIGH);
-    } else if (incoming == 0x70) {
-      digitalWrite(12, LOW);
-    }
+  char incoming = Serial.read();
+  if (incoming == 0x6F) {
+    digitalWrite(12, HIGH);
+  } else if (incoming == 0x70) {
+    digitalWrite(12, LOW);
+  }
   //}
 }
 
 
 
 // Here, the last buffer shall be send via ttl
-void sendLastBuffer (unsigned short lastWritePos) {
+void sendLastBuffer (byte  bufferToSend [], unsigned short lastWritePos) {
 
   if (Serial.available())  {
     for (unsigned short b = 0; b < lastWritePos; b++) {
-      Serial.write(sensorBuffer[b]);
+      Serial.write(bufferToSend[b]);
     }
   }
 }
@@ -161,30 +173,21 @@ short collectCompassData (byte sensorBuffer  []) {
 }
 
 
-short collectGPSData (byte sensorBuffer []) {
+short collectGPSData (byte sensorBuffer [], short lastGpsWritePos) {
 
-  boolean started = false;
-  boolean complete = false;
+  while (gpsSerial.available() && !gpsReceivedCompleteMsg) {
 
-  short currentByteCount = 1;
-  if (gpsSerial.available()) {
-    while (!complete ) {
-      char in = gpsSerial.read();
-      if (in == '$') {
-        sensorBuffer[currentByteCount++] = 'a';
-        started = true;
-      } else if (started && in > 31 && in < 128) {
-        sensorBuffer[currentByteCount++] = in;
-      }
-
-      if (started) {
-        complete = (in == '*' || currentByteCount > (MAX_MSG_SIZE - 5));
-      }
-
-    }
+    char in = gpsSerial.read();
+    if (in == '$') {
+      sensorBuffer[lastGpsWritePos++] = 'a';
+      gpsStringStarted = true;
+    } else if (gpsStringStarted && in > 31 && in < 128) {
+      sensorBuffer[lastGpsWritePos++] = in;
+    }   
+    gpsReceivedCompleteMsg = (in == '*' || lastGpsWritePos > (MAX_GPS_MSG_SIZE - 5));   
   }
 
-  return currentByteCount;
+  return lastGpsWritePos;
 }
 
 void configureGPS() {
