@@ -63,7 +63,8 @@ public class App {
 
 		config = loadConfiguration();
 
-		DefaultController dc = new DefaultController();
+		DefaultController dc = new DefaultController(config.getSettings()
+				.getLogInterval().intValue());
 		LocationEstimator.getInstance().init(config);
 
 		boolean isDemoMode = config.getSettings().isDemomode();

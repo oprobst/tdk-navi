@@ -99,7 +99,7 @@ public class DefaultController {
 	protected PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(
 			this);
 
-	public DefaultController() {
+	public DefaultController(final int logIntervall) {
 
 		// used also to set the divetime and clock!
 		Thread recordThread = new Thread() {
@@ -119,7 +119,7 @@ public class DefaultController {
 						}
 					}
 					try {
-						Thread.sleep(5000);
+						Thread.sleep(logIntervall);
 					} catch (InterruptedException e) {
 						log.error("Thread sleep interrupted!", e);
 						if (errcount++ > 50) {

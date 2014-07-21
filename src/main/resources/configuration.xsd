@@ -39,6 +39,7 @@
 			<element name="demomode" type="boolean" default="false" minOccurs="0" />
 			<element name="notes" type="string" />
 			<element name="forcemap" type="IDREF" minOccurs="0" />
+			<element name="log-interval" type="integer" default="1000" minOccurs="0" />
 			<element name="speed" type="tns:speed" minOccurs="1" maxOccurs="1">
 				<annotation>
 					<documentation>Definition of the scooter speed in meter per minute
