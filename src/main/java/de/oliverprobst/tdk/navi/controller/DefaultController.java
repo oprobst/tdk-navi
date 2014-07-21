@@ -34,6 +34,21 @@ public class DefaultController {
 	private String notes = "";
 
 	private String mapImage = "";
+	private boolean brightTheme = false;
+
+	/**
+	 * @return the brightTheme
+	 */
+	public boolean isBrightTheme() {
+		return brightTheme;
+	}
+
+	/**
+	 * @param brightTheme the brightTheme to set
+	 */
+	public void setBrightTheme(boolean brightTheme) {
+		this.brightTheme = brightTheme;
+	}
 
 	private long lastGPSfix = 0;
 	private long lastPosEstimation = -1;
@@ -52,6 +67,8 @@ public class DefaultController {
 	public void setMapImage(String mapImage) {
 		this.mapImage = mapImage;
 	}
+	
+	
 
 	private DiveData currentRecord = new DiveData();
 

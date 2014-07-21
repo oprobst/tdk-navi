@@ -219,7 +219,8 @@ public class MainDialog extends JFrame {
 		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0d, 1.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
 				0, 0);
-		MapPanel mapPanel = new MapPanel(dc.getWPs(), dc.getMapImage());
+		MapPanel mapPanel = new MapPanel(dc.getWPs(), dc.getMapImage(),
+				dc.isBrightTheme());
 		panel.add(mapPanel, gbc);
 		dc.registerModelPropertyListener(mapPanel);
 

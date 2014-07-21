@@ -41,13 +41,15 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 	private static final long serialVersionUID = -1775948240481194745L;
 	private static Logger log = LoggerFactory.getLogger(MapPanel.class);
 
+	private final boolean brightColorRoute;
 	private BufferedImage image;
 	int lastCourse = 0;
 	ArrayList<MapPoint> locations = new ArrayList<MapPoint>();
 
-	public MapPanel(Collection<Waypoint> wps, String imageLocation) {
+	public MapPanel(Collection<Waypoint> wps, String imageLocation,
+			boolean brightColorRoute) {
 		this.wps = wps;
-
+		this.brightColorRoute = brightColorRoute;
 		final String internPrefix = "${intern}";
 		InputStream is = null;
 
@@ -90,7 +92,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		if (locations.isEmpty()) {
 			return;
 		}
-		
+
 		MapPoint lastLocation = null;
 
 		int stepSize = (int) (((double) (locations.size() + 26) / 50) + 0.5);
@@ -98,23 +100,15 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			MapPoint location = locations.get(i);
 
 			// last 10 records in red:
-			if (i > locations.size() - 11 * stepSize) {
-				if (location.isEstimated()){
-				    g.setColor(new Color(80, 130, 250));
-				} else {
-					g.setColor(new Color(250, 180, 30));
-				}
-			} else {
-				if (location.isEstimated()){
-				    g.setColor(new Color(180, 180, 250));
-				} else {
-					g.setColor(new Color(255, 180, 180));
-				}				 
-			}
-			 
+			boolean newerOne = (i > locations.size() - 11 * stepSize);
+
+			g.setColor(getRouteColor(location.isEstimated(), newerOne));
+
 			if (lastLocation != null) {
 				g.drawLine(lastLocation.x, lastLocation.y, location.x,
 						location.y);
+				g.drawLine(lastLocation.x+1, lastLocation.y+1, location.x+1,
+						location.y+1);
 			}
 			lastLocation = location;
 			if (i > locations.size() - 50) {
@@ -246,9 +240,11 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 	}
 
-	/**  
+	/**
 	 * 
-	 * TODO This could be a bit nicer, it is more or less a duplicate of the other drawLocation
+	 * TODO This could be a bit nicer, it is more or less a duplicate of the
+	 * other drawLocation
+	 * 
 	 * @param newValue
 	 * @param b
 	 */
@@ -300,4 +296,46 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 	}
 
+	private final Color brightOldReal = new Color(255, 90, 255);
+	private final Color brightNewReal = new Color(255, 90, 90);
+	private final Color brightOldEstimated = new Color(90, 255, 90);
+	private final Color brightNewEstimated = new Color(90, 90, 255);
+
+	private final Color darkOldReal = new Color(255, 100, 50);
+	private final Color darkNewReal = new Color(255, 0, 0);
+	private final Color darkOldEstimated = new Color(150, 50, 255);
+	private final Color darkNewEstimated = new Color(0, 0, 255);
+
+	private Color getRouteColor(boolean estimated, boolean isNew) {
+		if (this.brightColorRoute) {
+			if (estimated) {
+				if (isNew) {
+					return brightNewEstimated;
+				} else {
+					return brightOldEstimated;
+				}
+			} else {
+				if (isNew) {
+					return brightNewReal;
+				} else {
+					return brightOldReal;
+				}
+			}
+
+		} else {
+			if (estimated) {
+				if (isNew) {
+					return darkNewEstimated;
+				} else {
+					return darkOldEstimated;
+				}
+			} else {
+				if (isNew) {
+					return darkNewReal;
+				} else {
+					return darkOldReal;
+				}
+			}
+		}
+	}
 }

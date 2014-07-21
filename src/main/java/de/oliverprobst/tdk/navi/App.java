@@ -46,13 +46,22 @@ public class App {
 			DataProcessingThread.MAX_BUFFER_SIZE);
 	private static MainDialog md = null;
 
+	private static Configuration config;
+
+	/**
+	 * @return the config
+	 */
+	public static Configuration getConfig() {
+		return config;
+	}
+
 	public static void main(String[] args) {
 		log.info("Starting Dive Software of Tief-Dunkel-Kalt.org");
 
 		Locale.setDefault(Locale.US); // TODO : Misusage of Decimal converter
 										// forces that. FIXIT!
 
-		Configuration config = loadConfiguration();
+		config = loadConfiguration();
 
 		DefaultController dc = new DefaultController();
 		LocationEstimator.getInstance().init(config);
@@ -198,6 +207,7 @@ public class App {
 
 		dc.setNotes(config.getSettings().getNotes());
 		dc.setMapImage(map.getImage());
+		dc.setBrightTheme(map.isBrightTheme());
 	}
 
 }

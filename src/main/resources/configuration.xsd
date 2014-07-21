@@ -98,7 +98,14 @@
 				</documentation>
 			</annotation>
 		</attribute>
-
+		<attribute name="bright-theme" type="boolean" use="optional"
+			default="false">
+			<annotation>
+				<documentation>If the map is of very dark colors, like satellite images, the
+					route will be rendered with bright colors.
+				</documentation>
+			</annotation>
+		</attribute>
 		<attribute name="id" type="ID" use="required">
 			<annotation>
 				<documentation>Unique name of the map
