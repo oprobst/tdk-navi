@@ -35,7 +35,7 @@ public class SerialDataCollectThread extends Thread {
 	public void run() {
 		log.info("Starting Data Collector for Serial connection");
 
-		serial.open(Serial.DEFAULT_COM_PORT, 38400);
+		serial.open(Serial.DEFAULT_COM_PORT, 115200);
 
 		StringBuilder sb = new StringBuilder();
 		// int iteration = 0;

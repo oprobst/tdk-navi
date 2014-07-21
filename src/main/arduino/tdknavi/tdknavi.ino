@@ -42,7 +42,7 @@ SoftwareSerial gpsSerial = SoftwareSerial(RX_PIN_GPS, TX_PIN_GPS);
 #define GPS_SERIAL_SPEED 9600
 
 // Serial port
-#define SERIAL_SPEED 38400
+#define SERIAL_SPEED 115200
 #define DEBUG true
 
 //current sensor buffer
@@ -72,7 +72,7 @@ void setup() {
   digitalWrite(10, LOW);
 
   mag.begin();
-  
+
   bmp.begin();
 
   // write protocol marker
@@ -86,9 +86,9 @@ void setup() {
 /*
  * Main loop
  */
-void loop() {  
+void loop() {
   short lastWritePos = 0;
-  
+  delay (1);
   //GPS data
   currGpsBufferSize = collectGPSData(gpsSensorBuffer, currGpsBufferSize);
   if (gpsReceivedCompleteMsg) {
@@ -105,28 +105,28 @@ void loop() {
   sendLastBuffer (sensorBuffer, lastWritePos + 3);
 
   //Leak detection
-  if (loopCounter % 500 == 0){
+  if (loopCounter % 500 == 0) {
     lastWritePos = collectLeakData(sensorBuffer);
     calcChecksum(&sensorBuffer[1], lastWritePos);
     sendLastBuffer (sensorBuffer, lastWritePos + 3);
   }
-  
+
   //Temperature
-  if (loopCounter % 1000 == 0){
+  if (loopCounter % 1000 == 0) {
     lastWritePos = collectTemperatureData(sensorBuffer);
     calcChecksum(&sensorBuffer[1], lastWritePos);
     sendLastBuffer (sensorBuffer, lastWritePos + 3);
   }
-  
-  //Connectivity feedback via LED 
+
+  //Connectivity feedback via LED
   char incoming = Serial.read();
   if (incoming == 0x6F) {
     digitalWrite(12, HIGH);
   } else if (incoming == 0x70) {
     digitalWrite(12, LOW);
   }
-  
-  if (loopCounter++ > 1000){
+
+  if (loopCounter++ > 1000) {
     loopCounter = 0;
   }
 }
@@ -151,24 +151,24 @@ short collectTemperatureData (byte sensorBuffer  []) {
   sensorBuffer[7] = '*';
   return 7;
 }
-  
+
 short collectLeakData (byte sensorBuffer  []) {
   sensorBuffer[1] = 'c';
-  
+
   int sensorValue = analogRead(A0);  // Stern sensor
   String result = printDouble (sensorValue, 5);
   result.getBytes(&sensorBuffer[2], 5) ;
- 
+
   sensorBuffer[6] = ',';
   sensorValue = 0; //analogRead(A1); // Bow sensor
   result = printDouble (sensorValue, 5);
   result.getBytes(&sensorBuffer[7], 5) ;
-        
+
   sensorBuffer[11] = ',';
   //sensorValue = 1013; //analogRead(A2);  //Ambient Pressure
-  result = printDouble (bmp.readPressure()/100, 5);
+  result = printDouble (bmp.readPressure() / 100, 5);
   result.getBytes(&sensorBuffer[12], 5) ;
-  
+
   sensorBuffer[16] = '*';
   return 16;
 }
@@ -220,8 +220,8 @@ short collectGPSData (byte sensorBuffer [], short lastGpsWritePos) {
       gpsStringStarted = true;
     } else if (gpsStringStarted && in > 31 && in < 128) {
       sensorBuffer[lastGpsWritePos++] = in;
-    }   
-    gpsReceivedCompleteMsg = (in == '*' || lastGpsWritePos > (MAX_GPS_MSG_SIZE - 5));   
+    }
+    gpsReceivedCompleteMsg = (in == '*' || lastGpsWritePos > (MAX_GPS_MSG_SIZE - 5));
   }
 
   return lastGpsWritePos;
