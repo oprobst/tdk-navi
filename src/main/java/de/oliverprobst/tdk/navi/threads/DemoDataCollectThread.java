@@ -294,7 +294,8 @@ public class DemoDataCollectThread extends Thread {
 	}
 
 	public void setLeakMessage(String string) {
-		dc.setIntegrityCode(string);
+		incoming.add(new SerialPackage(string));
+		
 	}
 
 }

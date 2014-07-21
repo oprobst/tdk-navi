@@ -2,8 +2,8 @@ package de.oliverprobst.tdk.navi.serial;
 
 public enum MessageType {
 
-	NMEA_GGA((byte) 0x61), COURSE((byte) 0x62), LEAK((byte) 0x63), SPEED(
-			(byte) 0x64), DEPTH((byte) 0x69), TEMPERATURE((byte) 0x68), HUMIDITY(
+	NMEA_GGA((byte) 0x61), COURSE((byte) 0x62), LEAK((byte) 0x63), TEMPERATURE(
+			(byte) 0x64), SPEED((byte) 0x68), DEPTH((byte) 0x69), HUMIDITY(
 			(byte) 0x65), PITCH((byte) 0x66), VOLTAGE((byte) 0x67), UNKNOWN(
 			(byte) 0x97);
 
@@ -29,6 +29,8 @@ public enum MessageType {
 		case 0x63:
 			return MessageType.LEAK;
 		case 0x64:
+			return MessageType.TEMPERATURE;
+		case 0x68:
 			return MessageType.SPEED;
 		default:
 			return UNKNOWN;

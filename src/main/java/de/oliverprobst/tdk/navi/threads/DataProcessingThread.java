@@ -112,8 +112,7 @@ public class DataProcessingThread extends Thread {
 	}
 
 	private void parseTemperature(String payload) {
-		float temperature = Float.parseFloat(payload);
-		temperature = temperature / 10;
+		float temperature = Float.parseFloat(payload);		
 		dc.setTemperature(temperature);
 	}
 

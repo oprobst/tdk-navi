@@ -26,8 +26,11 @@ Changed in SoftwareSerial
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_HMC5883_U.h>
+#include <Adafruit_BMP085.h>
 
 Adafruit_HMC5883_Unified mag = Adafruit_HMC5883_Unified(12345);
+
+Adafruit_BMP085 bmp;
 
 //GPS Communication Constants
 #define RX_PIN_GPS 9
@@ -54,6 +57,8 @@ byte gpsSensorBuffer[MAX_GPS_MSG_SIZE];
 boolean gpsReceivedCompleteMsg = false;
 boolean gpsStringStarted = false;
 
+int loopCounter = 0;
+
 /*
  * Main setup routine
  */
@@ -67,6 +72,8 @@ void setup() {
   digitalWrite(10, LOW);
 
   mag.begin();
+  
+  bmp.begin();
 
   // write protocol marker
   sensorBuffer[0] = '$';
@@ -79,16 +86,14 @@ void setup() {
 /*
  * Main loop
  */
-void loop() {
-  delay (2);
+void loop() {  
   short lastWritePos = 0;
-
-
+  
   //GPS data
   currGpsBufferSize = collectGPSData(gpsSensorBuffer, currGpsBufferSize);
   if (gpsReceivedCompleteMsg) {
     calcChecksum(&gpsSensorBuffer[1], currGpsBufferSize - 1);
-    sendLastBuffer (gpsSensorBuffer, currGpsBufferSize + 2 );
+    sendLastBuffer (gpsSensorBuffer, currGpsBufferSize + 3 );
     gpsReceivedCompleteMsg = false;
     currGpsBufferSize = 1;
     gpsStringStarted = false;
@@ -100,21 +105,31 @@ void loop() {
   sendLastBuffer (sensorBuffer, lastWritePos + 3);
 
   //Leak detection
-  lastWritePos = collectLeakData(sensorBuffer);
-  calcChecksum(&sensorBuffer[1], lastWritePos);
-  sendLastBuffer (sensorBuffer, lastWritePos + 3);
-
-  //Connectivity feedback via LED
-  //if (Serial.available() > 0) {
+  if (loopCounter % 500 == 0){
+    lastWritePos = collectLeakData(sensorBuffer);
+    calcChecksum(&sensorBuffer[1], lastWritePos);
+    sendLastBuffer (sensorBuffer, lastWritePos + 3);
+  }
+  
+  //Temperature
+  if (loopCounter % 1000 == 0){
+    lastWritePos = collectTemperatureData(sensorBuffer);
+    calcChecksum(&sensorBuffer[1], lastWritePos);
+    sendLastBuffer (sensorBuffer, lastWritePos + 3);
+  }
+  
+  //Connectivity feedback via LED 
   char incoming = Serial.read();
   if (incoming == 0x6F) {
     digitalWrite(12, HIGH);
   } else if (incoming == 0x70) {
     digitalWrite(12, LOW);
   }
-  //}
+  
+  if (loopCounter++ > 1000){
+    loopCounter = 0;
+  }
 }
-
 
 
 // Here, the last buffer shall be send via ttl
@@ -127,6 +142,16 @@ void sendLastBuffer (byte  bufferToSend [], unsigned short lastWritePos) {
   }
 }
 
+
+
+short collectTemperatureData (byte sensorBuffer  []) {
+  sensorBuffer[1] = 'd';
+  String result = printDouble (bmp.readTemperature(), 1);
+  result.getBytes(&sensorBuffer[2], 5) ;
+  sensorBuffer[7] = '*';
+  return 7;
+}
+  
 short collectLeakData (byte sensorBuffer  []) {
   sensorBuffer[1] = 'c';
   
@@ -136,12 +161,12 @@ short collectLeakData (byte sensorBuffer  []) {
  
   sensorBuffer[6] = ',';
   sensorValue = 0; //analogRead(A1); // Bow sensor
-  String result = printDouble (sensorValue, 5);
+  result = printDouble (sensorValue, 5);
   result.getBytes(&sensorBuffer[7], 5) ;
-  
+        
   sensorBuffer[11] = ',';
-  sensorValue = 1013; //analogRead(A2);  //Ambient Pressure
-  String result = printDouble (sensorValue, 5);
+  //sensorValue = 1013; //analogRead(A2);  //Ambient Pressure
+  result = printDouble (bmp.readPressure()/100, 5);
   result.getBytes(&sensorBuffer[12], 5) ;
   
   sensorBuffer[16] = '*';

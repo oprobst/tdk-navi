@@ -18,9 +18,9 @@ public class StructuralIntegrityController {
 	public StructuralIntegrity construct(String message, float depth) {
 		try {
 			String[] split = message.split(",");
-			int sternSenor = (int) Math.round(Double.parseDouble(split[0].substring(2)));
+			int sternSenor = (int) Math.round(Double.parseDouble(split[0]));
 			int bowSensor = (int) Math.round(Double.parseDouble(split[1]));
-			int pressure = (int) Math.round(Double.parseDouble(split[2].substring(0,split[2].length()-1)));
+			int pressure = (int) Math.round(Double.parseDouble(split[2]));
 			StructuralIntegrity si = new StructuralIntegrity();
 
 			if (sternSenor > 50) {
