@@ -68,7 +68,7 @@ public class App {
 			loginterval = config.getSettings().getLogInterval().intValue();
 		}
 		DefaultController dc = new DefaultController(loginterval);
-
+	
 		LocationEstimator.getInstance().init(config);
 
 		boolean isDemoMode = config.getSettings().isDemomode();
