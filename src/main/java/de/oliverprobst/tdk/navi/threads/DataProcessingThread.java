@@ -5,7 +5,6 @@ import java.util.AbstractQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.oliverprobst.tdk.navi.LocationEstimator;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.dto.PitchAndCourse;
 import de.oliverprobst.tdk.navi.serial.SerialPackage;
@@ -43,7 +42,7 @@ public class DataProcessingThread extends Thread {
 
 			} else {
 				handle(incoming.remove());
-			}			
+			}
 		}
 		log.info("Ended Data Processing Thread");
 	}
@@ -64,6 +63,10 @@ public class DataProcessingThread extends Thread {
 
 		case SPEED:
 			parseSpeed(payload);
+			break;
+
+		case LEAK:
+			parseLeak(payload);
 			break;
 
 		case DEPTH:
@@ -117,6 +120,10 @@ public class DataProcessingThread extends Thread {
 	private void parseHumidity(String payload) {
 		int humidity = Integer.parseInt(payload);
 		dc.setHumidity(humidity);
+	}
+
+	private void parseLeak(String payload) {
+		dc.setIntegrityCode(payload);
 	}
 
 	private boolean end = false;

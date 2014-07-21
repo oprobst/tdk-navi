@@ -6,12 +6,15 @@ public class StructuralIntegrity implements Cloneable {
 		BROKEN, OK, PROBLEMATIC
 	}
 
-	private Status abient = Status.OK;
+	private Status ambient = Status.OK;
 	private Status bow = Status.OK;
-	private int lastCode = 0;
+	private int bowSensorValue = -1;
+
 	private int pressure = 1013;
 
 	private Status stern = Status.OK;
+
+	private int sternSensorValue = -1;
 
 	public StructuralIntegrity() {
 
@@ -19,42 +22,18 @@ public class StructuralIntegrity implements Cloneable {
 
 	public StructuralIntegrity clone() {
 		StructuralIntegrity clone = new StructuralIntegrity();
-		clone.lastCode = lastCode;
 		clone.pressure = pressure;
 		clone.stern = stern;
 		clone.bow = bow;
-		clone.abient = abient;
+		clone.ambient = ambient;
 		return clone;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (!(obj instanceof StructuralIntegrity)) {
-			return false;
-		}
-		StructuralIntegrity other = (StructuralIntegrity) obj;
-		if (lastCode != other.lastCode) {
-			return false;
-		}
-		return true;
 	}
 
 	/**
 	 * @return the abient
 	 */
 	public Status getAmbient() {
-		return abient;
+		return ambient;
 	}
 
 	/**
@@ -65,10 +44,10 @@ public class StructuralIntegrity implements Cloneable {
 	}
 
 	/**
-	 * @return the lastCode
+	 * @return the bowSensorValue
 	 */
-	public int getLastCode() {
-		return lastCode;
+	public int getBowSensorValue() {
+		return bowSensorValue;
 	}
 
 	/**
@@ -85,17 +64,11 @@ public class StructuralIntegrity implements Cloneable {
 		return stern;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
+	/**
+	 * @return the sternSensorValue
 	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + lastCode;
-		return result;
+	public int getSternSensorValue() {
+		return sternSensorValue;
 	}
 
 	/**
@@ -103,7 +76,7 @@ public class StructuralIntegrity implements Cloneable {
 	 *            the abient to set
 	 */
 	public void setAmbient(Status abient) {
-		this.abient = abient;
+		this.ambient = abient;
 	}
 
 	/**
@@ -115,11 +88,11 @@ public class StructuralIntegrity implements Cloneable {
 	}
 
 	/**
-	 * @param lastCode
-	 *            the lastCode to set
+	 * @param bowSensorValue
+	 *            the bowSensorValue to set
 	 */
-	public void setLastCode(int lastCode) {
-		this.lastCode = lastCode;
+	public void setBowSensorValue(int bowSensorValue) {
+		this.bowSensorValue = bowSensorValue;
 	}
 
 	/**
@@ -137,4 +110,13 @@ public class StructuralIntegrity implements Cloneable {
 	public void setStern(Status stern) {
 		this.stern = stern;
 	}
+
+	/**
+	 * @param sternSensorValue
+	 *            the sternSensorValue to set
+	 */
+	public void setSternSensorValue(int sternSensorValue) {
+		this.sternSensorValue = sternSensorValue;
+	}
+
 }

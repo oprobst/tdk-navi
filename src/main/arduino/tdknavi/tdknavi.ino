@@ -129,11 +129,23 @@ void sendLastBuffer (byte  bufferToSend [], unsigned short lastWritePos) {
 
 short collectLeakData (byte sensorBuffer  []) {
   sensorBuffer[1] = 'c';
-  int sensorValue = analogRead(A0);
+  
+  int sensorValue = analogRead(A0);  // Stern sensor
   String result = printDouble (sensorValue, 5);
   result.getBytes(&sensorBuffer[2], 5) ;
-  sensorBuffer[6] = '*';
-  return 6;
+ 
+  sensorBuffer[6] = ',';
+  sensorValue = 0; //analogRead(A1); // Bow sensor
+  String result = printDouble (sensorValue, 5);
+  result.getBytes(&sensorBuffer[7], 5) ;
+  
+  sensorBuffer[11] = ',';
+  sensorValue = 1013; //analogRead(A2);  //Ambient Pressure
+  String result = printDouble (sensorValue, 5);
+  result.getBytes(&sensorBuffer[12], 5) ;
+  
+  sensorBuffer[16] = '*';
+  return 16;
 }
 
 short collectCompassData (byte sensorBuffer  []) {

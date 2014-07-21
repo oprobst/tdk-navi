@@ -30,10 +30,13 @@ public class DemoKeyListener implements KeyListener {
 	public void keyPressed(KeyEvent e) {
 
 		DiveData dd = dc.getCurrentRecord();
-		int lastIntegrityCode = dd.getIntegrity().getLastCode();
 
 		int frPitch = dd.getPitchAndCourse().getFrontRearPitch();
 		int lrPitch = dd.getPitchAndCourse().getLeftRightPitch();
+
+		int ssv = dd.getIntegrity().getSternSensorValue();
+		int bsv = dd.getIntegrity().getBowSensorValue();
+		int asv = dd.getIntegrity().getPressure();
 
 		switch (e.getKeyCode()) {
 		case 81: // q
@@ -129,28 +132,38 @@ public class DemoKeyListener implements KeyListener {
 			break;
 
 		case 71: // g
-			if (lastIntegrityCode >= 100000) {
-				dc.setIntegrityCode(lastIntegrityCode - 100000);
+
+			if (ssv > 0) {
+				ssv = 0;
 			} else {
-				dc.setIntegrityCode(lastIntegrityCode + 100000);
+				ssv = 100;
 			}
+			collectorThread.setLeakMessage("$c" + ssv + "," + bsv + "," + asv
+					+ "*");
+
 			break;
 		case 84: // t
-			if (lastIntegrityCode >= 110000
-					|| ((lastIntegrityCode < 100000) && (lastIntegrityCode >= 10000))) {
-				dc.setIntegrityCode(lastIntegrityCode - 10000);
+			if (bsv > 0) {
+				bsv = 0;
 			} else {
-				dc.setIntegrityCode(lastIntegrityCode + 10000);
+				bsv = 100;
 			}
+			collectorThread.setLeakMessage("$c" + ssv + "," + bsv + "," + asv
+					+ "*");
+
 			break;
+
 		case 90: // z
-			dc.setIntegrityCode(lastIntegrityCode + 100);
+			asv += 10;
+			collectorThread.setLeakMessage("$c" + ssv + "," + bsv + "," + asv
+					+ "*");
 			break;
 		case 72: // h
-			dc.setIntegrityCode(lastIntegrityCode - 100);
+			asv -= 10;
+			collectorThread.setLeakMessage("$c" + ssv + "," + bsv + "," + asv
+					+ "*");
 			break;
 		case 70: // f
-			dc.setIntegrityCode(1013);
 			dd.getIntegrity().setBow(Status.OK);
 			dd.getIntegrity().setAmbient(Status.OK);
 			dd.getIntegrity().setStern(Status.OK);

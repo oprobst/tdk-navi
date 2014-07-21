@@ -218,10 +218,12 @@ public class DefaultController {
 	 * @param integrity
 	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setIntegrity(de.oliverprobst.tdk.navi.dto.StructuralIntegrity)
 	 */
-	public void setIntegrityCode(int integrityCode) {
-		StructuralIntegrity si = structuralIntegrityController.parseCode(
+	public void setIntegrityCode(String integrityCode) {
+		StructuralIntegrity si = structuralIntegrityController.construct(
 				integrityCode, currentRecord.getDepth());
-		currentRecord.setIntegrity(si);
+		if (si != null) {
+			currentRecord.setIntegrity(si);
+		}
 	}
 
 	/**

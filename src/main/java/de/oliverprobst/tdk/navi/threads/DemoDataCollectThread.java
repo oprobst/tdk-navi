@@ -42,7 +42,7 @@ public class DemoDataCollectThread extends Thread {
 		dc.setTemperature(24.2f);
 		dc.setDepth(0.0f);
 		dc.setGear(130);
-		dc.setIntegrityCode(998);
+		dc.setIntegrityCode("$c1,0,0988*");
 		dc.setPitchAndCourse(new PitchAndCourse(000, -4, 0));
 	}
 
@@ -89,7 +89,6 @@ public class DemoDataCollectThread extends Thread {
 			writeHumidity();
 			writeVoltage();
 			writeGPS();
-			writeIntegrity();
 
 			if (iteration < 10000) {
 				iteration++;
@@ -263,15 +262,6 @@ public class DemoDataCollectThread extends Thread {
 		}
 	}
 
-	private void writeIntegrity() {
-		if (iteration % 10 == 0) {
-			int code = dc.getCurrentRecordClone().getIntegrity().getLastCode();
-			code = ((int) (code / 10000)) * 10000;
-			code = (int) (code + (dc.getCurrentRecordClone().getDepth() / 1000) * 1000) + 998;
-			dc.setIntegrityCode(code);
-		}
-	}
-
 	private void writeTemp() {
 		float depth = dc.getCurrentRecordClone().getDepth();
 		if (iteration % 20 == 0) {
@@ -301,6 +291,10 @@ public class DemoDataCollectThread extends Thread {
 			dc.setVoltage(((float) (Math.random() + 10.5) * 10) / 10);
 		}
 
+	}
+
+	public void setLeakMessage(String string) {
+		dc.setIntegrityCode(string);
 	}
 
 }
