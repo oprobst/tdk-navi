@@ -62,8 +62,13 @@ public class App {
 										// forces that. FIXIT!
 
 		config = loadConfiguration();
+		
+		int loginterval = 1000;
+		if (config.getSettings().getLogInterval() != null) {
+			loginterval = config.getSettings().getLogInterval().intValue();
+		}
+		DefaultController dc = new DefaultController(loginterval);
 
-		DefaultController dc = new DefaultController();
 		LocationEstimator.getInstance().init(config);
 
 		boolean isDemoMode = config.getSettings().isDemomode();
