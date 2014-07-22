@@ -99,7 +99,9 @@ public class DemoDataCollectThread extends Thread {
 	}
 
 	public void setCourse(int course, int frPitch, int lrPitxh) {
-		String msg = "$b" + course + "," + frPitch + "," + lrPitxh + "*";
+		String msg = "$b"
+				+ ((int) course - PitchAndCourse.getMagneticDeclination())
+				+ "," + frPitch + "," + lrPitxh + "*";
 		msg = generateChecksum(msg);
 		this.incoming.add(new SerialPackage(msg));
 	}
