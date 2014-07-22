@@ -23,6 +23,7 @@ import de.oliverprobst.tdk.navi.config.loader.ConfigurationFactory;
 import de.oliverprobst.tdk.navi.config.loader.ConfigurationFailureException;
 import de.oliverprobst.tdk.navi.config.loader.ConfigurationLoader;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
+import de.oliverprobst.tdk.navi.dto.PitchAndCourse;
 import de.oliverprobst.tdk.navi.gui.DemoDialog;
 import de.oliverprobst.tdk.navi.gui.DemoKeyListener;
 import de.oliverprobst.tdk.navi.gui.MainDialog;
@@ -62,13 +63,13 @@ public class App {
 										// forces that. FIXIT!
 
 		config = loadConfiguration();
-		
+
 		int loginterval = 1000;
 		if (config.getSettings().getLogInterval() != null) {
 			loginterval = config.getSettings().getLogInterval().intValue();
 		}
 		DefaultController dc = new DefaultController(loginterval);
-	
+
 		LocationEstimator.getInstance().init(config);
 
 		boolean isDemoMode = config.getSettings().isDemomode();
@@ -213,6 +214,8 @@ public class App {
 		dc.setNotes(config.getSettings().getNotes());
 		dc.setMapImage(map.getImage());
 		dc.setBrightTheme(map.isBrightTheme());
+
+		PitchAndCourse.setMagneticDeclination(map.getDeclination());
 	}
 
 }

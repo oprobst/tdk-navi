@@ -107,6 +107,12 @@
 				</documentation>
 			</annotation>
 		</attribute>
+		<attribute name="declination" type="float" use="optional" default="2">
+			<annotation>
+				<documentation>Magnetic declination for the map, eg. from http://magnetic-declination.com/
+				</documentation>
+			</annotation>
+		</attribute>
 		<attribute name="id" type="ID" use="required">
 			<annotation>
 				<documentation>Unique name of the map
