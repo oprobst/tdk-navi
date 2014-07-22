@@ -41,9 +41,9 @@ public class DemoDataCollectThread extends Thread {
 		this.incoming = incoming2;
 		dc.setTemperature(24.2f);
 		dc.setDepth(0.0f);
-		dc.setGear(130);
-		dc.setIntegrityCode("$c1,0,0988*");
-		dc.setPitchAndCourse(new PitchAndCourse(000, -4, 0));
+		dc.setGear(0);
+		dc.setIntegrityCode("1,0,0988");
+		dc.setPitchAndCourse(new PitchAndCourse(010, -4, 0));
 	}
 
 	public String generateChecksum(String msg) {
@@ -118,7 +118,7 @@ public class DemoDataCollectThread extends Thread {
 	 */
 	public void setSimulatedVibration(int simulatedVibration) {
 		this.simulatedVibration = simulatedVibration;
-		String message = "$d" + simulatedVibration + "*";
+		String message = "$e" + simulatedVibration + "*";
 		log.debug(message);
 		message = generateChecksum(message);
 
@@ -149,7 +149,7 @@ public class DemoDataCollectThread extends Thread {
 				c = (int) (70 + Math.random() * 40);
 			}
 			if (y < ymin) {
-				c = (int) (0 + Math.random() * 20);
+				c = (int) (0 + Math.random() * 40);
 			}
 			if (x > xmax) {
 				c = (int) (250 + Math.random() * 40);
@@ -159,7 +159,9 @@ public class DemoDataCollectThread extends Thread {
 			}
 		}
 
-		setCourse(c, record.getPitchAndCourse().getFrontRearPitch(), record
+		record.getPitchAndCourse();
+		setCourse((int) (c - PitchAndCourse.getMagneticDeclination()), record
+				.getPitchAndCourse().getFrontRearPitch(), record
 				.getPitchAndCourse().getLeftRightPitch());
 
 	}
@@ -265,14 +267,20 @@ public class DemoDataCollectThread extends Thread {
 	private void writeTemp() {
 		float depth = dc.getCurrentRecordClone().getDepth();
 		if (iteration % 20 == 0) {
+			String message = "";
 			if (depth < 10) {
-				dc.setTemperature((float) ((Math.random() * 5) + 15));
-
+				message = "$d" + (float) ((Math.random() * 5) + 15) + "*";
 			} else if (depth >= 5 && depth < 15) {
-				dc.setTemperature((float) ((Math.random() * 5) + 10));
+				message = "$d" + (float) ((Math.random() * 5) + 10) + "*";
 			} else if (depth > 15) {
-				dc.setTemperature((float) ((Math.random() * 5) + 4));
+				message = "$d" + (float) ((Math.random() * 5) + 4) + "*";
 			}
+
+			log.debug(message);
+
+			message = generateChecksum(message);
+
+			incoming.add(new SerialPackage(message));
 		}
 	}
 
@@ -295,7 +303,7 @@ public class DemoDataCollectThread extends Thread {
 
 	public void setLeakMessage(String string) {
 		incoming.add(new SerialPackage(string));
-		
+
 	}
 
 }

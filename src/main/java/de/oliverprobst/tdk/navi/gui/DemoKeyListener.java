@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.dto.DiveData;
+import de.oliverprobst.tdk.navi.dto.PitchAndCourse;
 import de.oliverprobst.tdk.navi.dto.StructuralIntegrity.Status;
 import de.oliverprobst.tdk.navi.threads.DemoDataCollectThread;
 
@@ -62,7 +63,8 @@ public class DemoKeyListener implements KeyListener {
 
 		case 69: // e
 		case 39: // arr right
-			int course = dd.getPitchAndCourse().getCourse();
+			int course = (int) (dd.getPitchAndCourse().getCourse() - PitchAndCourse
+					.getMagneticDeclination());
 			course += 2;
 			if (course > 359) {
 				course = 0;
@@ -71,7 +73,8 @@ public class DemoKeyListener implements KeyListener {
 			break;
 		case 68: // d
 		case 37: // arr left
-			course = dd.getPitchAndCourse().getCourse();
+			course = (int) (dd.getPitchAndCourse().getCourse() - PitchAndCourse
+					.getMagneticDeclination());
 			course -= 2;
 			if (course < 0) {
 				course = 359;

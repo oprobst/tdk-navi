@@ -43,7 +43,7 @@ public class TemperaturePanel extends JPanel implements PropertyChangeListener {
 				new Insets(0, 0, 0, 3), 2, 2);
 
 		JLabel lblDesc = new JLabel("°C");
-		layout.layoutDescriptionLabel(lblDesc);
+		layout.layoutTinyDescriptionLabel(lblDesc);
 		this.add(lblDesc, gbc);
 	}
 
