@@ -46,6 +46,20 @@ public class DemoDataCollectThread extends Thread {
 		dc.setPitchAndCourse(new PitchAndCourse(010, -4, 0));
 	}
 
+	/**
+	 * Adds demo data set to incomming queueu
+	 *
+	 * @param sp
+	 *            the incomming data
+	 */
+	private void addToQueue(SerialPackage sp) {
+		try {
+			incoming.add(sp);
+		} catch (IllegalStateException e) {
+			log.info("Incomming queue full, discarding demo message");
+		}
+	}
+
 	public String generateChecksum(String msg) {
 		String chksum = "todo"; // TODO
 
@@ -103,7 +117,7 @@ public class DemoDataCollectThread extends Thread {
 				+ ((int) course - PitchAndCourse.getMagneticDeclination())
 				+ "," + frPitch + "," + lrPitxh + "*";
 		msg = generateChecksum(msg);
-		this.incoming.add(new SerialPackage(msg));
+		addToQueue(new SerialPackage(msg));
 	}
 
 	/**
@@ -112,6 +126,11 @@ public class DemoDataCollectThread extends Thread {
 	 */
 	public void setGpsActive(boolean gpsActive) {
 		this.gpsActive = gpsActive;
+	}
+
+	public void setLeakMessage(String string) {
+		addToQueue(new SerialPackage(string));
+
 	}
 
 	/**
@@ -124,7 +143,7 @@ public class DemoDataCollectThread extends Thread {
 		log.debug(message);
 		message = generateChecksum(message);
 
-		incoming.add(new SerialPackage(message));
+		addToQueue(new SerialPackage(message));
 	}
 
 	private void writeCourse() {
@@ -255,7 +274,7 @@ public class DemoDataCollectThread extends Thread {
 
 			message = generateChecksum(message);
 
-			incoming.add(new SerialPackage(message));
+			addToQueue(new SerialPackage(message));
 		}
 	}
 
@@ -282,7 +301,7 @@ public class DemoDataCollectThread extends Thread {
 
 			message = generateChecksum(message);
 
-			incoming.add(new SerialPackage(message));
+			addToQueue(new SerialPackage(message));
 		}
 	}
 
@@ -300,11 +319,6 @@ public class DemoDataCollectThread extends Thread {
 		} else if (iteration % 40 == 0) {
 			dc.setVoltage(((float) (Math.random() + 10.5) * 10) / 10);
 		}
-
-	}
-
-	public void setLeakMessage(String string) {
-		incoming.add(new SerialPackage(string));
 
 	}
 

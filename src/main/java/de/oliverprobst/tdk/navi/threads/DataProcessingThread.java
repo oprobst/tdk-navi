@@ -41,7 +41,12 @@ public class DataProcessingThread extends Thread {
 			if (incoming.isEmpty()) {
 
 			} else {
-				handle(incoming.remove());
+				SerialPackage sp = incoming.remove();
+				try {
+					handle(sp);
+				} catch (Exception e) {
+					log.error("Exception occurred, discarded message " + sp, e);
+				}
 			}
 		}
 		log.info("Ended Data Processing Thread");
@@ -112,7 +117,7 @@ public class DataProcessingThread extends Thread {
 	}
 
 	private void parseTemperature(String payload) {
-		float temperature = Float.parseFloat(payload);		
+		float temperature = Float.parseFloat(payload);
 		dc.setTemperature(temperature);
 	}
 

@@ -50,8 +50,8 @@ public class SerialPackage {
 	private static Logger log = LoggerFactory.getLogger(SerialPackage.class);
 
 	private final byte[] messageBytes;
-	private final String msg;
 
+	private final String msg;
 	public SerialPackage(String message) {
 
 		this.messageBytes = message.getBytes();
@@ -60,29 +60,6 @@ public class SerialPackage {
 		} else {
 			this.msg = null;
 		}
-	}
-
-	public int getReceivedChecksum() throws IllegalArgumentException {
-		if (messageBytes.length < 3) {
-			return -2;
-		}
-		int checksum_A = messageBytes[messageBytes.length - 2];
-		int checksum_B = messageBytes[messageBytes.length - 1];
-		return ((int) checksum_A + 256) + (int) checksum_B;
-
-	}
-
-	public boolean isValid() {
-		return messageBytes.length > 3; // TODO
-		//return getCalculatedCheckSum() == getReceivedChecksum();
-	}
-
-	public MessageType getType() {
-		return MessageType.getMessageType(messageBytes[1]);
-	}
-
-	public String getPayload() {
-		return msg;
 	}
 
 	public int getCalculatedCheckSum() {
@@ -109,6 +86,34 @@ public class SerialPackage {
 			return -1;
 		}
 		return ((int) checksum_A + 256) + (int) checksum_B;
+	}
+
+	public String getPayload() {
+		return msg;
+	}
+
+	public int getReceivedChecksum() throws IllegalArgumentException {
+		if (messageBytes.length < 3) {
+			return -2;
+		}
+		int checksum_A = messageBytes[messageBytes.length - 2];
+		int checksum_B = messageBytes[messageBytes.length - 1];
+		return ((int) checksum_A + 256) + (int) checksum_B;
+
+	}
+
+	public MessageType getType() {
+		return MessageType.getMessageType(messageBytes[1]);
+	}
+
+	public boolean isValid() {
+		return messageBytes.length > 3; // TODO
+		//return getCalculatedCheckSum() == getReceivedChecksum();
+	}
+
+	@Override
+	public String toString() {
+		return "SerialPackage [msg=" + msg + "]";
 	}
 
 	/*
