@@ -60,39 +60,45 @@ public class DataProcessingThread extends Thread {
 
 		String payload = message.getPayload();
 
-		switch (message.getType()) {
+		try {
 
-		case NMEA_GGA:
-			parseGga(payload);
-			break;
+			switch (message.getType()) {
 
-		case COURSE:
-			parseCourse(payload);
-			break;
+			case NMEA_GGA:
+				parseGga(payload);
+				break;
 
-		case SPEED:
-			parseSpeed(payload);
-			break;
+			case COURSE:
+				parseCourse(payload);
+				break;
 
-		case LEAK:
-			parseLeak(payload);
-			break;
+			case SPEED:
+				parseSpeed(payload);
+				break;
 
-		case DEPTH:
-			parseDepth(payload);
-			break;
+			case LEAK:
+				parseLeak(payload);
+				break;
 
-		case TEMPERATURE:
-			parseTemperature(payload);
-			break;
+			case DEPTH:
+				parseDepth(payload);
+				break;
 
-		case HUMIDITY:
-			parseHumidity(payload);
+			case TEMPERATURE:
+				parseTemperature(payload);
+				break;
 
-		default:
-			break;
+			case HUMIDITY:
+				parseHumidity(payload);
+
+			default:
+				break;
+			}
+
+		} catch (Exception e) {
+			log.error("Failure when parsing payload '" + payload
+					+ "' of message '" + message + ". Discarded package. ", e);
 		}
-
 	}
 
 	private void parseSpeed(String payload) {
