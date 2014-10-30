@@ -151,10 +151,14 @@ public class DemoDataCollectThread extends Thread {
 		DiveData record = dc.getCurrentRecord();
 		int course = record.getPitchAndCourse().getCourse();
 
-		int c = (int) (((Math.random()) - .5) * 0.8) + course;
+		int c = (int) (((Math.random()) - .5) * 3) + course;
+
 		if (c > 360) {
 			c = c - 360;
+		} else if (c < 0) {
+			c = 360 - c;
 		}
+
 		if (record.getGga() != null) {
 			HaversineConverter hc = HaversineConverter.getInstance();
 
@@ -179,10 +183,8 @@ public class DemoDataCollectThread extends Thread {
 				c = (int) (160 + Math.random() * 40);
 			}
 		}
-
 		record.getPitchAndCourse();
-		setCourse((int) (c - PitchAndCourse.getMagneticDeclination()), record
-				.getPitchAndCourse().getFrontRearPitch(), record
+		setCourse(c, record.getPitchAndCourse().getFrontRearPitch(), record
 				.getPitchAndCourse().getLeftRightPitch());
 
 	}
