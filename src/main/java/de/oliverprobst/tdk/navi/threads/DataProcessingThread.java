@@ -18,6 +18,10 @@ public class DataProcessingThread extends Thread {
 
 	private final DefaultController dc;
 
+	public DefaultController getDefaultController() {
+		return dc;
+	}
+
 	public final static int MAX_BUFFER_SIZE = 25;
 
 	public DataProcessingThread(AbstractQueue<SerialPackage> incoming,

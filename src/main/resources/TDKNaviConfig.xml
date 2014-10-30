@@ -28,7 +28,8 @@
 		</speed>
 	</settings>
 
-	<map id="Gernsbach" image="${user.home}/tdk-navi/Gernsbach.png" declination="1.75">
+	<map id="Gernsbach" image="${user.home}/tdk-navi/Gernsbach.png"
+		declination="1.75">
 		<northwest longitude="8.327433" latitude="48.769750" />
 		<southeast longitude="8.335494" latitude="48.765872" />
 		<waypoint longitude="8.334448" latitude="48.769217" id="F.H.-Brücke" />
