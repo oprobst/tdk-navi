@@ -33,7 +33,7 @@ public class MainDialog extends JFrame {
 		super();
 		this.dc = dc;
 		this.setSize(640, 480);
-		this.setLocation(0, 000);
+		this.setLocation(0, 0);
 		this.layouter.layout(this.getContentPane());
 		this.setResizable(false);
 		this.setUndecorated(true);
@@ -174,11 +174,11 @@ public class MainDialog extends JFrame {
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,
 				0, 0);
 
-		AvgDiveDepthPanel averageDepthPanel = new AvgDiveDepthPanel(layouter);
+		DpvRuntimePanel dvpRuntimePanel = new DpvRuntimePanel(layouter);
 
-		gbl.setConstraints(averageDepthPanel, gbc);
-		panel.add(averageDepthPanel, gbc);
-		dc.registerModelPropertyListener(averageDepthPanel);
+		gbl.setConstraints(dvpRuntimePanel, gbc);
+		panel.add(dvpRuntimePanel, gbc);
+		dc.registerModelPropertyListener(dvpRuntimePanel);
 
 		gbc = new GridBagConstraints(0, 4, 1, 1, 0.0d, 1.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, defInsets,

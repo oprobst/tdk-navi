@@ -9,7 +9,14 @@ import org.slf4j.LoggerFactory;
 import de.oliverprobst.tdk.navi.dto.Location;
 import de.oliverprobst.tdk.navi.gui.MapPoint;
 
-public class HaversineConverter {
+/**
+ * The Class GeoCalculator does all geo related calculation.
+ */
+public class GeoCalculator {
+
+	public final static double AVERAGE_RADIUS_OF_EARTH = 6371.0;
+
+	private static GeoCalculator instance = new GeoCalculator();
 
 	/**
 	 * @return the averageRadiusOfEarth
@@ -18,15 +25,21 @@ public class HaversineConverter {
 		return AVERAGE_RADIUS_OF_EARTH;
 	}
 
-	public static HaversineConverter getInstance() {
+	/**
+	 * Gets the single instance of GeoCalculator.
+	 *
+	 * @return single instance of GeoCalculator
+	 */
+	public static GeoCalculator getInstance() {
 		return instance;
 	}
 
-	private Logger log = LoggerFactory.getLogger(HaversineConverter.class);
+	private int distanceEW = 0;
 
-	public final static double AVERAGE_RADIUS_OF_EARTH = 6371.0;
+	private int distanceNS = 0;
 
-	private static HaversineConverter instance = new HaversineConverter();
+	/** The log. */
+	private Logger log = LoggerFactory.getLogger(GeoCalculator.class);
 
 	private double nwCornerLat = 0;
 
@@ -36,14 +49,37 @@ public class HaversineConverter {
 
 	private double seCornerLng = 0;
 
-	private int distanceNS = 0;
-
-	private int distanceEW = 0;
-
-	private HaversineConverter() {
+	private GeoCalculator() {
 
 	}
 
+	/**
+	 * Calculate bearing between to geo coordinates
+	 *
+	 * @param fromLat
+	 *            the from lat
+	 * @param fromLng
+	 *            the from lng
+	 * @param toLat
+	 *            the to lat
+	 * @param toLng
+	 *            the to lng
+	 * @return the int
+	 */
+	public int calculateBearing(double fromLat, double fromLng, double toLat,
+			double toLng) {
+
+		double longDiff = fromLng - toLng;
+		double y = Math.sin(longDiff) * Math.cos(toLat);
+		double x = Math.cos(fromLat) * Math.sin(toLat) - Math.sin(fromLat)
+				* Math.cos(toLat) * Math.cos(longDiff);
+		return (int) (((Math.toDegrees(Math.atan2(y, x)) + 360) % 360) + 0.5);
+
+	}
+
+	/**
+	 * Calculate dimension of the current map.
+	 */
 	public void calculateDimension() {
 		if (nwCornerLat == 0 || nwCornerLng == 0 || seCornerLat == 0
 				|| seCornerLng == 0) {
@@ -63,6 +99,8 @@ public class HaversineConverter {
 	}
 
 	/**
+	 * Calculate a distance between two geo coordinates
+	 * 
 	 * @param fromLat
 	 * @param fromLng
 	 * @param toLat
@@ -86,6 +124,19 @@ public class HaversineConverter {
 
 	}
 
+	/**
+	 * Calculate new location based on current speed and bearing
+	 *
+	 * @param fromLat
+	 *            the from lat
+	 * @param fromLng
+	 *            the from lng
+	 * @param bearing
+	 *            the bearing
+	 * @param distance
+	 *            the distance
+	 * @return the location
+	 */
 	public Location calculateNewLocation(double fromLat, double fromLng,
 			double bearing, double distance) {
 
@@ -158,6 +209,17 @@ public class HaversineConverter {
 		this.seCornerLng = seCornerLng;
 	}
 
+	/**
+	 * Geo coordinates projection on a map image
+	 *
+	 * @param size
+	 *            the size
+	 * @param longitude
+	 *            the longitude
+	 * @param latitude
+	 *            the latitude
+	 * @return the map point
+	 */
 	public MapPoint xyProjection(Dimension size, double longitude,
 			double latitude) {
 
@@ -196,16 +258,5 @@ public class HaversineConverter {
 					+ ").");
 		}
 		return new MapPoint(x, y);
-	}
-
-	public int calculateBearing(double fromLat, double fromLng, double toLat,
-			double toLng) {
-
-		double longDiff = fromLng - toLng;
-		double y = Math.sin(longDiff) * Math.cos(toLat);
-		double x = Math.cos(fromLat) * Math.sin(toLat) - Math.sin(fromLat)
-				* Math.cos(toLat) * Math.cos(longDiff);
-		return (int) (((Math.toDegrees(Math.atan2(y, x)) + 360) % 360) + 0.5);
-
 	}
 }

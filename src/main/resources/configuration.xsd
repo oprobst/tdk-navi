@@ -40,6 +40,8 @@
 			<element name="notes" type="string" />
 			<element name="forcemap" type="IDREF" minOccurs="0" />
 			<element name="log-interval" type="integer" default="1000" minOccurs="0" />
+			<element name="shutdown-voltage" type="double" minOccurs="0" maxOccurs="1" default = "8.5" />
+			<element name="warning-voltage" type="double" minOccurs="0" maxOccurs="1" default = "8.8" />
 			<element name="speed" type="tns:speed" minOccurs="1" maxOccurs="1">
 				<annotation>
 					<documentation>Definition of the scooter speed in meter per minute
@@ -104,6 +106,12 @@
 			<annotation>
 				<documentation>If the map is of very dark colors, like satellite images, the
 					route will be rendered with bright colors.
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="declination" type="float" use="optional" default="2">
+			<annotation>
+				<documentation>Magnetic declination for the map, eg. from http://magnetic-declination.com/
 				</documentation>
 			</annotation>
 		</attribute>

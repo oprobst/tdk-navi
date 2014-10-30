@@ -280,4 +280,9 @@ public class DiveData extends AbstractModel implements Cloneable {
 		this.voltage = voltage;
 	}
 
+	public void shutdown(String payload) {
+		super.propertyChangeSupport.firePropertyChange(
+			DiveDataProperties.PROP_SHUTDOWN, 0, 1); 
+	}
+
 }

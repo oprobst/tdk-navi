@@ -8,7 +8,7 @@ import java.util.TimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.oliverprobst.tdk.navi.HaversineConverter;
+import de.oliverprobst.tdk.navi.GeoCalculator;
 import de.oliverprobst.tdk.navi.NmeaParser;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.dto.DiveData;
@@ -41,9 +41,23 @@ public class DemoDataCollectThread extends Thread {
 		this.incoming = incoming2;
 		dc.setTemperature(24.2f);
 		dc.setDepth(0.0f);
-		dc.setGear(130);
-		dc.setIntegrityCode("$c1,0,0988*");
-		dc.setPitchAndCourse(new PitchAndCourse(000, -4, 0));
+		dc.setGear(0);
+		dc.setIntegrityCode("1,0,0988");
+		dc.setPitchAndCourse(new PitchAndCourse(010, -4, 0));
+	}
+
+	/**
+	 * Adds demo data set to incomming queueu
+	 *
+	 * @param sp
+	 *            the incomming data
+	 */
+	private void addToQueue(SerialPackage sp) {
+		try {
+			incoming.add(sp);
+		} catch (IllegalStateException e) {
+			log.info("Incomming queue full, discarding demo message");
+		}
 	}
 
 	public String generateChecksum(String msg) {
@@ -99,9 +113,11 @@ public class DemoDataCollectThread extends Thread {
 	}
 
 	public void setCourse(int course, int frPitch, int lrPitxh) {
-		String msg = "$b" + course + "," + frPitch + "," + lrPitxh + "*";
+		String msg = "$b"
+				+ ((int) course - PitchAndCourse.getMagneticDeclination())
+				+ "," + frPitch + "," + lrPitxh + "*";
 		msg = generateChecksum(msg);
-		this.incoming.add(new SerialPackage(msg));
+		addToQueue(new SerialPackage(msg));
 	}
 
 	/**
@@ -112,17 +128,22 @@ public class DemoDataCollectThread extends Thread {
 		this.gpsActive = gpsActive;
 	}
 
+	public void setLeakMessage(String string) {
+		addToQueue(new SerialPackage(string));
+
+	}
+
 	/**
 	 * @param simulatedVibration
 	 *            the simulatedVibration to set
 	 */
 	public void setSimulatedVibration(int simulatedVibration) {
 		this.simulatedVibration = simulatedVibration;
-		String message = "$d" + simulatedVibration + "*";
+		String message = "$e" + simulatedVibration + "*";
 		log.debug(message);
 		message = generateChecksum(message);
 
-		incoming.add(new SerialPackage(message));
+		addToQueue(new SerialPackage(message));
 	}
 
 	private void writeCourse() {
@@ -130,12 +151,16 @@ public class DemoDataCollectThread extends Thread {
 		DiveData record = dc.getCurrentRecord();
 		int course = record.getPitchAndCourse().getCourse();
 
-		int c = (int) (((Math.random()) - .5) * 0.8) + course;
+		int c = (int) (((Math.random()) - .5) * 3) + course;
+
 		if (c > 360) {
 			c = c - 360;
+		} else if (c < 0) {
+			c = 360 - c;
 		}
+
 		if (record.getGga() != null) {
-			HaversineConverter hc = HaversineConverter.getInstance();
+			GeoCalculator hc = GeoCalculator.getInstance();
 
 			double ymax = hc.getNwCornerLat();
 			double xmin = hc.getNwCornerLng();
@@ -149,7 +174,7 @@ public class DemoDataCollectThread extends Thread {
 				c = (int) (70 + Math.random() * 40);
 			}
 			if (y < ymin) {
-				c = (int) (0 + Math.random() * 20);
+				c = (int) (0 + Math.random() * 40);
 			}
 			if (x > xmax) {
 				c = (int) (250 + Math.random() * 40);
@@ -158,7 +183,7 @@ public class DemoDataCollectThread extends Thread {
 				c = (int) (160 + Math.random() * 40);
 			}
 		}
-
+		record.getPitchAndCourse();
 		setCourse(c, record.getPitchAndCourse().getFrontRearPitch(), record
 				.getPitchAndCourse().getLeftRightPitch());
 
@@ -251,7 +276,7 @@ public class DemoDataCollectThread extends Thread {
 
 			message = generateChecksum(message);
 
-			incoming.add(new SerialPackage(message));
+			addToQueue(new SerialPackage(message));
 		}
 	}
 
@@ -265,14 +290,20 @@ public class DemoDataCollectThread extends Thread {
 	private void writeTemp() {
 		float depth = dc.getCurrentRecordClone().getDepth();
 		if (iteration % 20 == 0) {
+			String message = "";
 			if (depth < 10) {
-				dc.setTemperature((float) ((Math.random() * 5) + 15));
-
+				message = "$d" + (float) ((Math.random() * 5) + 15) + "*";
 			} else if (depth >= 5 && depth < 15) {
-				dc.setTemperature((float) ((Math.random() * 5) + 10));
+				message = "$d" + (float) ((Math.random() * 5) + 10) + "*";
 			} else if (depth > 15) {
-				dc.setTemperature((float) ((Math.random() * 5) + 4));
+				message = "$d" + (float) ((Math.random() * 5) + 4) + "*";
 			}
+
+			log.debug(message);
+
+			message = generateChecksum(message);
+
+			addToQueue(new SerialPackage(message));
 		}
 	}
 
@@ -291,11 +322,6 @@ public class DemoDataCollectThread extends Thread {
 			dc.setVoltage(((float) (Math.random() + 10.5) * 10) / 10);
 		}
 
-	}
-
-	public void setLeakMessage(String string) {
-		incoming.add(new SerialPackage(string));
-		
 	}
 
 }

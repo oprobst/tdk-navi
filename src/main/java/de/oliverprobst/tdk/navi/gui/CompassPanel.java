@@ -10,19 +10,29 @@ import java.text.DecimalFormat;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.oliverprobst.tdk.navi.controller.DiveDataProperties;
 
 public class CompassPanel extends JPanel implements PropertyChangeListener {
+
+	private Logger log = LoggerFactory.getLogger(CompassPanel.class);
 
 	/**
 	 * sid
 	 */
 	private static final long serialVersionUID = -5013078838389083700L;
 
-	private final JLabel lblCourse;
+	private final DecimalFormat courseFormat = new DecimalFormat("#000°");
+
+	private final String compassRose = constructRose();
+
 	private final JLabel lblCompass;
 
 	private final JLabel lblCompassReturn;
+
+	private final JLabel lblCourse;
 
 	/**
 	 * ctor
@@ -66,15 +76,26 @@ public class CompassPanel extends JPanel implements PropertyChangeListener {
 		this.add(lblCompassReturn, gbc);
 	}
 
-	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals(DiveDataProperties.PROP_COURSE)) {
-			this.setCourse((Integer) evt.getNewValue());
+	private String calculateCourseString(int course) {
+
+		int courseRoundDown = (int) course / 10;
+		int remaining = course - courseRoundDown * 10;
+		int remainingToCharPointer = Math.round(remaining / (10 / 7));
+		int offset = 15;
+		int middle = offset + courseRoundDown * 7 + remainingToCharPointer;
+		int range = 10;
+
+		try {
+			return "-{"
+					+ compassRose.substring(middle - range, middle + range + 1)
+					+ "}-";
+		} catch (StringIndexOutOfBoundsException e) {
+			log.error("Failed to generate compass String for value '" + course
+					+ "'.");
+			throw e;
 		}
+
 	}
-
-	DecimalFormat courseFormat = new DecimalFormat("#000°");
-
-	private final String compassRose = constructRose();
 
 	private String constructRose() {
 
@@ -88,6 +109,12 @@ public class CompassPanel extends JPanel implements PropertyChangeListener {
 		return sb.toString();
 	}
 
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt.getPropertyName().equals(DiveDataProperties.PROP_COURSE)) {
+			this.setCourse((Integer) evt.getNewValue());
+		}
+	}
+
 	private void setCourse(int newValue) {
 		lblCourse.setText(courseFormat.format(newValue));
 		lblCompass.setText(calculateCourseString(newValue));
@@ -97,19 +124,6 @@ public class CompassPanel extends JPanel implements PropertyChangeListener {
 		}
 
 		lblCompassReturn.setText("↩ " + courseFormat.format(retCourse));
-	}
-
-	private String calculateCourseString(int course) {
-
-		int courseRoundDown = (int) course / 10;
-		int remaining = course - courseRoundDown * 10;
-		int remainingToCharPointer = Math.round(remaining / (10 / 7));
-		int offset = 15;
-		int middle = offset + courseRoundDown * 7 + remainingToCharPointer;
-		int range = 10;
-		return "-{" + compassRose.substring(middle - range, middle + range + 1)
-				+ "}-";
-
 	}
 
 }

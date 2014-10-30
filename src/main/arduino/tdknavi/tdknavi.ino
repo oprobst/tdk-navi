@@ -4,21 +4,7 @@
  * Submarine Navigation Software
  *
  * Support for all sensors to collect and aggregate data and send to processing unit.
- *
- * "The Arduino use a hard coded I2C sensorBuffer size of 32 bytes.
- * If you send more than 32 bytes the Arduino will crash and you need to power cycle the board!
- *  I changed the sensorBuffer size from 32 bytes to 96 bytes, by editing those Arduino library files (make sure the Arduino IDE is closed):
- *
- *
- *  utility/twi.h:
- *  #define TWI_sensorBuffer_LENGTH 96 (was 32)
- *
- *  wire.h:
- * #define sensorBuffer_LENGTH 96 (was 32)
- *
- * Recompile your sketch and reupload it. "
- * From http://neophob.com/2013/04/i2c-communication-between-a-rpi-and-a-arduino/
-
+ 
 Changed in SoftwareSerial
 #define _SS_MAX_RX_BUFF 128 // RX buffer size
  */
@@ -65,21 +51,27 @@ int loopCounter = 0;
 void setup() {
 
   Serial.begin(SERIAL_SPEED);
-
+ 
   configureGPS();
-
-  pinMode(12, OUTPUT);
+ 
+  pinMode(10, OUTPUT);
   digitalWrite(10, LOW);
 
-  mag.begin();
+  pinMode(2, OUTPUT);
+  pinMode(3, INPUT);
+  digitalWrite(2, LOW);
 
+  mag.begin();
+  
   bmp.begin();
 
   // write protocol marker
   sensorBuffer[0] = '$';
   gpsSensorBuffer[0] = '$';
-
+  
   gpsSerial.listen();
+  
+  Serial.write("Setup done");
 }
 
 
@@ -91,6 +83,7 @@ void loop() {
   delay (1);
   //GPS data
   currGpsBufferSize = collectGPSData(gpsSensorBuffer, currGpsBufferSize);
+
   if (gpsReceivedCompleteMsg) {
     calcChecksum(&gpsSensorBuffer[1], currGpsBufferSize - 1);
     sendLastBuffer (gpsSensorBuffer, currGpsBufferSize + 3 );
@@ -118,12 +111,31 @@ void loop() {
     sendLastBuffer (sensorBuffer, lastWritePos + 3);
   }
 
+
+  //Voltage
+  if (loopCounter % 5000 == 0) {
+    lastWritePos = collectTemperatureData(sensorBuffer);
+    calcChecksum(&sensorBuffer[1], lastWritePos);
+    sendLastBuffer (sensorBuffer, lastWritePos + 3);
+  }
+
+  //Off Button
+  lastWritePos = checkOffButton(sensorBuffer);
+  if (lastWritePos > 0) {
+    calcChecksum(&sensorBuffer[1], lastWritePos);
+    sendLastBuffer (sensorBuffer, lastWritePos + 3);
+  }
+
+
+
   //Connectivity feedback via LED
   char incoming = Serial.read();
   if (incoming == 0x6F) {
     digitalWrite(12, HIGH);
   } else if (incoming == 0x70) {
     digitalWrite(12, LOW);
+  } else if (incoming == 0x21) {
+    shutdownIn (60);
   }
 
   if (loopCounter++ > 1000) {
@@ -131,6 +143,13 @@ void loop() {
   }
 }
 
+/*
+  Turn of the device in provided seconds by sending a high signal to the power module.
+*/
+void shutdownIn(int sec) {
+  delay (sec);
+  digitalWrite(2, HIGH);
+}
 
 // Here, the last buffer shall be send via ttl
 void sendLastBuffer (byte  bufferToSend [], unsigned short lastWritePos) {
@@ -142,6 +161,26 @@ void sendLastBuffer (byte  bufferToSend [], unsigned short lastWritePos) {
   }
 }
 
+
+short checkOffButton (byte sensorBuffer  []) {
+  if (digitalRead(3) == HIGH) {
+    sensorBuffer[1] = 'z';
+    String result = "1";
+    result.getBytes(&sensorBuffer[2], 1) ;
+    sensorBuffer[3] = '*';
+    return 3;
+  } else {
+    return -1;
+  }
+}
+
+short collectVoltageData (byte sensorBuffer  []) {
+  sensorBuffer[1] = 'g';
+  String result = printDouble (calculateVoltage(), 1);
+  result.getBytes(&sensorBuffer[2], 5) ;
+  sensorBuffer[7] = '*';
+  return 7;
+}
 
 
 short collectTemperatureData (byte sensorBuffer  []) {
@@ -476,5 +515,40 @@ String printDouble(double val, byte precision) {
   }
 
   return output;
+}
+
+
+
+/*
+This function reads the input from the power module. Unfortunately, this input isn't linear,
+I don't know why...
+So all results between 7V and 13V are usually fine, while more extrem values are vague estimated.
+*/
+double calculateVoltage () {
+  double inputVoltage = analogRead(A0);
+
+  //  if (true){
+  //  return inputVoltage;
+  // }
+  if (inputVoltage >= 560) { // > 13V
+    inputVoltage =  13 + ((1.0 / (600.0 - 560.0)) *  (inputVoltage - 560.0));
+  } else if (inputVoltage < 385) { // 0-6V
+    inputVoltage =  0 + ((1.0 / (560.0 - 1.0)) *  (inputVoltage - 1.0));
+  } else if (inputVoltage > 384 && inputVoltage < 424) { //6-7
+    inputVoltage =  6.0 + ((1.0 / (442.0 - 385.0)) *  (inputVoltage - 385.0));
+  } else if (inputVoltage > 423 && inputVoltage < 460) { //7-8
+    inputVoltage =  7.0 + ((1.0 / (460.0 - 424.0)) *  (inputVoltage - 424.0));
+  } else if (inputVoltage > 459 && inputVoltage < 490) { //8-9
+    inputVoltage =  8.0 + ((1.0 / (490.0 - 460.0)) *  (inputVoltage - 460.0));
+  } else if (inputVoltage > 489 && inputVoltage < 512) { // 9-10
+    inputVoltage =  9.0 + ((1.0 / (512.0 - 490.0)) *  (inputVoltage - 490.0));
+  } else if (inputVoltage > 511 && inputVoltage < 530) { // 10-11
+    inputVoltage =  10.0 + ((1.0 / (530.0 - 512.0)) *  (inputVoltage - 512.0));
+  } else if (inputVoltage > 529 && inputVoltage < 550) { // 11-12
+    inputVoltage =  11.0 + ((1.0 / (550.0 - 530.0)) *  (inputVoltage - 530.0));
+  } else if (inputVoltage > 549 && inputVoltage < 560) { // 12-13
+    inputVoltage =  12.0 + ((1.0 / (560.0 - 550.0)) *  (inputVoltage - 550.0));
+  }
+  return inputVoltage;
 }
 

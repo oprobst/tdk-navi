@@ -21,7 +21,8 @@ import javax.swing.JPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.oliverprobst.tdk.navi.HaversineConverter;
+import de.oliverprobst.tdk.navi.App;
+import de.oliverprobst.tdk.navi.GeoCalculator;
 import de.oliverprobst.tdk.navi.NmeaParser;
 import de.oliverprobst.tdk.navi.config.Waypoint;
 import de.oliverprobst.tdk.navi.controller.DiveDataProperties;
@@ -107,8 +108,8 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			if (lastLocation != null) {
 				g.drawLine(lastLocation.x, lastLocation.y, location.x,
 						location.y);
-				g.drawLine(lastLocation.x+1, lastLocation.y+1, location.x+1,
-						location.y+1);
+				g.drawLine(lastLocation.x + 1, lastLocation.y + 1,
+						location.x + 1, location.y + 1);
 			}
 			lastLocation = location;
 			if (i > locations.size() - 50) {
@@ -125,7 +126,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 	private void drawWPs(Graphics g) {
 		Dimension d = new Dimension(image.getWidth(), image.getHeight());
-		HaversineConverter hc = HaversineConverter.getInstance();
+		GeoCalculator hc = GeoCalculator.getInstance();
 
 		for (Waypoint wp : wps) {
 			MapPoint loc = hc.xyProjection(d, wp.getLongitude(),
@@ -237,6 +238,18 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			}
 			drawLocation(null);
 		}
+		if (evt.getPropertyName().equals(DiveDataProperties.PROP_VOLTAGE)) {
+			float voltage = (float) evt.getNewValue();
+			if (voltage < App.getConfig().getSettings().getWarningVoltage()) {
+				warning = "Voltage below minimum of "
+						+ App.getConfig().getSettings().getWarningVoltage()
+						+ "V. \nShutdown will be initiated at "
+						+ App.getConfig().getSettings().getShutdownVoltage();
+			}
+		}
+		if (evt.getPropertyName().equals(DiveDataProperties.PROP_SHUTDOWN)) {
+			warning = "Turning system off.";
+		}
 
 	}
 
@@ -251,7 +264,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 	private void drawLocation(Location newValue, boolean b) {
 		if (newValue != null) {
 			Dimension d = new Dimension(image.getWidth(), image.getHeight());
-			HaversineConverter hc = HaversineConverter.getInstance();
+			GeoCalculator hc = GeoCalculator.getInstance();
 
 			lastLatitude = newValue.getLatitude();
 			lastLongitude = newValue.getLongitude();
@@ -275,7 +288,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 		if (newValue != null) {
 			Dimension d = new Dimension(image.getWidth(), image.getHeight());
-			HaversineConverter hc = HaversineConverter.getInstance();
+			GeoCalculator hc = GeoCalculator.getInstance();
 			NmeaParser p = new NmeaParser((String) newValue);
 			lastLatitude = p.getLatitude();
 			lastLongitude = p.getLongitude();

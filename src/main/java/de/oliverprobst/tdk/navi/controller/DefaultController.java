@@ -2,6 +2,7 @@ package de.oliverprobst.tdk.navi.controller;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.oliverprobst.tdk.navi.HaversineConverter;
+import de.oliverprobst.tdk.navi.GeoCalculator;
 import de.oliverprobst.tdk.navi.LocationEstimator;
 import de.oliverprobst.tdk.navi.NmeaParser;
 import de.oliverprobst.tdk.navi.config.Waypoint;
@@ -273,7 +274,7 @@ public class DefaultController {
 	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setVoltage(int)
 	 */
 	public void setVoltage(float f) {
-		currentRecord.setVoltage(f);
+		currentRecord.setVoltage(f);		
 	}
 
 	private void updateDiveProfile() {
@@ -333,7 +334,7 @@ public class DefaultController {
 		lastPosEstimation = System.currentTimeMillis();
 		double distance = (((double) timeSinceLastLoc / 60000d) * LocationEstimator
 				.getInstance().calcScooterSpeed(currentRecord.getGear()));
-		Location estimatedLocation = HaversineConverter.getInstance()
+		Location estimatedLocation = GeoCalculator.getInstance()
 				.calculateNewLocation(latitude, longitude, heading, distance);
 
 		currentRecord.setEstimatedLocation(estimatedLocation);
@@ -349,5 +350,25 @@ public class DefaultController {
 	public void setPitchAndCourse(PitchAndCourse pAc) {
 		estimateLocation();
 		currentRecord.setPitchAndCourse(pAc);
+	}
+
+	/**
+	 * Shutdown received 
+	 * 
+	 * @param payload usually only a '1'
+	 */
+	public void shutdown(String payload) {
+		currentRecord.shutdown(payload);	
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			 // well, ok
+		}
+		try {
+			Runtime.getRuntime().exec("sudo shutdown -h now");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

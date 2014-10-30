@@ -62,7 +62,7 @@ public class DemoKeyListener implements KeyListener {
 
 		case 69: // e
 		case 39: // arr right
-			int course = dd.getPitchAndCourse().getCourse();
+			int course = (int) (dd.getPitchAndCourse().getCourse());
 			course += 2;
 			if (course > 359) {
 				course = 0;
@@ -71,7 +71,7 @@ public class DemoKeyListener implements KeyListener {
 			break;
 		case 68: // d
 		case 37: // arr left
-			course = dd.getPitchAndCourse().getCourse();
+			course = (int) (dd.getPitchAndCourse().getCourse());
 			course -= 2;
 			if (course < 0) {
 				course = 359;

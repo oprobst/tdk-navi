@@ -18,6 +18,10 @@ public class DataProcessingThread extends Thread {
 
 	private final DefaultController dc;
 
+	public DefaultController getDefaultController() {
+		return dc;
+	}
+
 	public final static int MAX_BUFFER_SIZE = 25;
 
 	public DataProcessingThread(AbstractQueue<SerialPackage> incoming,
@@ -41,7 +45,12 @@ public class DataProcessingThread extends Thread {
 			if (incoming.isEmpty()) {
 
 			} else {
-				handle(incoming.remove());
+				SerialPackage sp = incoming.remove();
+				try {
+					handle(sp);
+				} catch (Exception e) {
+					log.error("Exception occurred, discarded message " + sp, e);
+				}
 			}
 		}
 		log.info("Ended Data Processing Thread");
@@ -51,39 +60,55 @@ public class DataProcessingThread extends Thread {
 
 		String payload = message.getPayload();
 
-		switch (message.getType()) {
+		try {
 
-		case NMEA_GGA:
-			parseGga(payload);
-			break;
+			switch (message.getType()) {
 
-		case COURSE:
-			parseCourse(payload);
-			break;
+			case NMEA_GGA:
+				parseGga(payload);
+				break;
 
-		case SPEED:
-			parseSpeed(payload);
-			break;
+			case COURSE:
+				parseCourse(payload);
+				break;
 
-		case LEAK:
-			parseLeak(payload);
-			break;
+			case SPEED:
+				parseSpeed(payload);
+				break;
 
-		case DEPTH:
-			parseDepth(payload);
-			break;
+			case LEAK:
+				parseLeak(payload);
+				break;
 
-		case TEMPERATURE:
-			parseTemperature(payload);
-			break;
+			case DEPTH:
+				parseDepth(payload);
+				break;
 
-		case HUMIDITY:
-			parseHumidity(payload);
+			case TEMPERATURE:
+				parseTemperature(payload);
+				break;
 
-		default:
-			break;
+			case HUMIDITY:
+				parseHumidity(payload);
+
+			case VOLTAGE:
+				parseVoltage(payload);
+				break;
+
+			case SHUTDOWN:
+				dc.shutdown(payload);
+				break;
+				
+			default:
+				break;
+			} 
+
+
+
+		} catch (Exception e) {
+			log.error("Failure when parsing payload '" + payload
+					+ "' of message '" + message + ". Discarded package. ", e);
 		}
-
 	}
 
 	private void parseSpeed(String payload) {
@@ -112,13 +137,18 @@ public class DataProcessingThread extends Thread {
 	}
 
 	private void parseTemperature(String payload) {
-		float temperature = Float.parseFloat(payload);		
+		float temperature = Float.parseFloat(payload);
 		dc.setTemperature(temperature);
 	}
 
 	private void parseHumidity(String payload) {
 		int humidity = Integer.parseInt(payload);
 		dc.setHumidity(humidity);
+	}
+	
+	private void parseVoltage(String payload) {
+		float voltage = Float.parseFloat(payload);
+		dc.setVoltage(voltage);
 	}
 
 	private void parseLeak(String payload) {

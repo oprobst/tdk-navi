@@ -23,6 +23,7 @@ import de.oliverprobst.tdk.navi.config.loader.ConfigurationFactory;
 import de.oliverprobst.tdk.navi.config.loader.ConfigurationFailureException;
 import de.oliverprobst.tdk.navi.config.loader.ConfigurationLoader;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
+import de.oliverprobst.tdk.navi.dto.PitchAndCourse;
 import de.oliverprobst.tdk.navi.gui.DemoDialog;
 import de.oliverprobst.tdk.navi.gui.DemoKeyListener;
 import de.oliverprobst.tdk.navi.gui.MainDialog;
@@ -62,16 +63,16 @@ public class App {
 										// forces that. FIXIT!
 
 		config = loadConfiguration();
-		
+
 		int loginterval = 1000;
 		if (config.getSettings().getLogInterval() != null) {
 			loginterval = config.getSettings().getLogInterval().intValue();
 		}
 		DefaultController dc = new DefaultController(loginterval);
-	
+
 		LocationEstimator.getInstance().init(config);
 
-		boolean isDemoMode = config.getSettings().isDemomode();
+		boolean demo = config.getSettings().isDemomode();
 
 		NaviMap useMap = (NaviMap) config.getSettings().getForcemap();
 		if (useMap == null) {
@@ -82,7 +83,7 @@ public class App {
 
 		md = new MainDialog(dc);
 
-		if (isDemoMode) {
+		if (demo) {
 			runInDemoMode(dc, config);
 		} else {
 
@@ -90,11 +91,12 @@ public class App {
 				startDataCollect(dc, config);
 			} catch (Throwable e) {
 				log.error(
-						"Could not start data collection thread. Going to demo mode. Reason: "
+						"Could not start data collection thread. Demomode disabled by configuration. Exiting. Reason: "
 								+ e.getMessage(), e);
-				runInDemoMode(dc, config);
+				System.exit(-1);
 			}
 		}
+
 	}
 
 	private static NaviMap determineMapByGPS() {
@@ -185,9 +187,31 @@ public class App {
 
 	private static UncaughtExceptionHandler uch = new UncaughtExceptionHandler() {
 		public void uncaughtException(Thread t, Throwable e) {
-			log.error("Thread " + t.getName()
-					+ " died. Trying to restart Thread.", e);
-			t.start();
+
+			if (t instanceof DataProcessingThread) {
+				DataProcessingThread thread = (DataProcessingThread) t;
+
+				log.error("Data processing thread " + t.getName()
+						+ " died. Trying to restart.", e);
+				dataProcessingThread = new DataProcessingThread(incoming,
+						thread.getDefaultController());
+				dataProcessingThread.setUncaughtExceptionHandler(uch);
+				dataProcessingThread.start();
+
+			} else if (t instanceof DemoDataCollectThread) {
+				log.error("Demo processing thread " + t.getName()
+						+ " died. Please fix me!", e);
+				System.exit(-2);
+
+			} else if (t instanceof SerialDataCollectThread) {
+				log.error("Serial data collect thread " + t.getName()
+						+ " died. Trying to restart.", e);
+				SerialDataCollectThread collectorThread = new SerialDataCollectThread(
+						incoming);
+				collectorThread.setUncaughtExceptionHandler(uch);
+				collectorThread.start();
+
+			}
 		}
 	};
 
@@ -198,7 +222,7 @@ public class App {
 	 */
 	private static void configureApp(DefaultController dc,
 			Configuration config, NaviMap map) {
-		HaversineConverter hc = HaversineConverter.getInstance();
+		GeoCalculator hc = GeoCalculator.getInstance();
 
 		hc.setNwCorner(map.getNorthwest().getLatitude(), map.getNorthwest()
 				.getLongitude());
@@ -213,6 +237,8 @@ public class App {
 		dc.setNotes(config.getSettings().getNotes());
 		dc.setMapImage(map.getImage());
 		dc.setBrightTheme(map.isBrightTheme());
+
+		PitchAndCourse.setMagneticDeclination(map.getDeclination());
 	}
 
 }

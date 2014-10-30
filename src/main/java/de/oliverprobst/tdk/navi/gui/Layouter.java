@@ -110,6 +110,7 @@ public class Layouter implements Serializable {
 
 	public void layoutMicroLabel(JLabel label) {
 		this.layoutLabel(label);
+		label.setFont(label.getFont().deriveFont(15.0f));
 		label.setForeground(Color.WHITE);
 	}
 

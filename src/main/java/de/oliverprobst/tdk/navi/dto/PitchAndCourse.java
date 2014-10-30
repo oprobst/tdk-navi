@@ -10,6 +10,23 @@ import org.slf4j.LoggerFactory;
  */
 public class PitchAndCourse implements Cloneable {
 
+	private static double magneticDeclination = 2.0d;
+
+	/**
+	 * @return the magneticDeclination
+	 */
+	public static double getMagneticDeclination() {
+		return magneticDeclination;
+	}
+
+	/**
+	 * @param magneticDeclination
+	 *            the magneticDeclination to set
+	 */
+	public static void setMagneticDeclination(double magneticDeclination) {
+		PitchAndCourse.magneticDeclination = magneticDeclination;
+	}
+
 	private final int course;
 
 	private final int frontRearPitch;
@@ -33,6 +50,7 @@ public class PitchAndCourse implements Cloneable {
 			int course = (int) Math.round(Double.parseDouble(split[0]));
 			int frontRearPitch = (int) Math.round(Double.parseDouble(split[1]));
 			int leftRightPitch = (int) Math.round(Double.parseDouble(split[2]));
+			course += magneticDeclination;
 			return new PitchAndCourse(course, frontRearPitch, leftRightPitch);
 		} catch (Exception e) {
 			log.warn(

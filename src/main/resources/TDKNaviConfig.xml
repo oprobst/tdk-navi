@@ -15,6 +15,8 @@
 		</table></html>]]>
 		</notes>
 		<forcemap>demo</forcemap> <!-- This map will be used -->
+		<shutdown-voltage>8.1</shutdown-voltage>
+		<warning-voltage>8.6</warning-voltage>
 		<speed> <!-- Scooter gear and corresponding speed -->
 			<gear sensor="200" speed="10" /> <!-- 1 -->
 			<gear sensor="180" speed="16" /> <!-- 2 -->
@@ -28,7 +30,8 @@
 		</speed>
 	</settings>
 
-	<map id="Gernsbach" image="${user.home}/tdk-navi/Gernsbach.png">
+	<map id="Gernsbach" image="${user.home}/tdk-navi/Gernsbach.png"
+		declination="1.75">
 		<northwest longitude="8.327433" latitude="48.769750" />
 		<southeast longitude="8.335494" latitude="48.765872" />
 		<waypoint longitude="8.334448" latitude="48.769217" id="F.H.-Brücke" />
@@ -36,7 +39,7 @@
 		<waypoint longitude="8.330950" latitude="48.769010" id="Sitzbank" />
 	</map>
 
-	<map id="demo" image="${intern}/demoMap.png">
+	<map id="demo" image="${intern}/demoMap.png" declination="2.0">
 		<northwest latitude="47.649500" longitude="9.21120" />
 		<southeast latitude="47.641400" longitude="9.22675" />
 		<waypoint id="Jura" latitude="47.647479" longitude="9.224010" />
