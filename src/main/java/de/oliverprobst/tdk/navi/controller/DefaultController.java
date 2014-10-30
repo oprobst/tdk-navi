@@ -9,7 +9,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.oliverprobst.tdk.navi.HaversineConverter;
+import de.oliverprobst.tdk.navi.GeoCalculator;
 import de.oliverprobst.tdk.navi.LocationEstimator;
 import de.oliverprobst.tdk.navi.NmeaParser;
 import de.oliverprobst.tdk.navi.config.Waypoint;
@@ -333,7 +333,7 @@ public class DefaultController {
 		lastPosEstimation = System.currentTimeMillis();
 		double distance = (((double) timeSinceLastLoc / 60000d) * LocationEstimator
 				.getInstance().calcScooterSpeed(currentRecord.getGear()));
-		Location estimatedLocation = HaversineConverter.getInstance()
+		Location estimatedLocation = GeoCalculator.getInstance()
 				.calculateNewLocation(latitude, longitude, heading, distance);
 
 		currentRecord.setEstimatedLocation(estimatedLocation);

@@ -199,7 +199,7 @@ public class App {
 	 */
 	private static void configureApp(DefaultController dc,
 			Configuration config, NaviMap map) {
-		HaversineConverter hc = HaversineConverter.getInstance();
+		GeoCalculator hc = GeoCalculator.getInstance();
 
 		hc.setNwCorner(map.getNorthwest().getLatitude(), map.getNorthwest()
 				.getLongitude());

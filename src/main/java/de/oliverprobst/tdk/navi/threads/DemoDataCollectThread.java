@@ -8,7 +8,7 @@ import java.util.TimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.oliverprobst.tdk.navi.HaversineConverter;
+import de.oliverprobst.tdk.navi.GeoCalculator;
 import de.oliverprobst.tdk.navi.NmeaParser;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.dto.DiveData;
@@ -160,7 +160,7 @@ public class DemoDataCollectThread extends Thread {
 		}
 
 		if (record.getGga() != null) {
-			HaversineConverter hc = HaversineConverter.getInstance();
+			GeoCalculator hc = GeoCalculator.getInstance();
 
 			double ymax = hc.getNwCornerLat();
 			double xmin = hc.getNwCornerLng();

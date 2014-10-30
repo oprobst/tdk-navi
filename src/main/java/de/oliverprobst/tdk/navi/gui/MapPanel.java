@@ -21,7 +21,7 @@ import javax.swing.JPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.oliverprobst.tdk.navi.HaversineConverter;
+import de.oliverprobst.tdk.navi.GeoCalculator;
 import de.oliverprobst.tdk.navi.NmeaParser;
 import de.oliverprobst.tdk.navi.config.Waypoint;
 import de.oliverprobst.tdk.navi.controller.DiveDataProperties;
@@ -125,7 +125,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 	private void drawWPs(Graphics g) {
 		Dimension d = new Dimension(image.getWidth(), image.getHeight());
-		HaversineConverter hc = HaversineConverter.getInstance();
+		GeoCalculator hc = GeoCalculator.getInstance();
 
 		for (Waypoint wp : wps) {
 			MapPoint loc = hc.xyProjection(d, wp.getLongitude(),
@@ -251,7 +251,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 	private void drawLocation(Location newValue, boolean b) {
 		if (newValue != null) {
 			Dimension d = new Dimension(image.getWidth(), image.getHeight());
-			HaversineConverter hc = HaversineConverter.getInstance();
+			GeoCalculator hc = GeoCalculator.getInstance();
 
 			lastLatitude = newValue.getLatitude();
 			lastLongitude = newValue.getLongitude();
@@ -275,7 +275,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 		if (newValue != null) {
 			Dimension d = new Dimension(image.getWidth(), image.getHeight());
-			HaversineConverter hc = HaversineConverter.getInstance();
+			GeoCalculator hc = GeoCalculator.getInstance();
 			NmeaParser p = new NmeaParser((String) newValue);
 			lastLatitude = p.getLatitude();
 			lastLongitude = p.getLongitude();
