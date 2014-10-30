@@ -91,7 +91,7 @@ public class DataProcessingThread extends Thread {
 			case HUMIDITY:
 				parseHumidity(payload);
 
-			case VOLTAGE:
+ 			case VOLTAGE:
 				parseVoltage(payload);
 				break;
 
@@ -102,8 +102,7 @@ public class DataProcessingThread extends Thread {
 			default:
 				break;
 			} 
-
-
+ 
 
 		} catch (Exception e) {
 			log.error("Failure when parsing payload '" + payload
