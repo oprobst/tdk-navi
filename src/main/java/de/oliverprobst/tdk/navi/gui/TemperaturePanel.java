@@ -30,17 +30,17 @@ public class TemperaturePanel extends JPanel implements PropertyChangeListener {
 		GridBagLayout gbl = new GridBagLayout();
 		this.setLayout(gbl);
 
-		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0d, 0.0d,
+		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0d, 0.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
 				new Insets(0, 0, 0, 0), 2, 2);
 
-		lblTemperature = new JLabel("Nie");
+		lblTemperature = new JLabel("n/a");
 		layout.layoutMinorLabel(lblTemperature);
 		this.add(lblTemperature, gbc);
 
-		gbc = new GridBagConstraints(0, 1, 1, 1, 0.0d, 0.0d,
+		gbc = new GridBagConstraints(1, 0, 1, 1, 0.0d, 0.0d,
 				GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
-				new Insets(0, 0, 0, 3), 2, 2);
+				new Insets(8, 0, 0, 0), 2, 2);
 
 		JLabel lblDesc = new JLabel("°C");
 		layout.layoutTinyDescriptionLabel(lblDesc);

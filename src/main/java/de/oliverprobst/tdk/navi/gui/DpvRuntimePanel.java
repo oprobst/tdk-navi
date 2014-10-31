@@ -7,6 +7,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -39,15 +40,17 @@ public class DpvRuntimePanel extends JPanel implements PropertyChangeListener {
 				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
 				new Insets(0, 0, 0, 0), 2, 2);
 
-		lblDvpRuntime = new JLabel("Nie");
+		lblDvpRuntime = new JLabel("n/a");
 		layout.layoutMinorLabel(lblDvpRuntime);
 		this.add(lblDvpRuntime, gbc);
 
-		gbc = new GridBagConstraints(0, 1, 1, 1, 0.0d, 0.0d,
-				GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
-				new Insets(0, 0, 0, 3), 2, 2);
+		gbc = new GridBagConstraints(1, 0, 1, 1, 0.0d, 0.0d,
+				GridBagConstraints.SOUTHEAST, GridBagConstraints.VERTICAL,
+				new Insets(8, 0, 0, 0), 2, 2);
 
-		JLabel lblDesc = new JLabel("DPV");
+		ImageIcon icon = UiHelper.createImageIcon("/dvp.png");
+
+		JLabel lblDesc = new JLabel(icon);
 		layout.layoutTinyDescriptionLabel(lblDesc);
 		this.add(lblDesc, gbc);
 	}

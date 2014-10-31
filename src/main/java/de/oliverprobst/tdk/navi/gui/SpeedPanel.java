@@ -10,6 +10,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -34,7 +35,7 @@ public class SpeedPanel extends JPanel implements PropertyChangeListener {
 	 */
 	private static final long serialVersionUID = -5013078838389083700L;
 
-	JLabel lblSpeed = new JLabel("m/s");
+	JLabel lblSpeed = new JLabel("n/a");
 
 	/**
 	 * ctor
@@ -52,12 +53,21 @@ public class SpeedPanel extends JPanel implements PropertyChangeListener {
 		ChartPanel panel = createDial(layout);
 		this.add(panel, gbc);
 
-		gbc = new GridBagConstraints(1, 1, 1, 1, 0.0d, 0.0d,
-				GridBagConstraints.SOUTHEAST, GridBagConstraints.BOTH,
-				new Insets(0, 0, 0, 3), 2, 2);
+		gbc = new GridBagConstraints(1, 1, 1, 1, 1.0d, 0.0d,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 1), 1, 1);
 
 		layout.layoutMicroLabel(lblSpeed);
 		this.add(lblSpeed, gbc);
+
+		gbc = new GridBagConstraints(2, 1, 1, 1, 0.0d, 0.0d,
+				GridBagConstraints.EAST, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 1), 1, 1);
+
+		JLabel lblLogo = new JLabel();
+		this.add(lblLogo, gbc);
+		ImageIcon icon = UiHelper.createImageIcon("/m-per-min.png");
+		lblLogo.setIcon(icon);
 		this.setMinimumSize(new Dimension(80, 80));
 
 	}
@@ -68,7 +78,7 @@ public class SpeedPanel extends JPanel implements PropertyChangeListener {
 			dataset.setValue(value);
 			DecimalFormat f = new DecimalFormat("00");
 			lblSpeed.setText(f.format(LocationEstimator.getInstance()
-					.calcScooterSpeed(value)) + " »");
+					.calcScooterSpeed(value)) + "");
 		}
 	}
 
