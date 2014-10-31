@@ -1,5 +1,6 @@
 package de.oliverprobst.tdk.navi.gui;
 
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -30,8 +31,8 @@ public class NotesPanel extends JPanel implements PropertyChangeListener {
 		GridBagLayout gbl = new GridBagLayout();
 		this.setLayout(gbl);
 
-		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0d, 0.0d,
-				GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(5,
+		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 1.0d, 1.0d,
+				GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(0,
 						0, 0, 0), 0, 0);
 
 		lblNotes = new JLabel("Dive notes");

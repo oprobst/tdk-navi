@@ -84,6 +84,9 @@ public class App {
 
 		md = new MainDialog(dc);
 
+		// notes must be set after MainDialog instanciation
+		dc.setNotes(config.getSettings().getNotes());
+
 		if (demo) {
 			runInDemoMode(dc, config);
 		} else {
@@ -235,7 +238,6 @@ public class App {
 			dc.getWPs().add(wp);
 		}
 
-		dc.setNotes(config.getSettings().getNotes());
 		dc.setMapImage(map.getImage());
 		dc.setBrightTheme(map.isBrightTheme());
 

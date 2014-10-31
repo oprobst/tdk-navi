@@ -42,6 +42,7 @@ public class StructureIntegrityPanel extends JPanel implements
 				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
 				new Insets(0, 0, 0, 0), 2, 2);
 		hullStatusPanel.setPreferredSize(new Dimension(38, 20));
+		hullStatusPanel.setMinimumSize(new Dimension(38, 20));
 		layout.layout(hullStatusPanel, false);
 		this.add(hullStatusPanel, gbc);
 

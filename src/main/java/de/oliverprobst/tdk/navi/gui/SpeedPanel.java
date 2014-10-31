@@ -58,6 +58,7 @@ public class SpeedPanel extends JPanel implements PropertyChangeListener {
 
 		layout.layoutMicroLabel(lblSpeed);
 		this.add(lblSpeed, gbc);
+		this.setMinimumSize(new Dimension(80, 80));
 
 	}
 
@@ -67,7 +68,7 @@ public class SpeedPanel extends JPanel implements PropertyChangeListener {
 			dataset.setValue(value);
 			DecimalFormat f = new DecimalFormat("00");
 			lblSpeed.setText(f.format(LocationEstimator.getInstance()
-					.calcScooterSpeed(value)) + " m/min");
+					.calcScooterSpeed(value)) + " »");
 		}
 	}
 

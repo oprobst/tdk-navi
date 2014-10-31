@@ -38,7 +38,8 @@ public class PitchPanel extends JPanel implements PropertyChangeListener {
 		GridBagConstraints gbc = new GridBagConstraints(0, 0, 2, 1, 0.0d, 1.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
 						0, 0, 0, 0), 2, 2);
-		hpanel.setPreferredSize(new Dimension(60, 60));
+		this.setMinimumSize(new Dimension(80, 80));
+		hpanel.setPreferredSize(new Dimension(80, 80));
 		layout.layout(hpanel, false);
 		this.add(hpanel, gbc);
 

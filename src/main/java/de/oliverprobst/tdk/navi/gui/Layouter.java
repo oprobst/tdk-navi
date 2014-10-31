@@ -122,7 +122,7 @@ public class Layouter implements Serializable {
 
 	public void layoutTinyLabel(JLabel label) {
 		this.layoutLabel(label);
-		label.setFont(label.getFont().deriveFont(9.0f));
+		label.setFont(label.getFont().deriveFont(11.0f));
 		label.setForeground(Color.WHITE);
 	}
 

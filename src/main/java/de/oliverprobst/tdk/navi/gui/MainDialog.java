@@ -14,7 +14,8 @@ import de.oliverprobst.tdk.navi.controller.DefaultController;
 
 public class MainDialog extends JFrame {
 
-	private static Logger log = LoggerFactory.getLogger(MainDialog.class);
+	//private static Logger log = LoggerFactory.getLogger(MainDialog.class);
+	
 	/**
 	 * sid
 	 */
@@ -56,7 +57,7 @@ public class MainDialog extends JFrame {
 
 		gbc = new GridBagConstraints(0, 1, 1, 1, 1.0d, 1.0d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-						0, 0, 0, 0), 1, 1);
+						0, 0, 0, 0), 0,0);
 
 		JPanel mapPanel = new JPanel();
 		layouter.layout(mapPanel);
@@ -65,7 +66,7 @@ public class MainDialog extends JFrame {
 
 		gbc = new GridBagConstraints(1, 1, 1, 1, 0.0d, 0.8d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-						0, 0, 0, 0), 1, 1);
+						0, 0, 0, 0),0, 0);
 
 		JPanel paramPanel = new JPanel();
 		layouter.layout(paramPanel);
@@ -74,7 +75,7 @@ public class MainDialog extends JFrame {
 
 		gbc = new GridBagConstraints(0, 2, 2, 1, 0.0d, 0.15d,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-						0, 0, 0, 0), 2, 1);
+						0, 0, 0, 0), 0, 0);
 
 		JPanel bottomPanel = new JPanel();
 		layouter.layout(bottomPanel);

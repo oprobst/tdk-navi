@@ -5,14 +5,11 @@
 	<settings>
 		<demomode>true</demomode> <!-- Starting in demo mode -->
 		<notes>
-     <![CDATA[<html>
-		<p><b>Dive Notes</b></p>
-		<table cellspacing=0 cellpadding=0>
-		<tr><td>32m-25min &nbsp;</td> <td>36m-60min</td></tr>
-		<tr><td>18m-1min</td><td>9m-9min</td></tr>
-		<tr><td>15m-4min</td><td>6m-14min</td></tr>
-		<tr><td>12m-5min</td><td>3m-29min</td></tr>
-		</table></html>]]>
+	  	<![CDATA[<html>
+		  <p><b>Notizen</b></p>
+		  Hafen im Osten! <br/>
+		  Es ist dunkel da unten.
+		  </html>]]>     
 		</notes>
 		<forcemap>demo</forcemap> <!-- This map will be used -->
 		<shutdown-voltage>8.1</shutdown-voltage>
