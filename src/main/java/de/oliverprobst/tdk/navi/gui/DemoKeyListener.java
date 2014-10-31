@@ -163,6 +163,10 @@ public class DemoKeyListener implements KeyListener {
 			collectorThread.setLeakMessage("$c" + ssv + "," + bsv + "," + asv
 					+ "*");
 			break;
+		case 88: // x
+			asv -= 10;
+			collectorThread.setShutdownReceived("$z1*");
+			break;
 		case 70: // f
 			dd.getIntegrity().setBow(Status.OK);
 			dd.getIntegrity().setAmbient(Status.OK);

@@ -17,6 +17,7 @@
 		<forcemap>demo</forcemap> <!-- This map will be used -->
 		<shutdown-voltage>8.1</shutdown-voltage>
 		<warning-voltage>8.6</warning-voltage>
+		<fast-leak-shutdown>false</fast-leak-shutdown>
 		<speed> <!-- Scooter gear and corresponding speed -->
 			<gear sensor="200" speed="10" /> <!-- 1 -->
 			<gear sensor="180" speed="16" /> <!-- 2 -->

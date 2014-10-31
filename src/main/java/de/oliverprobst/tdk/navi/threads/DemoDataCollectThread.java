@@ -139,7 +139,10 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 
 	public void setLeakMessage(String string) {
 		addToQueue(new SerialPackage(string));
+	}
 
+	public void setShutdownReceived(String string) {
+		addToQueue(new SerialPackage(string));		
 	}
 
 	/**

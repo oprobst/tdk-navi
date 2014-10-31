@@ -2,7 +2,6 @@ package de.oliverprobst.tdk.navi.controller;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,6 +9,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.oliverprobst.tdk.navi.App;
 import de.oliverprobst.tdk.navi.GeoCalculator;
 import de.oliverprobst.tdk.navi.LocationEstimator;
 import de.oliverprobst.tdk.navi.NmeaParser;
@@ -18,6 +18,7 @@ import de.oliverprobst.tdk.navi.dto.DiveData;
 import de.oliverprobst.tdk.navi.dto.Location;
 import de.oliverprobst.tdk.navi.dto.PitchAndCourse;
 import de.oliverprobst.tdk.navi.dto.StructuralIntegrity;
+import de.oliverprobst.tdk.navi.dto.StructuralIntegrity.Status;
 
 public class DefaultController {
 
@@ -45,7 +46,8 @@ public class DefaultController {
 	}
 
 	/**
-	 * @param brightTheme the brightTheme to set
+	 * @param brightTheme
+	 *            the brightTheme to set
 	 */
 	public void setBrightTheme(boolean brightTheme) {
 		this.brightTheme = brightTheme;
@@ -68,8 +70,6 @@ public class DefaultController {
 	public void setMapImage(String mapImage) {
 		this.mapImage = mapImage;
 	}
-	
-	
 
 	private DiveData currentRecord = new DiveData();
 
@@ -241,6 +241,9 @@ public class DefaultController {
 				integrityCode, currentRecord.getDepth());
 		if (si != null) {
 			currentRecord.setIntegrity(si);
+			if (si.getBow() == Status.BROKEN || si.getStern() == Status.BROKEN) {
+				this.shutdown("leak");
+			}
 		}
 	}
 
@@ -274,7 +277,10 @@ public class DefaultController {
 	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setVoltage(int)
 	 */
 	public void setVoltage(float f) {
-		currentRecord.setVoltage(f);		
+		currentRecord.setVoltage(f);
+		if (f < App.getConfig().getSettings().getShutdownVoltage()) {
+			this.shutdown("low voltage");
+		}
 	}
 
 	private void updateDiveProfile() {
@@ -353,22 +359,27 @@ public class DefaultController {
 	}
 
 	/**
-	 * Shutdown received 
+	 * Shutdown received
 	 * 
-	 * @param payload usually only a '1'
+	 * @param payload
+	 *            The reason for the shut down. If reported via serial, payload
+	 *            is '1'. if payload == 'leak', shutdown will be faster.
 	 */
 	public void shutdown(String payload) {
-		currentRecord.shutdown(payload);	
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			 // well, ok
+		currentRecord.shutdown(payload);
+		if (payload.equals("1")) {
+			payload = "User command";
 		}
-		try {
-			Runtime.getRuntime().exec("sudo shutdown -h now");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		log.info("Shutdown initiated. Reason: " + payload);
+
+		int waitForUser = 5000;
+		if (payload.equals("leak")
+				&& App.getConfig().getSettings().isFastLeakShutdown()) {
+			waitForUser = 100;
 		}
+
+		Thread shutdownThread = new ShutdownThread(waitForUser);
+		shutdownThread.start();
+
 	}
 }

@@ -36,17 +36,45 @@ import de.oliverprobst.tdk.navi.dto.StructuralIntegrity.Status;
  */
 public class MapPanel extends JPanel implements PropertyChangeListener {
 
+	private static Logger log = LoggerFactory.getLogger(MapPanel.class);
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1775948240481194745L;
-	private static Logger log = LoggerFactory.getLogger(MapPanel.class);
 
 	private final boolean brightColorRoute;
-	private BufferedImage image;
-	int lastCourse = 0;
-	ArrayList<MapPoint> locations = new ArrayList<MapPoint>();
+	private final Color brightNewEstimated = new Color(90, 90, 255);
+	private final Color brightNewReal = new Color(255, 90, 90);
+	private final Color brightOldEstimated = new Color(90, 255, 90);
 
+	private final Color brightOldReal = new Color(255, 90, 255);
+
+	private final Color darkNewEstimated = new Color(0, 0, 255);
+
+	private final Color darkNewReal = new Color(255, 0, 0);
+
+	private final Color darkOldEstimated = new Color(150, 50, 255);
+
+	private final Color darkOldReal = new Color(255, 100, 50);
+
+	private BufferedImage image;
+
+	int lastCourse = 0;
+
+	private double lastLatitude = 0;
+
+	private double lastLongitude = 0;
+
+	ArrayList<MapPoint> locations = new ArrayList<MapPoint>();
+	private String warning = null;
+
+	/**
+	 * The warn prio prevents more important user messages to be overwritten by
+	 * less. Eg. Warning voltage shall not overwrite leak detection.
+	 */
+	private int warnPrio = 0;
+
+	private final Collection<Waypoint> wps;
 	public MapPanel(Collection<Waypoint> wps, String imageLocation,
 			boolean brightColorRoute) {
 		this.wps = wps;
@@ -84,82 +112,6 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		this.setPreferredSize(new Dimension(480, 360));
 
 	}
-
-	@Override
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		g.drawImage(image, 0, 0, null);
-
-		if (locations.isEmpty()) {
-			return;
-		}
-
-		MapPoint lastLocation = null;
-
-		int stepSize = (int) (((double) (locations.size() + 26) / 50) + 0.5);
-		for (int i = 0; i < locations.size(); i += stepSize) {
-			MapPoint location = locations.get(i);
-
-			// last 10 records in red:
-			boolean newerOne = (i > locations.size() - 11 * stepSize);
-
-			g.setColor(getRouteColor(location.isEstimated(), newerOne));
-
-			if (lastLocation != null) {
-				g.drawLine(lastLocation.x, lastLocation.y, location.x,
-						location.y);
-				g.drawLine(lastLocation.x + 1, lastLocation.y + 1,
-						location.x + 1, location.y + 1);
-			}
-			lastLocation = location;
-			if (i > locations.size() - 50) {
-				stepSize = 1;
-			}
-		}
-		lastLocation = locations.get(locations.size() - 1);
-		drawArrow(g, lastLocation.x, lastLocation.y);
-
-		drawWPs(g);
-	}
-
-	private final Collection<Waypoint> wps;
-
-	private void drawWPs(Graphics g) {
-		Dimension d = new Dimension(image.getWidth(), image.getHeight());
-		GeoCalculator hc = GeoCalculator.getInstance();
-
-		for (Waypoint wp : wps) {
-			MapPoint loc = hc.xyProjection(d, wp.getLongitude(),
-					wp.getLatitude());
-
-			int distance = -1;
-			int bearing = -1;
-			if (lastLongitude != 0) {
-				distance = hc.calculateDistance(lastLatitude, lastLongitude,
-						wp.getLatitude(), wp.getLongitude());
-				bearing = hc.calculateBearing(lastLatitude, lastLongitude,
-						wp.getLatitude(), wp.getLongitude());
-			}
-
-			g.setColor(new Color(180, 180, 255));
-			g.drawArc(loc.x, loc.y, 4, 4, 0, 360);
-			g.setColor(new Color(0, 0, 255));
-			final int size = 3;
-			g.drawLine(loc.x - size, loc.y - size, loc.x + size, loc.y + size);
-			g.drawLine(loc.x - size, loc.y + size, loc.x + size, loc.y - size);
-
-			g.setColor(new Color(0, 0, 255));
-			g.setFont(new Font("Dialog", Font.BOLD, 10));
-			g.drawString(wp.getId(), loc.x + 6, loc.y);
-			if (bearing >= 0) {
-				g.drawString(bearing + " °", loc.x + 6, loc.y + 10);
-			}
-			if (distance >= 0) {
-				g.drawString(distance + " m", loc.x + 6, loc.y + 20);
-			}
-		}
-	}
-
 	private void drawArrow(Graphics g, int x, int y) {
 
 		int offX = 0;
@@ -212,47 +164,6 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		// NavPoints
 
 	}
-
-	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals(DiveDataProperties.PROP_GPSFIX)) {
-			drawLocation((String) evt.getNewValue());
-
-		}
-		if (evt.getPropertyName().equals(DiveDataProperties.PROP_ESTIMATED)) {
-			drawLocation((Location) evt.getNewValue(), true);
-
-		}
-
-		if (evt.getPropertyName().equals(DiveDataProperties.PROP_COURSE)) {
-			lastCourse = (Integer) evt.getNewValue();
-			drawLocation(null);
-		}
-		if (evt.getPropertyName().equals(DiveDataProperties.PROP_HULL)) {
-			StructuralIntegrity si = (StructuralIntegrity) evt.getNewValue();
-			warning = null;
-
-			if (si.getAmbient() == Status.BROKEN
-					|| si.getStern() == Status.BROKEN
-					|| si.getBow() == Status.BROKEN) {
-				warning = "WARNING: POSSIBLE LEAK DETECTED!";
-			}
-			drawLocation(null);
-		}
-		if (evt.getPropertyName().equals(DiveDataProperties.PROP_VOLTAGE)) {
-			float voltage = (float) evt.getNewValue();
-			if (voltage < App.getConfig().getSettings().getWarningVoltage()) {
-				warning = "Voltage below minimum of "
-						+ App.getConfig().getSettings().getWarningVoltage()
-						+ "V. \nShutdown will be initiated at "
-						+ App.getConfig().getSettings().getShutdownVoltage();
-			}
-		}
-		if (evt.getPropertyName().equals(DiveDataProperties.PROP_SHUTDOWN)) {
-			warning = "Turning system off.";
-		}
-
-	}
-
 	/**
 	 * 
 	 * TODO This could be a bit nicer, it is more or less a duplicate of the
@@ -279,11 +190,6 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 	}
 
-	private String warning = null;
-
-	private double lastLongitude = 0;
-	private double lastLatitude = 0;
-
 	private void drawLocation(String newValue) {
 
 		if (newValue != null) {
@@ -308,17 +214,41 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		this.repaint();
 
 	}
+	private void drawWPs(Graphics g) {
+		Dimension d = new Dimension(image.getWidth(), image.getHeight());
+		GeoCalculator hc = GeoCalculator.getInstance();
 
-	private final Color brightOldReal = new Color(255, 90, 255);
-	private final Color brightNewReal = new Color(255, 90, 90);
-	private final Color brightOldEstimated = new Color(90, 255, 90);
-	private final Color brightNewEstimated = new Color(90, 90, 255);
+		for (Waypoint wp : wps) {
+			MapPoint loc = hc.xyProjection(d, wp.getLongitude(),
+					wp.getLatitude());
 
-	private final Color darkOldReal = new Color(255, 100, 50);
-	private final Color darkNewReal = new Color(255, 0, 0);
-	private final Color darkOldEstimated = new Color(150, 50, 255);
-	private final Color darkNewEstimated = new Color(0, 0, 255);
+			int distance = -1;
+			int bearing = -1;
+			if (lastLongitude != 0) {
+				distance = hc.calculateDistance(lastLatitude, lastLongitude,
+						wp.getLatitude(), wp.getLongitude());
+				bearing = hc.calculateBearing(lastLatitude, lastLongitude,
+						wp.getLatitude(), wp.getLongitude());
+			}
 
+			g.setColor(new Color(180, 180, 255));
+			g.drawArc(loc.x, loc.y, 4, 4, 0, 360);
+			g.setColor(new Color(0, 0, 255));
+			final int size = 3;
+			g.drawLine(loc.x - size, loc.y - size, loc.x + size, loc.y + size);
+			g.drawLine(loc.x - size, loc.y + size, loc.x + size, loc.y - size);
+
+			g.setColor(new Color(0, 0, 255));
+			g.setFont(new Font("Dialog", Font.BOLD, 10));
+			g.drawString(wp.getId(), loc.x + 6, loc.y);
+			if (bearing >= 0) {
+				g.drawString(bearing + " °", loc.x + 6, loc.y + 10);
+			}
+			if (distance >= 0) {
+				g.drawString(distance + " m", loc.x + 6, loc.y + 20);
+			}
+		}
+	}
 	private Color getRouteColor(boolean estimated, boolean isNew) {
 		if (this.brightColorRoute) {
 			if (estimated) {
@@ -350,5 +280,91 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 				}
 			}
 		}
+	}
+	
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		g.drawImage(image, 0, 0, null);
+
+		if (locations.isEmpty()) {
+			return;
+		}
+
+		MapPoint lastLocation = null;
+
+		int stepSize = (int) (((double) (locations.size() + 26) / 50) + 0.5);
+		for (int i = 0; i < locations.size(); i += stepSize) {
+			MapPoint location = locations.get(i);
+
+			// last 10 records in red:
+			boolean newerOne = (i > locations.size() - 11 * stepSize);
+
+			g.setColor(getRouteColor(location.isEstimated(), newerOne));
+
+			if (lastLocation != null) {
+				g.drawLine(lastLocation.x, lastLocation.y, location.x,
+						location.y);
+				g.drawLine(lastLocation.x + 1, lastLocation.y + 1,
+						location.x + 1, location.y + 1);
+			}
+			lastLocation = location;
+			if (i > locations.size() - 50) {
+				stepSize = 1;
+			}
+		}
+		lastLocation = locations.get(locations.size() - 1);
+		drawArrow(g, lastLocation.x, lastLocation.y);
+
+		drawWPs(g);
+	}
+
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt.getPropertyName().equals(DiveDataProperties.PROP_GPSFIX)) {
+			drawLocation((String) evt.getNewValue());
+
+		}
+		if (evt.getPropertyName().equals(DiveDataProperties.PROP_ESTIMATED)) {
+			drawLocation((Location) evt.getNewValue(), true);
+
+		}
+
+		if (evt.getPropertyName().equals(DiveDataProperties.PROP_COURSE)) {
+			lastCourse = (Integer) evt.getNewValue();
+			drawLocation(null);
+		}
+
+		if (evt.getPropertyName().equals(DiveDataProperties.PROP_VOLTAGE)) {
+			float voltage = (float) evt.getNewValue();
+			if (voltage < App.getConfig().getSettings().getWarningVoltage()
+					&& warnPrio <= 1) {
+				warning = "WARNING: Voltage " + voltage + "V - shutdown at "
+						+ App.getConfig().getSettings().getShutdownVoltage()
+						+ "V.";
+				warnPrio = 1;
+			}
+			drawLocation(null);
+		}
+		if (evt.getPropertyName().equals(DiveDataProperties.PROP_HULL)) {
+			StructuralIntegrity si = (StructuralIntegrity) evt.getNewValue();
+			warning = null;
+
+			if (si.getAmbient() == Status.BROKEN
+					|| si.getStern() == Status.BROKEN
+					|| si.getBow() == Status.BROKEN) {
+				warning = "LEAK WARNING: Shutdown initiated.";
+				warnPrio = 3;
+			}
+			drawLocation(null);
+		}
+		if (evt.getPropertyName().equals(DiveDataProperties.PROP_SHUTDOWN)) {
+			String result = (String) evt.getNewValue();
+			if (result.equals("1") && warnPrio <= 2) {
+				warning = "Turning system off. Good Bye!";
+				drawLocation(null);
+				warnPrio = 2;
+			}
+		}
+
 	}
 }

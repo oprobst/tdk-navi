@@ -21,6 +21,7 @@ public class DiveData extends AbstractModel implements Cloneable {
 	private float temperature;
 	private int timeSinceLastGPS;
 	private float voltage;
+
 	public DiveData() {
 		super();
 	}
@@ -282,7 +283,7 @@ public class DiveData extends AbstractModel implements Cloneable {
 
 	public void shutdown(String payload) {
 		super.propertyChangeSupport.firePropertyChange(
-			DiveDataProperties.PROP_SHUTDOWN, 0, 1); 
+				DiveDataProperties.PROP_SHUTDOWN, "", payload);
 	}
 
 }
