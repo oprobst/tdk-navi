@@ -1,5 +1,9 @@
 package de.oliverprobst.tdk.navi;
 
+/**
+ * The Class NmeaParser. Parses a NMEA String and provide it content as Java
+ * data object.
+ */
 public class NmeaParser {
 
 	private final String ggaSplit[];
