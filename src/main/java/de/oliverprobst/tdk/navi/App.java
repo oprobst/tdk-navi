@@ -28,6 +28,7 @@ import de.oliverprobst.tdk.navi.gui.DemoDialog;
 import de.oliverprobst.tdk.navi.gui.DemoKeyListener;
 import de.oliverprobst.tdk.navi.gui.MainDialog;
 import de.oliverprobst.tdk.navi.serial.SerialPackage;
+import de.oliverprobst.tdk.navi.threads.AbstractCollectThread;
 import de.oliverprobst.tdk.navi.threads.DataProcessingThread;
 import de.oliverprobst.tdk.navi.threads.DemoDataCollectThread;
 import de.oliverprobst.tdk.navi.threads.SerialDataCollectThread;
@@ -130,7 +131,7 @@ public class App {
 		return config;
 	}
 
-	private static DataProcessingThread dataProcessingThread = null;
+	private static AbstractCollectThread dataProcessingThread = null;
 	private static SerialDataCollectThread collectorThread = null;
 
 	private static void startDataCollect(final DefaultController dc,

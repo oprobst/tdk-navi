@@ -4,16 +4,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This object represents a package send via the I2C. It shall be very simple
- * and not optimized for performance.
+ * This object represents a package send via the serial connection.
  * 
  * Following specification: <br/>
  * <ul>
  * <li>A package is terminated by a * or 0x2a</li>
  * <li>Max payload size is 120 bytes</li>
  * <li>First three byte are a header and always the bytes 0x54 0x44 0x4b
- * <li>The fourth byte defines the message type</li>
- * <ul>
+ * <li>The fourth byte defines the message type. Examples:</li>
+ * <ul> * 
  * <li>0x61 - NMEA String without $, * and checksum</li>
  * <li>0x62 - Depth: 6 bytes in Millimeter, 5 bytes in mbar</li>
  * <li>0x63 - Temperature in Celcius, 1 byte sign, 2byte digits before and 1
@@ -47,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SerialPackage {
 
-	private static Logger log = LoggerFactory.getLogger(SerialPackage.class);
+	//private static Logger log = LoggerFactory.getLogger(SerialPackage.class);
 
 	private final byte[] messageBytes;
 

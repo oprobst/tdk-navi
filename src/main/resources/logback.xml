@@ -23,6 +23,11 @@
 		</encoder>
 	</appender>
 
+	<logger name="de.oliverprobst.tdk.navi.threads" level="DEBUG"
+		additivity="false">
+		<appender-ref ref="FILE" />
+		<appender-ref ref="STDOUT" />
+	</logger>
 
 	<logger name="de.oliverprobst" level="INFO" additivity="false">
 		<appender-ref ref="FILE" />

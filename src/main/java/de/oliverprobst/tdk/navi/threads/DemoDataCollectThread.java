@@ -15,7 +15,11 @@ import de.oliverprobst.tdk.navi.dto.DiveData;
 import de.oliverprobst.tdk.navi.dto.PitchAndCourse;
 import de.oliverprobst.tdk.navi.serial.SerialPackage;
 
-public class DemoDataCollectThread extends Thread {
+/**
+ * The Class simulate some demo data to test functionality without having
+ * sensors connected.
+ */
+public class DemoDataCollectThread extends AbstractCollectThread {
 
 	private static Logger log = LoggerFactory
 			.getLogger(DemoDataCollectThread.class);
@@ -65,6 +69,11 @@ public class DemoDataCollectThread extends Thread {
 
 		String msgOut = msg + chksum;
 		return msgOut;
+	}
+
+	@Override
+	protected Logger getLog() {
+		return log;
 	}
 
 	/**
@@ -140,7 +149,7 @@ public class DemoDataCollectThread extends Thread {
 	public void setSimulatedVibration(int simulatedVibration) {
 		this.simulatedVibration = simulatedVibration;
 		String message = "$e" + simulatedVibration + "*";
-		log.debug(message);
+		log.trace("Simulate event '" + message + "'.");
 		message = generateChecksum(message);
 
 		addToQueue(new SerialPackage(message));
@@ -272,7 +281,7 @@ public class DemoDataCollectThread extends Thread {
 					+ formatterLng.format(lastGPSLat) + ",N,"
 					+ formatterLat.format(lastGPSLong) + ",E," + isDGPS
 					+ ",06,1.10,193.6,M,47.4,M,,*59";
-			log.debug(message);
+			log.trace("Simulate event '" + message + "'.");
 
 			message = generateChecksum(message);
 
@@ -299,29 +308,33 @@ public class DemoDataCollectThread extends Thread {
 				message = "$d" + (float) ((Math.random() * 5) + 4) + "*";
 			}
 
-			log.debug(message);
-
 			message = generateChecksum(message);
-
+			log.trace("Simulate event '" + message + "'.");
 			addToQueue(new SerialPackage(message));
 		}
 	}
 
 	private void writeVoltage() {
+		float volt = 12.18f;
 		if (iteration < 100) {
-			dc.setVoltage(12.18f);
+			volt = 12.18f;
 		} else if (iteration < 150) {
+			volt = 12.1f;
 			dc.setVoltage(12.1f);
 		} else if (iteration < 200) {
-			dc.setVoltage(11.97f);
-		} else if (iteration < 200) {
-			dc.setVoltage(11.74f);
-		} else if (iteration < 250) {
-			dc.setVoltage(11.60f);
-		} else if (iteration % 40 == 0) {
-			dc.setVoltage(((float) (Math.random() + 10.5) * 10) / 10);
-		}
+			volt = 11.98f;
 
+		} else if (iteration < 200) {
+			volt = 11.63f;
+		} else if (iteration < 250) {
+			volt = 11.34f;
+		} else if (iteration % 40 == 0) {
+			volt = ((float) (Math.random() + 10.5) * 10) / 10;
+		}
+		String message = "$g" + volt + "*";
+		message = generateChecksum(message);
+		log.trace("Simulate event '" + message + "'.");
+		addToQueue(new SerialPackage(message));
 	}
 
 }

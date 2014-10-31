@@ -9,20 +9,23 @@ import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.dto.PitchAndCourse;
 import de.oliverprobst.tdk.navi.serial.SerialPackage;
 
-public class DataProcessingThread extends Thread {
+/**
+ * This thread collects all incoming events from the queue, parse them and
+ * convert them to {@link SerialPackage}.
+ * 
+ * Then they will be handed over to the main Controller.
+ */
+public class DataProcessingThread extends AbstractCollectThread {
 
-	private static Logger log = LoggerFactory
-			.getLogger(DataProcessingThread.class);
+	static Logger log = LoggerFactory.getLogger(DataProcessingThread.class);
 
-	private final AbstractQueue<SerialPackage> incoming;
+	public final static int MAX_BUFFER_SIZE = 25;
 
 	private final DefaultController dc;
 
-	public DefaultController getDefaultController() {
-		return dc;
-	}
+	private boolean end = false;
 
-	public final static int MAX_BUFFER_SIZE = 25;
+	private final AbstractQueue<SerialPackage> incoming;
 
 	public DataProcessingThread(AbstractQueue<SerialPackage> incoming,
 			DefaultController dc) {
@@ -30,30 +33,18 @@ public class DataProcessingThread extends Thread {
 		this.dc = dc;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Thread#run()
-	 */
+	public void end() {
+		end = true;
+	}
+
+	public DefaultController getDefaultController() {
+		return dc;
+	}
+
 	@Override
-	public void run() {
-		log.info("Starting Data Processing Thread");
+	protected Logger getLog() {
 
-		// try {
-
-		while (!end) {
-			if (incoming.isEmpty()) {
-
-			} else {
-				SerialPackage sp = incoming.remove();
-				try {
-					handle(sp);
-				} catch (Exception e) {
-					log.error("Exception occurred, discarded message " + sp, e);
-				}
-			}
-		}
-		log.info("Ended Data Processing Thread");
+		return log;
 	}
 
 	private void handle(SerialPackage message) {
@@ -91,30 +82,21 @@ public class DataProcessingThread extends Thread {
 			case HUMIDITY:
 				parseHumidity(payload);
 
- 			case VOLTAGE:
+			case VOLTAGE:
 				parseVoltage(payload);
 				break;
 
 			case SHUTDOWN:
 				dc.shutdown(payload);
 				break;
-				
+
 			default:
 				break;
-			} 
- 
+			}
 
 		} catch (Exception e) {
 			log.error("Failure when parsing payload '" + payload
 					+ "' of message '" + message + ". Discarded package. ", e);
-		}
-	}
-
-	private void parseSpeed(String payload) {
-		try {
-			dc.setGear(Integer.parseInt(payload));
-		} catch (NumberFormatException e) {
-			log.warn("Received a speed message containing no number.", e);
 		}
 	}
 
@@ -125,14 +107,31 @@ public class DataProcessingThread extends Thread {
 		}
 	}
 
-	private void parseGga(String payload) {
-		dc.setGGA(payload);
-	}
-
 	private void parseDepth(String payload) {
 		float depth = Float.parseFloat(payload);
 		depth = depth / 100;
 		dc.setDepth(depth);
+	}
+
+	private void parseGga(String payload) {
+		dc.setGGA(payload);
+	}
+
+	private void parseHumidity(String payload) {
+		int humidity = Integer.parseInt(payload);
+		dc.setHumidity(humidity);
+	}
+
+	private void parseLeak(String payload) {
+		dc.setIntegrityCode(payload);
+	}
+
+	private void parseSpeed(String payload) {
+		try {
+			dc.setGear(Integer.parseInt(payload));
+		} catch (NumberFormatException e) {
+			log.warn("Received a speed message containing no number.", e);
+		}
 	}
 
 	private void parseTemperature(String payload) {
@@ -140,23 +139,37 @@ public class DataProcessingThread extends Thread {
 		dc.setTemperature(temperature);
 	}
 
-	private void parseHumidity(String payload) {
-		int humidity = Integer.parseInt(payload);
-		dc.setHumidity(humidity);
-	}
-	
 	private void parseVoltage(String payload) {
 		float voltage = Float.parseFloat(payload);
 		dc.setVoltage(voltage);
 	}
 
-	private void parseLeak(String payload) {
-		dc.setIntegrityCode(payload);
-	}
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Thread#run()
+	 */
+	@Override
+	public void run() {
+		log.info("Starting Data Processing Thread");
 
-	private boolean end = false;
+		while (!end) {
+			if (!incoming.isEmpty()) {
+				SerialPackage sp = incoming.remove();
+				try {
+					handle(sp);
+					registerProcessedEvent();
+				} catch (Exception e) {
+					log.error("Exception occurred, discarded message " + sp, e);
+				}
+			}
 
-	public void end() {
-		end = true;
+			// collect some debug information
+			if (log.isDebugEnabled()) {
+				logState();
+			}
+
+		}
+		log.info("Ended Data Processing Thread");
 	}
 }

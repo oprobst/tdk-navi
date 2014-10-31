@@ -10,21 +10,38 @@ import com.pi4j.io.serial.SerialFactory;
 
 import de.oliverprobst.tdk.navi.serial.SerialPackage;
 
-public class SerialDataCollectThread extends Thread {
+/**
+ * Check Serial port for incoming byte stream and parse it according to the
+ * protocol. Put it in the incoming queue then to be processed by the
+ * {@link DataProcessingThread}.
+ */
+public class SerialDataCollectThread extends AbstractCollectThread {
+
+	public static final int DELAY = 50;
 
 	private static Logger log = LoggerFactory
 			.getLogger(SerialDataCollectThread.class);
 
+	private boolean end = false;
+
 	private final AbstractQueue<SerialPackage> incoming;
+
+	private int iteration = 0;
+
+	final Serial serial = SerialFactory.createInstance();
 
 	public SerialDataCollectThread(AbstractQueue<SerialPackage> incoming) {
 		this.incoming = incoming;
 	}
 
-	public static final int DELAY = 50;
+	public void end() {
+		end = true;
+	}
 
-	final Serial serial = SerialFactory.createInstance();
-	private int iteration = 0;
+	@Override
+	protected Logger getLog() {
+		return log;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -41,6 +58,10 @@ public class SerialDataCollectThread extends Thread {
 		// int iteration = 0;
 
 		while (!end) {
+			// collect some debug information
+			if (log.isDebugEnabled()) {
+				logState();
+			}
 			if (serial.isOpen() && serial.availableBytes() > 3) {
 				// reset buffer data
 				sb.setLength(0);
@@ -70,6 +91,7 @@ public class SerialDataCollectThread extends Thread {
 				if (received.isValid()) {
 					try {
 						incoming.add(received);
+						registerProcessedEvent();
 					} catch (IllegalStateException e) {
 						log.warn("Incoming Queue full. Discarding "
 								+ incoming.size() + " messages.");
@@ -80,13 +102,12 @@ public class SerialDataCollectThread extends Thread {
 							+ "'. Checksum is "
 							+ received.getReceivedChecksum() + "; expected "
 							+ received.getCalculatedCheckSum());
-
 				}
 
 				iteration++;
 				if (iteration == 50) {
 					log.trace("Send 0.");
-					serial.write((byte) 0x6F);					
+					serial.write((byte) 0x6F);
 				} else if (iteration == 100) {
 					serial.write((byte) 0x70);
 					log.trace("Send 1.");
@@ -95,7 +116,6 @@ public class SerialDataCollectThread extends Thread {
 					serial.write((byte) 0x00);
 				}
 
-				
 			} else {
 				try {
 					Thread.sleep(DELAY);
@@ -106,11 +126,5 @@ public class SerialDataCollectThread extends Thread {
 		}
 		log.info("Ended Data Collector for Serial Bus");
 
-	}
-
-	private boolean end = false;
-
-	public void end() {
-		end = true;
 	}
 }
