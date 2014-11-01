@@ -28,7 +28,7 @@ SoftwareSerial gpsSerial = SoftwareSerial(RX_PIN_GPS, TX_PIN_GPS);
 #define GPS_SERIAL_SPEED 9600
 
 // Serial port
-#define SERIAL_SPEED 115200
+#define SERIAL_SPEED 57600
 
 //current sensor buffer
 const short MAX_MSG_SIZE = 80;
@@ -80,7 +80,7 @@ void setup() {
  */
 void loop() {
   short lastWritePos = 0;
-  delay (1);
+  delay (2);
   //GPS data
   currGpsBufferSize = collectGPSData(gpsSensorBuffer, currGpsBufferSize);
 

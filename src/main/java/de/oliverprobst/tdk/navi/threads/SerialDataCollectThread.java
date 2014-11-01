@@ -52,7 +52,7 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 	public void run() {
 		log.info("Starting Data Collector for Serial connection");
 
-		serial.open(Serial.DEFAULT_COM_PORT, 115200);
+		serial.open(Serial.DEFAULT_COM_PORT, 57600);
 
 		StringBuilder sb = new StringBuilder();
 		// int iteration = 0;
@@ -120,7 +120,7 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 			} else {
 				if (serial.isClosed()) {
 					log.info("Serial port closed. Try to reopen!");
-					serial.open(Serial.DEFAULT_COM_PORT, 115200);
+					serial.open(Serial.DEFAULT_COM_PORT, 57600);
 				}
 				try {
 					Thread.sleep(DELAY);
