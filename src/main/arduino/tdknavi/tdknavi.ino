@@ -28,7 +28,7 @@ SoftwareSerial gpsSerial = SoftwareSerial(RX_PIN_GPS, TX_PIN_GPS);
 #define GPS_SERIAL_SPEED 9600
 
 // Serial port
-#define SERIAL_SPEED 57600
+#define SERIAL_SPEED 115200
 
 //current sensor buffer
 const short MAX_MSG_SIZE = 80;
@@ -80,13 +80,13 @@ void setup() {
  */
 void loop() {
   short lastWritePos = 0;
-  delay (2);
+  delay (1);
   //GPS data
   currGpsBufferSize = collectGPSData(gpsSensorBuffer, currGpsBufferSize);
 
   if (gpsReceivedCompleteMsg) {
     calcChecksum(&gpsSensorBuffer[1], currGpsBufferSize - 1);
-    sendLastBuffer (gpsSensorBuffer, currGpsBufferSize + 3 );
+    sendLastBuffer (gpsSensorBuffer, currGpsBufferSize);
     gpsReceivedCompleteMsg = false;
     currGpsBufferSize = 1;
     gpsStringStarted = false;
@@ -95,20 +95,20 @@ void loop() {
   //Compass data
   lastWritePos = collectCompassData(sensorBuffer);
   calcChecksum(&sensorBuffer[1], lastWritePos);
-  sendLastBuffer (sensorBuffer, lastWritePos + 3);
+  sendLastBuffer (sensorBuffer, lastWritePos);
 
   //Leak detection
   if (loopCounter % 500 == 0) {
     lastWritePos = collectLeakData(sensorBuffer);
     calcChecksum(&sensorBuffer[1], lastWritePos);
-    sendLastBuffer (sensorBuffer, lastWritePos + 3);
+    sendLastBuffer (sensorBuffer, lastWritePos);
   }
 
   //Temperature
   if (loopCounter % 1000 == 0) {
     lastWritePos = collectTemperatureData(sensorBuffer);
     calcChecksum(&sensorBuffer[1], lastWritePos);
-    sendLastBuffer (sensorBuffer, lastWritePos + 3);
+    sendLastBuffer (sensorBuffer, lastWritePos);
   }
 
 
@@ -116,14 +116,14 @@ void loop() {
   if (loopCounter % 5000 == 0) {
     lastWritePos = collectVoltageData(sensorBuffer);
     calcChecksum(&sensorBuffer[1], lastWritePos);
-    sendLastBuffer (sensorBuffer, lastWritePos + 3);
+    sendLastBuffer (sensorBuffer, lastWritePos);
   }
 
   //Off Button
   lastWritePos = checkOffButton(sensorBuffer);
   if (lastWritePos > 0) {
     calcChecksum(&sensorBuffer[1], lastWritePos);
-    sendLastBuffer (sensorBuffer, lastWritePos + 3);
+    sendLastBuffer (sensorBuffer, lastWritePos);
 
     //Workaround!
     // Shall be send via serial not by Ardunio decided.
@@ -163,7 +163,7 @@ void shutdownIn(int sec) {
 
 // Here, the last buffer shall be send via ttl
 void sendLastBuffer (byte  bufferToSend [], unsigned short lastWritePos) {
-    for (unsigned short b = 0; b < lastWritePos; b++) {
+    for (unsigned short b = 0; b < lastWritePos + 2; b++) {
       Serial.write(bufferToSend[b]);
     } 
 }

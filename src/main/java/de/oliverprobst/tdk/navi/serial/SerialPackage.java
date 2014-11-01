@@ -1,8 +1,5 @@
 package de.oliverprobst.tdk.navi.serial;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * This object represents a package send via the serial connection.
  * 
@@ -12,7 +9,8 @@ import org.slf4j.LoggerFactory;
  * <li>Max payload size is 120 bytes</li>
  * <li>First three byte are a header and always the bytes 0x54 0x44 0x4b
  * <li>The fourth byte defines the message type. Examples:</li>
- * <ul> * 
+ * <ul>
+ * *
  * <li>0x61 - NMEA String without $, * and checksum</li>
  * <li>0x62 - Depth: 6 bytes in Millimeter, 5 bytes in mbar</li>
  * <li>0x63 - Temperature in Celcius, 1 byte sign, 2byte digits before and 1
@@ -46,16 +44,19 @@ import org.slf4j.LoggerFactory;
  */
 public class SerialPackage {
 
-	//private static Logger log = LoggerFactory.getLogger(SerialPackage.class);
+	// private static Logger log = LoggerFactory.getLogger(SerialPackage.class);
 
 	private final byte[] messageBytes;
 
 	private final String msg;
+
 	public SerialPackage(String message) {
 
 		this.messageBytes = message.getBytes();
-		 if (isValid()) {		 
+		if (isValid()) {
+			System.out.println(" --->" + message + "<");
 			this.msg = message.substring(2, message.indexOf('*'));
+
 		} else {
 			this.msg = null;
 		}
@@ -69,22 +70,14 @@ public class SerialPackage {
 		int checksum_A = 0;
 		int checksum_B = 0;
 
-		boolean foundTermination = false;
 		do {
-			if (messageBytes[pos] == '*') {
 
-				foundTermination = true;
-				break;
+			checksum_A = (checksum_A + messageBytes[pos]) % 256;
+			checksum_B = (checksum_B + checksum_A) % 256;
 
-			}
-			checksum_A = checksum_A + messageBytes[pos];
-			checksum_B = checksum_B + checksum_A;
-		} while (pos++ < messageBytes.length - 1);
+		} while (pos++ < messageBytes.length - 2);
 
-		if (!foundTermination) {
-			return -1;
-		}
-		return ((int) checksum_A + 256) + (int) checksum_B;
+		return ((int) checksum_A + (int) checksum_B);
 	}
 
 	public String getPayload() {
@@ -95,9 +88,9 @@ public class SerialPackage {
 		if (messageBytes.length < 3) {
 			return -2;
 		}
-		int checksum_A = messageBytes[messageBytes.length - 2];
-		int checksum_B = messageBytes[messageBytes.length - 1];
-		return ((int) checksum_A + 256) + (int) checksum_B;
+		byte checksum_A = (byte) messageBytes[messageBytes.length - 2];
+		byte checksum_B = (byte) messageBytes[messageBytes.length - 1];
+		return (int) checksum_A + (int) checksum_B;
 
 	}
 
@@ -107,7 +100,7 @@ public class SerialPackage {
 
 	public boolean isValid() {
 		return messageBytes.length > 3; // TODO
-		//return getCalculatedCheckSum() == getReceivedChecksum();
+		// return getCalculatedCheckSum() == getReceivedChecksum();
 	}
 
 	@Override
