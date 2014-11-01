@@ -55,10 +55,10 @@ public class TrafficListenerApp {
 		collectorThread.start();
 
 		while (true) {
-			log.info("Wait to process " + incoming.size() + " messages.");
+			//log.info("Wait to process " + incoming.size() + " messages.");
 			if (incoming.isEmpty()) {
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(1);
 				} catch (InterruptedException e) {
 					log.error("Thread sleep interrupted!", e);
 				}
@@ -66,8 +66,8 @@ public class TrafficListenerApp {
 				handle(incoming.remove());
 			}
 			if (incoming.size() > 100) {
-				incoming.clear();
-				log.info("Cleared incomming queue");
+				log.info("Clearing incomming queue with " + incoming + " messages.");
+				incoming.clear();				
 			}
 
 		}
@@ -76,11 +76,11 @@ public class TrafficListenerApp {
 	private static int courseCount = 0;
 
 	private static void handle(SerialPackage msg) {
-		if (msg.getType() == MessageType.COURSE && courseCount++ < 50) {
+		if (msg.getType() == MessageType.COURSE && courseCount++ < 100) {
 			return;
 		} else if (msg.getType() == MessageType.COURSE) {
 			courseCount = 0;
-			log.info("--- New Message (1 of 5O) --------------- buffer size ="
+			log.info("--- New Message (1 of 100) --------------- buffer size ="
 					+ incoming.size());
 		} else {
 			log.info("--- New Message ------------------------- buffer size ="
