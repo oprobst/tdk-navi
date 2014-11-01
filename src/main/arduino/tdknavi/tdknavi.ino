@@ -43,10 +43,11 @@ boolean gpsReceivedCompleteMsg = false;
 boolean gpsStringStarted = false;
 
 int loopCounter = 0;
+long shutdownAt = 0;
 
-/*
- * Main setup routine
- */
+                  /*
+                   * Main setup routine
+                   */
 void setup() {
 
   Serial.begin(SERIAL_SPEED);
@@ -80,7 +81,7 @@ void setup() {
  */
 void loop() {
   short lastWritePos = 0;
-  delay (1);
+  delay (2);
   //GPS data
   currGpsBufferSize = collectGPSData(gpsSensorBuffer, currGpsBufferSize);
 
@@ -122,36 +123,38 @@ void loop() {
   //Off Button
   lastWritePos = checkOffButton(sensorBuffer);
   if (lastWritePos > 0) {
-    calcChecksum(&sensorBuffer[1], lastWritePos);
+    calcChecksum(&sensorBuffer[1], lastWritePos );
     sendLastBuffer (sensorBuffer, lastWritePos);
-
-    //Workaround!
-    // Shall be send via serial not by Ardunio decided.
-    if (digitalRead(3) == HIGH) {
-      delay (30000);
-      digitalWrite(2, HIGH);
-    }
-    // end of workaround.
-
+    shutdownAt = millis() + 60000;
   }
+
 
 
   //Connectivity feedback via LED
   if (Serial.available())  {
-  char incoming = Serial.read();
-  if (incoming == 0x6F) {
-    digitalWrite(12, HIGH);
-  } else if (incoming == 0x70) {
-    digitalWrite(12, LOW);
-  } else if (incoming == 0x21) {
-    shutdownIn (30);
+    char incoming = Serial.read();
+    if (incoming == 0x6F) {
+      digitalWrite(12, HIGH);
+    } else if (incoming == 0x70) {
+      digitalWrite(12, LOW);
+    } else if (incoming == 0x21) {
+
+      shutdownIn (60);
+    }
   }
 
   if (loopCounter++ > 1000) {
     loopCounter = 0;
   }
+
+  //Workaround!
+  // Shall be send via serial not by Ardunio decided.
+  if (shutdownAt != 0 && shutdownAt < millis()) {
+    digitalWrite(2, HIGH);
   }
+  // end of workaround.
 }
+
 
 /*
   Turn of the device in provided seconds by sending a high signal to the power module.
@@ -163,9 +166,9 @@ void shutdownIn(int sec) {
 
 // Here, the last buffer shall be send via ttl
 void sendLastBuffer (byte  bufferToSend [], unsigned short lastWritePos) {
-    for (unsigned short b = 0; b < lastWritePos + 2; b++) {
-      Serial.write(bufferToSend[b]);
-    } 
+  for (unsigned short b = 0; b < lastWritePos + 3; b++) {
+    Serial.write(bufferToSend[b]);
+  }
 }
 
 
