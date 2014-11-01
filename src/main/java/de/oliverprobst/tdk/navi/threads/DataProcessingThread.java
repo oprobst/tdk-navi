@@ -91,6 +91,8 @@ public class DataProcessingThread extends AbstractCollectThread {
 				break;
 
 			default:
+				log.warn("Message of type " + message.getType()
+						+ " will be ignored: " + message);
 				break;
 			}
 
