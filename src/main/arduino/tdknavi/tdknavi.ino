@@ -19,8 +19,8 @@ Adafruit_HMC5883_Unified mag = Adafruit_HMC5883_Unified(12345);
 Adafruit_BMP085 bmp;
 
 //GPS Communication Constants
-#define RX_PIN_GPS 9
-#define TX_PIN_GPS 8
+#define RX_PIN_GPS 8
+#define TX_PIN_GPS 9
 SoftwareSerial gpsSerial = SoftwareSerial(RX_PIN_GPS, TX_PIN_GPS);
 
 // I2C Constants
@@ -29,7 +29,6 @@ SoftwareSerial gpsSerial = SoftwareSerial(RX_PIN_GPS, TX_PIN_GPS);
 
 // Serial port
 #define SERIAL_SPEED 115200
-#define DEBUG true
 
 //current sensor buffer
 const short MAX_MSG_SIZE = 80;
@@ -52,7 +51,7 @@ void setup() {
 
   Serial.begin(SERIAL_SPEED);
 
-  //  configureGPS();
+  configureGPS();
 
   pinMode(12, OUTPUT);
 
@@ -81,7 +80,7 @@ void setup() {
  */
 void loop() {
   short lastWritePos = 0;
-  delay (2);
+  delay (1);
   //GPS data
   currGpsBufferSize = collectGPSData(gpsSensorBuffer, currGpsBufferSize);
 
@@ -138,6 +137,7 @@ void loop() {
 
 
   //Connectivity feedback via LED
+  if (Serial.available())  {
   char incoming = Serial.read();
   if (incoming == 0x6F) {
     digitalWrite(12, HIGH);
@@ -149,6 +149,7 @@ void loop() {
 
   if (loopCounter++ > 1000) {
     loopCounter = 0;
+  }
   }
 }
 
@@ -162,12 +163,9 @@ void shutdownIn(int sec) {
 
 // Here, the last buffer shall be send via ttl
 void sendLastBuffer (byte  bufferToSend [], unsigned short lastWritePos) {
-
-  if (Serial.available())  {
     for (unsigned short b = 0; b < lastWritePos; b++) {
       Serial.write(bufferToSend[b]);
-    }
-  }
+    } 
 }
 
 
@@ -489,12 +487,6 @@ void printHex(uint8_t * data, uint8_t length) // prints 8-bit data in hex
   }
 
 }
-
-//
-//  I2C
-//
-
-
 
 String printDouble(double val, byte precision) {
   // prints val with number of decimal places determine by precision
