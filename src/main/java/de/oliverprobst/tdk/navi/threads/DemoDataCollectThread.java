@@ -46,15 +46,16 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 		dc.setTemperature(24.2f);
 		dc.setDepth(0.0f);
 		dc.setGear(0);
+		dc.setVoltage(12.34f);
 		dc.setIntegrityCode("1,0,0988");
 		dc.setPitchAndCourse(new PitchAndCourse(010, -4, 0));
 	}
 
 	/**
-	 * Adds demo data set to incomming queueu
+	 * Adds demo data set to incoming queueu
 	 *
 	 * @param sp
-	 *            the incomming data
+	 *            the incoming data
 	 */
 	private void addToQueue(SerialPackage sp) {
 		try {
@@ -110,7 +111,6 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 			writeCourse();
 			writeTemp();
 			writeHumidity();
-			writeVoltage();
 			writeGPS();
 
 			if (iteration < 10000) {
@@ -142,7 +142,7 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 	}
 
 	public void setShutdownReceived(String string) {
-		addToQueue(new SerialPackage(string));		
+		addToQueue(new SerialPackage(string));
 	}
 
 	/**
@@ -219,7 +219,9 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 	 * 
 	 */
 	private void writeGPS() {
-
+if (true){
+	return;
+}
 		if (iteration % 30 == 0 && isGpsActive()) {
 
 			SimpleDateFormat dateFormatGmt = new SimpleDateFormat("HH:mm:ss.00");
@@ -317,24 +319,8 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 		}
 	}
 
-	private void writeVoltage() {
-		float volt = 12.18f;
-		if (iteration < 100) {
-			volt = 12.18f;
-		} else if (iteration < 150) {
-			volt = 12.1f;
-			dc.setVoltage(12.1f);
-		} else if (iteration < 200) {
-			volt = 11.98f;
-
-		} else if (iteration < 200) {
-			volt = 11.63f;
-		} else if (iteration < 250) {
-			volt = 11.34f;
-		} else if (iteration % 40 == 0) {
-			volt = ((float) (Math.random() + 10.5) * 10) / 10;
-		}
-		String message = "$g" + volt + "*";
+	public void setVoltage(float voltage) {
+		String message = "$g" + voltage + "*";
 		message = generateChecksum(message);
 		log.trace("Simulate event '" + message + "'.");
 		addToQueue(new SerialPackage(message));

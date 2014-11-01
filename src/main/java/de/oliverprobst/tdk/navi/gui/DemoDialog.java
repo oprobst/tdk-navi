@@ -21,7 +21,7 @@ public class DemoDialog extends JFrame {
 	 */
 	public DemoDialog() {
 		super();
-		this.setPreferredSize(new Dimension(640, 300));
+		this.setPreferredSize(new Dimension(640, 500));
 		this.setLocation(100, 600);
 		this.setResizable(false);
 		this.setVisible(true);
@@ -70,7 +70,9 @@ public class DemoDialog extends JFrame {
 				+ "<td><b>home</b> : </td><td>pitch left </td><td> <b>end</b>: </td><td>pitch right </td></tr>"
 				+ "<td><b>t</b> : </td><td>Stern leak </td><td><b>g</b>: </td><td>Bow leak</td></tr>"
 				+ "<td><b>z</b> : </td><td>Hull pressure + </td><td>  <b>h</b>: </td><td>Hull pressure - </td></tr>"
+				+ "<td><b>u</b> : </td><td>Voltage + </td><td>  <b>j</b>: </td><td>Voltage - </td></tr>"
 				+ "<td><b>f</b> : </td><td>reset leak detection</td><td></td><td></td></tr></table></html>";
+		
 		return helpText;
 	}
 }

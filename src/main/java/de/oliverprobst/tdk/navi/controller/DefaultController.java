@@ -367,7 +367,7 @@ public class DefaultController {
 	 */
 	public void shutdown(String payload) {
 		currentRecord.shutdown(payload);
-		if (payload.equals("1")) {
+		if (payload.equals("1") || payload.trim().isEmpty()) {
 			payload = "User command";
 		}
 		log.info("Shutdown initiated. Reason: " + payload);

@@ -38,6 +38,8 @@ public class DemoKeyListener implements KeyListener {
 		int bsv = dd.getIntegrity().getBowSensorValue();
 		int asv = dd.getIntegrity().getPressure();
 
+		float voltage = dd.getVoltage();
+		
 		switch (e.getKeyCode()) {
 		case 81: // q
 
@@ -162,6 +164,15 @@ public class DemoKeyListener implements KeyListener {
 			asv -= 10;
 			collectorThread.setLeakMessage("$c" + ssv + "," + bsv + "," + asv
 					+ "*");
+			break;
+			
+		case 85: // u
+			voltage += .3;
+			collectorThread.setVoltage( voltage );
+			break;
+		case 74: // j
+			voltage -= .3;
+			collectorThread.setVoltage( voltage );
 			break;
 		case 88: // x
 			asv -= 10;

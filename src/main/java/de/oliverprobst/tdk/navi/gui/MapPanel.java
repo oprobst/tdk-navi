@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -187,7 +188,6 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		}
 		this.updateUI();
 		this.repaint();
-
 	}
 
 	private void drawLocation(String newValue) {
@@ -212,8 +212,8 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		}
 		this.updateUI();
 		this.repaint();
-
 	}
+	
 	private void drawWPs(Graphics g) {
 		Dimension d = new Dimension(image.getWidth(), image.getHeight());
 		GeoCalculator hc = GeoCalculator.getInstance();
@@ -287,10 +287,6 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		super.paintComponent(g);
 		g.drawImage(image, 0, 0, null);
 
-		if (locations.isEmpty()) {
-			return;
-		}
-
 		MapPoint lastLocation = null;
 
 		int stepSize = (int) (((double) (locations.size() + 26) / 50) + 0.5);
@@ -336,12 +332,16 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_VOLTAGE)) {
 			float voltage = (float) evt.getNewValue();
+			String voltString = new DecimalFormat ("0.0").format(voltage);
 			if (voltage < App.getConfig().getSettings().getWarningVoltage()
 					&& warnPrio <= 1) {
-				warning = "WARNING: Voltage " + voltage + "V - shutdown at "
+				warning = "WARNING: Voltage " + voltString + "V - shutdown at "
 						+ App.getConfig().getSettings().getShutdownVoltage()
 						+ "V.";
 				warnPrio = 1;
+			}
+			if (voltage < App.getConfig().getSettings().getShutdownVoltage()){
+				warning = "WARNING: Low Voltage (" + voltString + "V) - system shutdown!";
 			}
 			drawLocation(null);
 		}
