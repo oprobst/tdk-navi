@@ -50,13 +50,15 @@ public class SerialPackage {
 
 	private final String msg;
 
+	private int terminatorIndex = 0;
+	
 	public SerialPackage(String message) {
 
 		this.messageBytes = message.getBytes();
+		terminatorIndex = message.indexOf('*');
+		
 		if (isValid()) {
-			System.out.println(" --->" + message + "<");
 			this.msg = message.substring(2, message.indexOf('*'));
-
 		} else {
 			this.msg = null;
 		}
@@ -75,9 +77,9 @@ public class SerialPackage {
 			checksum_A = (checksum_A + messageBytes[pos]) % 256;
 			checksum_B = (checksum_B + checksum_A) % 256;
 
-		} while (pos++ < messageBytes.length - 2);
+		} while (pos++ < terminatorIndex);
 
-		return ((int) checksum_A + (int) checksum_B);
+		return checksum_A * 10000; //+ checksum_B;
 	}
 
 	public String getPayload() {
@@ -88,9 +90,9 @@ public class SerialPackage {
 		if (messageBytes.length < 3) {
 			return -2;
 		}
-		byte checksum_A = (byte) messageBytes[messageBytes.length - 2];
-		byte checksum_B = (byte) messageBytes[messageBytes.length - 1];
-		return (int) checksum_A + (int) checksum_B;
+		byte checksum_A = messageBytes[terminatorIndex + 1];
+		byte checksum_B = messageBytes[terminatorIndex + 2];
+		return ((int) checksum_A) * 10000;// + ((int) (256 + checksum_B)% 256);
 
 	}
 
@@ -99,8 +101,7 @@ public class SerialPackage {
 	}
 
 	public boolean isValid() {
-		return messageBytes.length > 3; // TODO
-		// return getCalculatedCheckSum() == getReceivedChecksum();
+		return getCalculatedCheckSum() == getReceivedChecksum();
 	}
 
 	@Override
