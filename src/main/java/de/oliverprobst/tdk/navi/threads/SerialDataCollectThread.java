@@ -55,8 +55,9 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 		serial.open(Serial.DEFAULT_COM_PORT, 115200);
 
 		StringBuilder sb = new StringBuilder();
-		// int iteration = 0;
 
+		int discardedCount = 0;
+		long lastDiscardedTimestamp = System.currentTimeMillis();
 		while (!end) {
 			// collect some debug information
 			if (log.isDebugEnabled()) {
@@ -99,10 +100,11 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 						incoming.clear();
 					}
 				} else {
-					log.warn("Discarded invalid Serial Event: '" + message
+					log.trace("Discarded invalid Serial Event: '" + message
 							+ "'. Checksum is "
 							+ received.getReceivedChecksum() + "; expected "
 							+ received.getCalculatedCheckSum());
+					discardedCount++;
 				}
 
 				iteration++;
@@ -115,6 +117,16 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 					iteration = 0;
 				} else {
 					serial.write((byte) 0x00);
+				}
+				if (discardedCount > 1000) {
+					long duration = (System.currentTimeMillis() - lastDiscardedTimestamp) / 1000;
+					lastDiscardedTimestamp = System.currentTimeMillis();
+					discardedCount = 0;
+					log.warn("Discarded more than 1000 invalid events in the last "
+							+ duration
+							+ "seconds (="
+							+ discardedCount
+							/ duration + " events/sec).");
 				}
 
 			} else {
