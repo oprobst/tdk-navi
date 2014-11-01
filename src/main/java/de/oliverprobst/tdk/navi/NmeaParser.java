@@ -14,7 +14,7 @@ public class NmeaParser {
 
 	public NmeaParser(String gga) {
 		ggaSplit = gga.split(",");
-		valid = (ggaSplit[5].length() > 0) && ggaSplit[0].equals("GPGGA");
+		valid = (ggaSplit.length > 8 && ggaSplit[5].length() > 0) && ggaSplit[0].equals("GPGGA");
 		// todo verify (Length, Checksum)
 	}
 
