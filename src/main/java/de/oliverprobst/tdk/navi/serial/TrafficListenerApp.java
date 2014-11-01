@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import de.oliverprobst.tdk.navi.threads.SerialDataCollectThread;
 
 /**
- * This standalone application is for debugging purposes. It listens at the I2C
- * Interface and log all incoming messages.
+ * This standalone application is for debugging purposes. It listens at the
+ * serial Interface and log all incoming messages.
  * 
  * 
  * @author <b></b>www.tief-dunkel-kalt.org</b><br>
@@ -31,7 +31,7 @@ public class TrafficListenerApp {
 	 */
 	public static void main(String[] args) throws Exception {
 
-		log.info("Starting I2C Traffic Listener of Tief-Dunkel-Kalt.org");
+		log.info("Starting Serial Traffic Listener of Tief-Dunkel-Kalt.org");
 		SerialDataCollectThread collectorThread = null;
 		collectorThread = new SerialDataCollectThread(incoming);
 
@@ -65,13 +65,27 @@ public class TrafficListenerApp {
 			} else {
 				handle(incoming.remove());
 			}
+			if (incoming.size() > 100) {
+				incoming.clear();
+				log.info("Cleared incomming queue");
+			}
 
 		}
 	}
 
+	private static int courseCount = 0;
+
 	private static void handle(SerialPackage msg) {
-		log.info("--- New Message ------------------------- buffer size ="
-				+ incoming.size());
+		if (msg.getType() == MessageType.COURSE && courseCount++ < 50) {
+			return;
+		} else if (msg.getType() == MessageType.COURSE) {
+			courseCount = 0;
+			log.info("--- New Message (1 of 5O) --------------- buffer size ="
+					+ incoming.size());
+		} else {
+			log.info("--- New Message ------------------------- buffer size ="
+					+ incoming.size());
+		}
 		log.info("type    : " + msg.getType());
 		log.info("payload : " + msg.getPayload());
 		log.info("checksum: " + msg.getReceivedChecksum() + " == "

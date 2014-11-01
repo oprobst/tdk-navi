@@ -62,6 +62,7 @@ public abstract class AbstractCollectThread extends Thread {
 					+ processedCount / COLLECT_INTERVALL + " events/sec).";
 			getLog().debug(msg);
 			lastLogTimestamp = now;
+			processedCount = 0;
 		}
 	}
 
