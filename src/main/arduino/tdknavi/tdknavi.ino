@@ -4,7 +4,7 @@
  * Submarine Navigation Software
  *
  * Support for all sensors to collect and aggregate data and send to processing unit.
- 
+
 Changed in SoftwareSerial
 #define _SS_MAX_RX_BUFF 128 // RX buffer size
  */
@@ -51,9 +51,11 @@ int loopCounter = 0;
 void setup() {
 
   Serial.begin(SERIAL_SPEED);
- 
-//  configureGPS();
- 
+
+  //  configureGPS();
+
+  pinMode(12, OUTPUT);
+
   pinMode(10, OUTPUT);
   digitalWrite(10, LOW);
 
@@ -62,15 +64,15 @@ void setup() {
   digitalWrite(2, LOW);
 
   mag.begin();
-  
+
   bmp.begin();
 
   // write protocol marker
   sensorBuffer[0] = '$';
   gpsSensorBuffer[0] = '$';
-  
+
   gpsSerial.listen();
-  
+
 }
 
 
@@ -123,8 +125,16 @@ void loop() {
   if (lastWritePos > 0) {
     calcChecksum(&sensorBuffer[1], lastWritePos);
     sendLastBuffer (sensorBuffer, lastWritePos + 3);
-  }
 
+    //Workaround!
+    // Shall be send via serial not by Ardunio decided.
+    if (digitalRead(3) == HIGH) {
+      delay (30000);
+      digitalWrite(2, HIGH);
+    }
+    // end of workaround.
+
+  }
 
 
   //Connectivity feedback via LED
@@ -134,7 +144,7 @@ void loop() {
   } else if (incoming == 0x70) {
     digitalWrite(12, LOW);
   } else if (incoming == 0x21) {
-    shutdownIn (60);
+    shutdownIn (30);
   }
 
   if (loopCounter++ > 1000) {
@@ -146,7 +156,7 @@ void loop() {
   Turn of the device in provided seconds by sending a high signal to the power module.
 */
 void shutdownIn(int sec) {
-  delay (sec);
+  delay (sec * 1000);
   digitalWrite(2, HIGH);
 }
 
