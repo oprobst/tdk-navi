@@ -1,5 +1,7 @@
 package de.oliverprobst.tdk.navi;
 
+import org.jfree.util.Log;
+
 /**
  * The Class NmeaParser. Parses a NMEA String and provide it content as Java
  * data object.
@@ -12,7 +14,7 @@ public class NmeaParser {
 
 	public NmeaParser(String gga) {
 		ggaSplit = gga.split(",");
-		valid = (ggaSplit[5].length() > 0);
+		valid = (ggaSplit[5].length() > 0) && ggaSplit[0].equals("GPGGA");
 		// todo verify (Length, Checksum)
 	}
 
@@ -86,11 +88,19 @@ public class NmeaParser {
 		return ggaSplit[6];
 	}
 
-	public String getDiluentOfPrecision() {
+	public float getDiluentOfPrecision() {
+
+		float dop = 99;
 		if (!valid) {
-			return "";
+			return dop;
 		}
-		return ggaSplit[8];
+		try {
+			dop = Float.parseFloat(ggaSplit[8]);
+		} catch (NumberFormatException e) {
+			Log.warn("Invalid dop: "+ dop);
+		}
+		return dop;
+
 	}
 
 	public String getSatelliteCount() {

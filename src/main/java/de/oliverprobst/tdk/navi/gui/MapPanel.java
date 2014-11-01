@@ -76,6 +76,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 	private int warnPrio = 0;
 
 	private final Collection<Waypoint> wps;
+
 	public MapPanel(Collection<Waypoint> wps, String imageLocation,
 			boolean brightColorRoute) {
 		this.wps = wps;
@@ -113,6 +114,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		this.setPreferredSize(new Dimension(480, 360));
 
 	}
+
 	private void drawArrow(Graphics g, int x, int y) {
 
 		int offX = 0;
@@ -165,6 +167,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		// NavPoints
 
 	}
+
 	/**
 	 * 
 	 * TODO This could be a bit nicer, it is more or less a duplicate of the
@@ -196,24 +199,24 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			Dimension d = new Dimension(image.getWidth(), image.getHeight());
 			GeoCalculator hc = GeoCalculator.getInstance();
 			NmeaParser p = new NmeaParser((String) newValue);
-			lastLatitude = p.getLatitude();
-			lastLongitude = p.getLongitude();
+			if (p.getDiluentOfPrecision() > 1.4) {
+				lastLatitude = p.getLatitude();
+				lastLongitude = p.getLongitude();
+			}
 			MapPoint location = hc.xyProjection(d, p.getLongitude(),
 					p.getLatitude());
-
-			if (!locations.isEmpty()
-					&& !locations.get(locations.size() - 1).equals(location)) {
-				locations.add(location);
+			if (p.getDiluentOfPrecision() <= 1.1) {
+				if (locations.isEmpty()
+						|| !locations.get(locations.size() - 1)
+								.equals(location)) {
+					locations.add(location);
+				}
 			}
-			if (locations.isEmpty()) {
-				locations.add(location);
-			}
-
 		}
 		this.updateUI();
 		this.repaint();
 	}
-	
+
 	private void drawWPs(Graphics g) {
 		Dimension d = new Dimension(image.getWidth(), image.getHeight());
 		GeoCalculator hc = GeoCalculator.getInstance();
@@ -249,6 +252,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			}
 		}
 	}
+
 	private Color getRouteColor(boolean estimated, boolean isNew) {
 		if (this.brightColorRoute) {
 			if (estimated) {
@@ -281,7 +285,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			}
 		}
 	}
-	
+
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -309,8 +313,11 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 				stepSize = 1;
 			}
 		}
-		lastLocation = locations.get(locations.size() - 1);
-		drawArrow(g, lastLocation.x, lastLocation.y);
+
+		if (!locations.isEmpty()) {
+			lastLocation = locations.get(locations.size() - 1);
+			drawArrow(g, lastLocation.x, lastLocation.y);
+		}
 
 		drawWPs(g);
 	}
@@ -332,7 +339,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_VOLTAGE)) {
 			float voltage = (float) evt.getNewValue();
-			String voltString = new DecimalFormat ("0.0").format(voltage);
+			String voltString = new DecimalFormat("0.0").format(voltage);
 			if (voltage < App.getConfig().getSettings().getWarningVoltage()
 					&& warnPrio <= 1) {
 				warning = "WARNING: Voltage " + voltString + "V - shutdown at "
@@ -340,8 +347,9 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 						+ "V.";
 				warnPrio = 1;
 			}
-			if (voltage < App.getConfig().getSettings().getShutdownVoltage()){
-				warning = "WARNING: Low Voltage (" + voltString + "V) - system shutdown!";
+			if (voltage < App.getConfig().getSettings().getShutdownVoltage()) {
+				warning = "WARNING: Low Voltage (" + voltString
+						+ "V) - system shutdown!";
 			}
 			drawLocation(null);
 		}
