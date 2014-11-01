@@ -52,7 +52,7 @@ void setup() {
 
   Serial.begin(SERIAL_SPEED);
  
-  configureGPS();
+//  configureGPS();
  
   pinMode(10, OUTPUT);
   digitalWrite(10, LOW);
@@ -71,7 +71,6 @@ void setup() {
   
   gpsSerial.listen();
   
-  Serial.write("Setup done");
 }
 
 
@@ -80,7 +79,7 @@ void setup() {
  */
 void loop() {
   short lastWritePos = 0;
-  delay (1);
+  delay (2);
   //GPS data
   currGpsBufferSize = collectGPSData(gpsSensorBuffer, currGpsBufferSize);
 
@@ -114,7 +113,7 @@ void loop() {
 
   //Voltage
   if (loopCounter % 5000 == 0) {
-    lastWritePos = collectTemperatureData(sensorBuffer);
+    lastWritePos = collectVoltageData(sensorBuffer);
     calcChecksum(&sensorBuffer[1], lastWritePos);
     sendLastBuffer (sensorBuffer, lastWritePos + 3);
   }
@@ -176,7 +175,7 @@ short checkOffButton (byte sensorBuffer  []) {
 
 short collectVoltageData (byte sensorBuffer  []) {
   sensorBuffer[1] = 'g';
-  String result = printDouble (calculateVoltage(), 1);
+  String result = printDouble (calculateVoltage(), 2);
   result.getBytes(&sensorBuffer[2], 5) ;
   sensorBuffer[7] = '*';
   return 7;
@@ -185,7 +184,7 @@ short collectVoltageData (byte sensorBuffer  []) {
 
 short collectTemperatureData (byte sensorBuffer  []) {
   sensorBuffer[1] = 'd';
-  String result = printDouble (bmp.readTemperature(), 1);
+  String result = printDouble (bmp.readTemperature(), 2);
   result.getBytes(&sensorBuffer[2], 5) ;
   sensorBuffer[7] = '*';
   return 7;
@@ -194,12 +193,12 @@ short collectTemperatureData (byte sensorBuffer  []) {
 short collectLeakData (byte sensorBuffer  []) {
   sensorBuffer[1] = 'c';
 
-  int sensorValue = analogRead(A0);  // Stern sensor
+  int sensorValue = analogRead(A1);  // Bow sensor
   String result = printDouble (sensorValue, 5);
   result.getBytes(&sensorBuffer[2], 5) ;
 
   sensorBuffer[6] = ',';
-  sensorValue = 0; //analogRead(A1); // Bow sensor
+  sensorValue = 0; //analogRead(A1); // Stern sensor
   result = printDouble (sensorValue, 5);
   result.getBytes(&sensorBuffer[7], 5) ;
 
@@ -548,6 +547,8 @@ double calculateVoltage () {
     inputVoltage =  11.0 + ((1.0 / (550.0 - 530.0)) *  (inputVoltage - 530.0));
   } else if (inputVoltage > 549 && inputVoltage < 560) { // 12-13
     inputVoltage =  12.0 + ((1.0 / (560.0 - 550.0)) *  (inputVoltage - 550.0));
+  } else {
+    inputVoltage = 0.0;
   }
   return inputVoltage;
 }
