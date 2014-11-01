@@ -62,7 +62,7 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 			if (log.isDebugEnabled()) {
 				logState();
 			}
-			
+
 			if (serial.isOpen() && serial.availableBytes() > 3) {
 				// reset buffer data
 				sb.setLength(0);
@@ -107,18 +107,18 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 
 				iteration++;
 				if (iteration == 50) {
-					log.trace("Send 0.");
+					log.trace("Send 0x6F.");
 					serial.write((byte) 0x6F);
 				} else if (iteration == 100) {
 					serial.write((byte) 0x70);
-					log.trace("Send 1.");
+					log.trace("Send 0x70.");
 					iteration = 0;
 				} else {
 					serial.write((byte) 0x00);
 				}
 
 			} else {
-				if (serial.isClosed()){
+				if (serial.isClosed()) {
 					log.info("Serial port closed. Try to reopen!");
 					serial.open(Serial.DEFAULT_COM_PORT, 115200);
 				}
@@ -129,7 +129,9 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 				}
 			}
 		}
+		serial.close();
 		log.info("Ended Data Collector for Serial Bus");
 
 	}
+
 }
