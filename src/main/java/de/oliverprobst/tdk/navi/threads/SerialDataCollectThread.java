@@ -17,7 +17,7 @@ import de.oliverprobst.tdk.navi.serial.SerialPackage;
  */
 public class SerialDataCollectThread extends AbstractCollectThread {
 
-	public static final int DELAY = 50;
+	public static final int DELAY = 5;
 
 	private static Logger log = LoggerFactory
 			.getLogger(SerialDataCollectThread.class);
@@ -118,11 +118,11 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 				} else {
 					serial.write((byte) 0x00);
 				}
-				if (discardedCount > 1000) {
+				if (discardedCount > 100) {
 					long duration = (System.currentTimeMillis() - lastDiscardedTimestamp) / 1000;
 					lastDiscardedTimestamp = System.currentTimeMillis();
 					discardedCount = 0;
-					log.warn("Discarded more than 1000 invalid events in the last "
+					log.warn("Discarded more than 100 invalid events in the last "
 							+ duration
 							+ "seconds (="
 							+ discardedCount

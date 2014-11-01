@@ -69,6 +69,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 	ArrayList<MapPoint> locations = new ArrayList<MapPoint>();
 	private String warning = null;
 
+	private final static float MIN_DOP = 2.5f;
 	/**
 	 * The warn prio prevents more important user messages to be overwritten by
 	 * less. Eg. Warning voltage shall not overwrite leak detection.
@@ -204,7 +205,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 
 				MapPoint location = hc.xyProjection(d, p.getLongitude(),
 						p.getLatitude());
-				if (p.getDiluentOfPrecision() <= 2.0) {
+				if (p.getDiluentOfPrecision() <= MIN_DOP) {
 					if (locations.isEmpty()
 							|| !locations.get(locations.size() - 1).equals(
 									location)) {

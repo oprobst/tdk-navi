@@ -101,7 +101,8 @@ public class SerialPackage {
 	}
 
 	public boolean isValid() {
-		return getCalculatedCheckSum() == getReceivedChecksum();
+		return true;
+		//return getCalculatedCheckSum() == getReceivedChecksum();
 	}
 
 	@Override

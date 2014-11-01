@@ -1,5 +1,6 @@
 package de.oliverprobst.tdk.navi.threads;
 
+import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.AbstractQueue;
@@ -66,10 +67,32 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 	}
 
 	public String generateChecksum(String msg) {
-		String chksum = "todo"; // TODO
 
-		String msgOut = msg + chksum;
-		return msgOut;
+		int terminatorIndex = msg.indexOf('*');
+
+		int pos = 1;
+		int checksum_A = 0;
+		int checksum_B = 0;
+
+		do {
+
+			checksum_A = (checksum_A + msg.charAt(pos)) % 256;
+			checksum_B = (checksum_B + checksum_A) % 256;
+
+		} while (pos++ < terminatorIndex);
+
+		try {
+			String chksumA = new String(new byte[] { (byte) checksum_A },
+					"UTF-8");
+
+			String chksumB = new String(new byte[] { (byte) checksum_B },
+					"UTF-8");
+			String msgOut = msg + chksumA + chksumB;
+			return msgOut;
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("No UTF-8", e);
+		}
+
 	}
 
 	@Override
@@ -138,10 +161,12 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 	}
 
 	public void setLeakMessage(String string) {
+		string = generateChecksum(string);
 		addToQueue(new SerialPackage(string));
 	}
 
 	public void setShutdownReceived(String string) {
+		string = generateChecksum(string);
 		addToQueue(new SerialPackage(string));
 	}
 
@@ -219,9 +244,7 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 	 * 
 	 */
 	private void writeGPS() {
-if (true){
-	return;
-}
+		
 		if (iteration % 30 == 0 && isGpsActive()) {
 
 			SimpleDateFormat dateFormatGmt = new SimpleDateFormat("HH:mm:ss.00");
@@ -285,7 +308,7 @@ if (true){
 			String message = "$aGPGGA,161725.62,"
 					+ formatterLng.format(lastGPSLat) + ",N,"
 					+ formatterLat.format(lastGPSLong) + ",E," + isDGPS
-					+ ",06,1.10,193.6,M,47.4,M,,*59";
+					+ ",06,1.10,193.6,M,47.4,M,,*";
 			log.trace("Simulate event '" + message + "'.");
 
 			message = generateChecksum(message);
