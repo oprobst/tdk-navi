@@ -10,11 +10,13 @@ public class NmeaParser {
 
 	private final String ggaSplit[];
 
-	private final boolean valid;
+	private boolean valid;
 
 	public NmeaParser(String gga) {
 		ggaSplit = gga.split(",");
-		valid = (ggaSplit.length > 8 && ggaSplit[5].length() > 0) && ggaSplit[0].equals("GPGGA");
+		valid = (ggaSplit.length > 8 && ggaSplit[5].length() > 0)
+				&& ggaSplit[0].equals("GPGGA");
+
 		// todo verify (Length, Checksum)
 	}
 
@@ -29,11 +31,18 @@ public class NmeaParser {
 		}
 		int splitLen = ggaSplit[4].length();
 
-		double degree = Double.parseDouble(ggaSplit[4].substring(0, 3));
-		double minutes = Double.parseDouble(ggaSplit[4].substring(3, splitLen));
-		minutes = minutes / 60;
+		try {
+			double degree = Double.parseDouble(ggaSplit[4].substring(0, 3));
+			double minutes = Double.parseDouble(ggaSplit[4].substring(3,
+					splitLen));
+			minutes = minutes / 60;
 
-		return degree + minutes;
+			return degree + minutes;
+		} catch (NumberFormatException | StringIndexOutOfBoundsException e) {
+			this.valid = false;
+			return 0.0;
+		}
+
 	}
 
 	public double getLatitude() {
@@ -42,11 +51,16 @@ public class NmeaParser {
 			return 0;
 		}
 		int splitLen = ggaSplit[2].length();
-
-		double degree = Double.parseDouble(ggaSplit[2].substring(0, 2));
-		double minutes = Double.parseDouble(ggaSplit[2].substring(2, splitLen));
-		minutes = minutes / 60;
-		return degree + minutes;
+		try {
+			double degree = Double.parseDouble(ggaSplit[2].substring(0, 2));
+			double minutes = Double.parseDouble(ggaSplit[2].substring(2,
+					splitLen));
+			minutes = minutes / 60;
+			return degree + minutes;
+		} catch (NumberFormatException | StringIndexOutOfBoundsException e) {
+			this.valid = false;
+			return 0.0;
+		}
 	}
 
 	public String getFormattedLongitude() {
@@ -97,7 +111,7 @@ public class NmeaParser {
 		try {
 			dop = Float.parseFloat(ggaSplit[8]);
 		} catch (NumberFormatException e) {
-			Log.warn("Invalid dop: "+ dop);
+			Log.warn("Invalid dop: " + dop);
 		}
 		return dop;
 
