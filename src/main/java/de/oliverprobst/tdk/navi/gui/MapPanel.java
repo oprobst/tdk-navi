@@ -180,7 +180,6 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		if (newValue != null) {
 			Dimension d = new Dimension(image.getWidth(), image.getHeight());
 			GeoCalculator hc = GeoCalculator.getInstance();
-
 			lastLatitude = newValue.getLatitude();
 			lastLongitude = newValue.getLongitude();
 			MapPoint location = hc.xyProjection(d, lastLongitude, lastLatitude);
@@ -199,17 +198,18 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			Dimension d = new Dimension(image.getWidth(), image.getHeight());
 			GeoCalculator hc = GeoCalculator.getInstance();
 			NmeaParser p = new NmeaParser((String) newValue);
-			if (p.getDiluentOfPrecision() > 1.4) {
+			if (p.isValid()) {
 				lastLatitude = p.getLatitude();
 				lastLongitude = p.getLongitude();
-			}
-			MapPoint location = hc.xyProjection(d, p.getLongitude(),
-					p.getLatitude());
-			if (p.getDiluentOfPrecision() <= 1.1) {
-				if (locations.isEmpty()
-						|| !locations.get(locations.size() - 1)
-								.equals(location)) {
-					locations.add(location);
+
+				MapPoint location = hc.xyProjection(d, p.getLongitude(),
+						p.getLatitude());
+				if (p.getDiluentOfPrecision() <= 2.0) {
+					if (locations.isEmpty()
+							|| !locations.get(locations.size() - 1).equals(
+									location)) {
+						locations.add(location);
+					}
 				}
 			}
 		}
