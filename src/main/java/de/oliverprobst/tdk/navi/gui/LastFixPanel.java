@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import de.oliverprobst.tdk.navi.App;
+import de.oliverprobst.tdk.navi.NmeaParser;
 import de.oliverprobst.tdk.navi.controller.DiveDataProperties;
 
 public class LastFixPanel extends JPanel implements PropertyChangeListener {
@@ -31,16 +33,16 @@ public class LastFixPanel extends JPanel implements PropertyChangeListener {
 		this.setLayout(gbl);
 
 		GridBagConstraints gbc = new GridBagConstraints(0, 0, 1, 1, 0.0d, 0.0d,
-				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(
-						0, 0, 0, 0), 2, 2);
+				GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
+				new Insets(0, 0, 0, 0), 2, 2);
 
 		lblLastFix = new JLabel("None");
 		layout.layoutMinorLabel(lblLastFix);
 		this.add(lblLastFix, gbc);
 
 		gbc = new GridBagConstraints(0, 1, 1, 1, 0.0d, 0.0d,
-				GridBagConstraints.EAST, GridBagConstraints.VERTICAL, new Insets(0,
-						0, 0, 3), 2, 2);
+				GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
+				new Insets(0, 0, 0, 3), 2, 2);
 
 		JLabel lblDesc = new JLabel("GPSfix");
 		layout.layoutDescriptionLabel(lblDesc);
@@ -49,7 +51,7 @@ public class LastFixPanel extends JPanel implements PropertyChangeListener {
 
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_GPSFIX)) {
-			this.setNewValue((String) evt.getNewValue());
+			this.setNewValue((NmeaParser) evt.getNewValue());
 		}
 		updatePanel();
 	}
@@ -70,10 +72,10 @@ public class LastFixPanel extends JPanel implements PropertyChangeListener {
 
 	long lastFixTimestamp = 0;
 
-	private void setNewValue(String newValue) {
-
-		// TODO: Register only if quality better than let's say 10m.
-		lastFixTimestamp = System.currentTimeMillis();
-
+	private void setNewValue(NmeaParser nmeaParser) {
+		if (nmeaParser.getDiluentOfPrecision() >= App.getConfig().getSettings()
+				.getMinGpsQuality()) {
+			lastFixTimestamp = System.currentTimeMillis();
+		}
 	}
 }

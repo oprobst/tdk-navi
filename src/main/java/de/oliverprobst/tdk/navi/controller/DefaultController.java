@@ -218,10 +218,10 @@ public class DefaultController {
 		currentRecord.setDepth(depth);
 	}
 
-	public void setGGA(String message) {
+	public void setGGA(NmeaParser nmeaMsg) {
 		lastPosEstimation = -1;
 		lastGPSfix = System.currentTimeMillis();
-		currentRecord.setGga(message);
+		currentRecord.setGga(nmeaMsg);
 	}
 
 	/**
@@ -327,7 +327,7 @@ public class DefaultController {
 		int heading = currentRecord.getPitchAndCourse().getCourse();
 		Location lastEstimation = currentRecord.getEstimatedLocation();
 		if (lastPosEstimation == -1) {
-			NmeaParser parser = new NmeaParser(currentRecord.getGga());
+			NmeaParser parser = currentRecord.getGga();
 			latitude = parser.getLatitude();
 			longitude = parser.getLongitude();
 			timeSinceLastLoc = System.currentTimeMillis() - this.lastGPSfix;

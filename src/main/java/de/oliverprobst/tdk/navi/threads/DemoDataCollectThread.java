@@ -203,7 +203,7 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 			double xmin = hc.getNwCornerLng();
 			double ymin = hc.getSeCornerLat();
 			double xmax = hc.getSeCornerLng();
-			NmeaParser p = new NmeaParser(record.getGga());
+			NmeaParser p = record.getGga();
 			double y = p.getLatitude();
 			double x = p.getLongitude();
 
@@ -244,7 +244,7 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 	 * 
 	 */
 	private void writeGPS() {
-		
+
 		if (iteration % 30 == 0 && isGpsActive()) {
 
 			SimpleDateFormat dateFormatGmt = new SimpleDateFormat("HH:mm:ss.00");

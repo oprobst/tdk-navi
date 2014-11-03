@@ -5,6 +5,7 @@ import java.util.AbstractQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.oliverprobst.tdk.navi.NmeaParser;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.dto.PitchAndCourse;
 import de.oliverprobst.tdk.navi.serial.SerialPackage;
@@ -116,7 +117,10 @@ public class DataProcessingThread extends AbstractCollectThread {
 	}
 
 	private void parseGga(String payload) {
-		dc.setGGA(payload);
+		NmeaParser nmea = new NmeaParser(payload);
+		if (nmea.isValid()) {
+			dc.setGGA(nmea);
+		}
 	}
 
 	private void parseHumidity(String payload) {

@@ -46,6 +46,8 @@
 				maxOccurs="1" default="8.8" />
 			<element name="fast-leak-shutdown" type="boolean" default="true"
 				minOccurs="0" />
+			<element name="min-gps-quality" type="double" default="2.5"
+				minOccurs="0" />
 			<element name="speed" type="tns:speed" minOccurs="1" maxOccurs="1">
 				<annotation>
 					<documentation>Definition of the scooter speed in meter per minute

@@ -78,7 +78,7 @@ public class GpsCoordPanel extends JPanel implements PropertyChangeListener {
 
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_GPSFIX)) {
-			this.updateLocation((String) evt.getNewValue());
+			this.updateLocation((NmeaParser) evt.getNewValue());
 			lastFixTimestamp = System.currentTimeMillis();
 		}
 		updateLastFixLabel();
@@ -114,20 +114,19 @@ public class GpsCoordPanel extends JPanel implements PropertyChangeListener {
 		}
 	}
 
-	private void updateLocation(String locationGgaString) {
-		NmeaParser p = new NmeaParser(locationGgaString);
-		if (!p.isValid()) {
+	private void updateLocation(NmeaParser nmea) { 
+		if (!nmea.isValid()) {
 			return;
 		}
-		int gpsQuality = Integer.parseInt(p.getSignalQuality());
+		int gpsQuality = nmea.getSignalQuality();
 		if (gpsQuality > 0) {
-			String longitude = p.getFormattedLongitude();
+			String longitude = nmea.getFormattedLongitude();
 			longitude = longitude.substring(0, longitude.length() - 2);
-			String latitude = p.getFormattedLatitude();
+			String latitude = nmea.getFormattedLatitude();
 			latitude = latitude.substring(0, latitude.length() - 2);
 			lblNSHemisphere.setText(latitude);
 			lblEWHemisphere.setText(longitude);
-			lblPrecision.setText("✅" + p.getDiluentOfPrecision());
+			lblPrecision.setText("✅" + nmea.getDiluentOfPrecision());
 			if (gpsQuality > 1) {
 				Color lightGreen = new Color(150, 250, 200);
 				lblNSHemisphere.setForeground(lightGreen);
@@ -141,7 +140,7 @@ public class GpsCoordPanel extends JPanel implements PropertyChangeListener {
 				lblPrecision.setForeground(Color.WHITE);
 				lblSat.setForeground(Color.WHITE);
 			}
-			lblSat.setText("✢" + p.getSatelliteCount());
+			lblSat.setText("✢" + nmea.getSatelliteCount());
 		}
 	}
 

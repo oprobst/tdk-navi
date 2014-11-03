@@ -1,5 +1,6 @@
 package de.oliverprobst.tdk.navi.dto;
 
+import de.oliverprobst.tdk.navi.NmeaParser;
 import de.oliverprobst.tdk.navi.controller.DiveDataProperties;
 
 public class DiveData extends AbstractModel implements Cloneable {
@@ -10,7 +11,7 @@ public class DiveData extends AbstractModel implements Cloneable {
 	private Location estimatedLocation = new Location();
 	private int freeText;
 	private double gear;
-	private String gga;
+	private NmeaParser gga;
 	private int humidity;
 	private StructuralIntegrity integrity = new StructuralIntegrity();
 	private PitchAndCourse pitchAndCourse = new PitchAndCourse(0, 0, 0);
@@ -84,7 +85,7 @@ public class DiveData extends AbstractModel implements Cloneable {
 	/**
 	 * @return the lastNMEA
 	 */
-	public String getGga() {
+	public NmeaParser getGga() {
 		return gga;
 	}
 
@@ -194,13 +195,13 @@ public class DiveData extends AbstractModel implements Cloneable {
 	}
 
 	/**
-	 * @param gga
+	 * @param nmeaMsg
 	 *            the lastNMEA to set
 	 */
-	public void setGga(String gga) {
+	public void setGga(NmeaParser nmeaMsg) {
 		super.propertyChangeSupport.firePropertyChange(
-				DiveDataProperties.PROP_GPSFIX, this.gga, gga);
-		this.gga = gga;
+				DiveDataProperties.PROP_GPSFIX, this.gga, nmeaMsg);
+		this.gga = nmeaMsg;
 	}
 
 	/**
