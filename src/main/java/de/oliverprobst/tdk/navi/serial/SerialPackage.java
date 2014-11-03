@@ -101,7 +101,7 @@ public class SerialPackage {
 	}
 
 	public boolean isValid() {
-		return true;
+		return terminatorIndex > 0;
 		//return getCalculatedCheckSum() == getReceivedChecksum();
 	}
 
