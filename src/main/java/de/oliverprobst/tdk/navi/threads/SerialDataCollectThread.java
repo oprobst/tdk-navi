@@ -74,6 +74,8 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 					in = serial.read();
 					if (in == '$') {
 						started = true;
+						sb = new StringBuilder();
+						
 					}
 					if (started) {
 						sb.append(in);
