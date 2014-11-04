@@ -160,8 +160,8 @@ void loop() {
   Turn of the device in provided seconds by sending a high signal to the power module.
 */
 void shutdownIn(int sec) {
-  delay (sec * 1000);
-  digitalWrite(2, HIGH);
+  //delay (sec * 1000);
+  //digitalWrite(2, HIGH);
 }
 
 // Here, the last buffer shall be send via ttl
