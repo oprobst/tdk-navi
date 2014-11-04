@@ -4,9 +4,12 @@
  * Submarine Navigation Software
  *
  * Support for all sensors to collect and aggregate data and send to processing unit.
-
-Changed in SoftwareSerial
-#define _SS_MAX_RX_BUFF 128 // RX buffer size
+ * 
+ *
+ *
+ * Changed in SoftwareSerial:
+ * #define _SS_MAX_RX_BUFF 128 // RX buffer size
+ * Reason is the NMEA String, which should be send as a whole.
  */
 #include <SoftwareSerial.h>
 #include <Wire.h>
@@ -14,36 +17,72 @@ Changed in SoftwareSerial
 #include <Adafruit_HMC5883_U.h>
 #include <Adafruit_BMP085.h>
 
+/*
+* Compass Module API
+*/
 Adafruit_HMC5883_Unified mag = Adafruit_HMC5883_Unified(12345);
 
+/* 
+* Pressure and Temperature senor module 
+*/
 Adafruit_BMP085 bmp;
 
-//GPS Communication Constants
+/* 
+* GPS Communication Constants
+*
 #define RX_PIN_GPS 8
 #define TX_PIN_GPS 9
 SoftwareSerial gpsSerial = SoftwareSerial(RX_PIN_GPS, TX_PIN_GPS);
 
-// I2C Constants
-#define ARDUINO_ADDR 0x04
+/*
+* Speed for software serial to connect to GPS.
+* Because GPS is configured to a Hz, there is no need for a high speed.
+*/
 #define GPS_SERIAL_SPEED 9600
 
-// Serial port
+/*
+* Serial connectivity to raspberry pi.
+*/
 #define SERIAL_SPEED 115200
 
-//current sensor buffer
+/*
+* This is the global storage for the current sensor to read.
+* It is used by all sensors, except the GPS.
+*/
 const short MAX_MSG_SIZE = 80;
 short currBufferSize = -1;
 byte sensorBuffer[MAX_MSG_SIZE];
 
-//current GPS sensor buffer
+
+/*
+* This is the storage for the GPS sensor only. 
+*/
 const short MAX_GPS_MSG_SIZE = 80;
 short currGpsBufferSize = 1;
 byte gpsSensorBuffer[MAX_GPS_MSG_SIZE];
 boolean gpsReceivedCompleteMsg = false;
 boolean gpsStringStarted = false;
 
+/*
+* Count the iterations of the main loop. 
+* Used for some actions not executed every loop.
+*/
 int loopCounter = 0;
-long shutdownAt = 0;
+
+/*
+* Timeout for Off switch.
+* If the Off button is pushed and no shutdown command is received from arduino,
+* this timeout applies.
+*/
+long shutdownTimeout = 0;
+
+/*
+* Stores the checksum of the last send message for each 
+* message type. Prevents sending same measurement twice.
+*/
+byte lastSend [8][2];
+
+
 
                   /*
                    * Main setup routine
@@ -54,13 +93,20 @@ void setup() {
 
   configureGPS();
 
+// LED indicating Serial connectivity between arduino and pi
   pinMode(12, OUTPUT);
 
+  //GPS standby
   pinMode(10, OUTPUT);
   digitalWrite(10, LOW);
 
+// Shutdown send
   pinMode(2, OUTPUT);
+  
+  // On-/Off switch
   pinMode(3, INPUT);
+  
+  // Current battery voltage
   digitalWrite(2, LOW);
 
   mag.begin();
@@ -81,7 +127,7 @@ void setup() {
  */
 void loop() {
   short lastWritePos = 0;
-  delay (2);
+  delay (1);
   //GPS data
   currGpsBufferSize = collectGPSData(gpsSensorBuffer, currGpsBufferSize);
 
@@ -125,7 +171,8 @@ void loop() {
   if (lastWritePos > 0) {
     calcChecksum(&sensorBuffer[1], lastWritePos );
     sendLastBuffer (sensorBuffer, lastWritePos);
-    shutdownAt = millis() + 60000;
+    // set timeout, if no shutdown received.
+    shutdownTimeout = millis() + 180000;
   }
 
 
@@ -138,37 +185,40 @@ void loop() {
     } else if (incoming == 0x70) {
       digitalWrite(12, LOW);
     } else if (incoming == 0x21) {
-
-      shutdownIn (60);
+       shutdownTimeout = millis() + 60000;
     }
   }
 
-  if (loopCounter++ > 1000) {
+  if (loopCounter++ > 10000) {
     loopCounter = 0;
   }
 
-  //Workaround!
-  // Shall be send via serial not by Ardunio decided.
-  if (shutdownAt != 0 && shutdownAt < millis()) {
+ // Shutdown if shutdownTimeout is reached.
+  if (shutdownAt != 0 && shutdownTimeout < millis()) {
     digitalWrite(2, HIGH);
   }
-  // end of workaround.
 }
 
-
-/*
-  Turn of the device in provided seconds by sending a high signal to the power module.
-*/
-void shutdownIn(int sec) {
-  //delay (sec * 1000);
-  //digitalWrite(2, HIGH);
-}
 
 // Here, the last buffer shall be send via ttl
 void sendLastBuffer (byte  bufferToSend [], unsigned short lastWritePos) {
-  for (unsigned short b = 0; b < lastWritePos + 3; b++) {
-    Serial.write(bufferToSend[b]);
+  
+  //check if last message of this type has the same chk sum. Discard then:
+  unsigned char lastMsgType = *bufferToSend [1] - 97; 
+    
+  if (lastSend[lastMsgType][0] == bufferToSend [lastWritePos+ 1] && 
+      lastSend[lastMsgType][1] == bufferToSend [lastWritePos+ 2]){
+     return;    
   }
+  
+  
+  // and send:
+  for (unsigned short b = 0; b < lastWritePos + 3; b++) {
+    Serial.write(bufferToSend[b]);    
+  }
+  
+  lastSend [lastMsgType][0] = bufferToSend [lastWritePos+1];
+  lastSend [lastMsgType][1] = bufferToSend [lastWritePos+2];
 }
 
 
