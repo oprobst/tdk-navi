@@ -58,7 +58,7 @@ public class NmeaParser {
 				this.valid = false;
 				latitude = 0.0;
 			}
-
+			try {
 			splitLen = ggaSplit[4].length();
 			formattedLongitude = ggaSplit[4].substring(0, 3) + "° "
 					+ getEWHemisphere() + " "
@@ -68,14 +68,17 @@ public class NmeaParser {
 			formattedLatitude = ggaSplit[2].substring(0, 2) + "° "
 					+ getNSHemisphere() + " "
 					+ ggaSplit[2].substring(2, splitLen);
-
+			} catch (  StringIndexOutOfBoundsException e) {
+				this.valid = false;
+				formattedLatitude = "";
+				formattedLongitude = "";
+			}
 			try {
 				dop = Float.parseFloat(ggaSplit[8]);
 			} catch (NumberFormatException e) {
 				this.valid = false;
 				dop = 99.0f;
 			}
-
 			try {
 				quality = Integer.parseInt(ggaSplit[6]);
 			} catch (NumberFormatException e) {
