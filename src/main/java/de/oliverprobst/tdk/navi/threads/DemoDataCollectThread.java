@@ -1,6 +1,5 @@
 package de.oliverprobst.tdk.navi.threads;
 
-import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.AbstractQueue;
@@ -66,6 +65,13 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 		}
 	}
 
+	/**
+	 * Generate checksum similar to the arduino.
+	 *
+	 * @param msg
+	 *            the msg without a checksum, terminated by '*'.
+	 * @return the same message, but with a checksum
+	 */
 	public String generateChecksum(String msg) {
 
 		int terminatorIndex = msg.indexOf('*');
@@ -76,23 +82,15 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 
 		do {
 
-			checksum_A = (checksum_A + msg.charAt(pos)) % 256;
-			checksum_B = (checksum_B + checksum_A) % 256;
+			int nextByte = msg.getBytes()[pos] & 0xff;
+			checksum_A = (checksum_A + nextByte) & 0xff;
+			checksum_B = (checksum_B + checksum_A) & 0xff;
 
-		} while (pos++ < terminatorIndex);
+		} while (pos++ < terminatorIndex); // includes terminator
 
-		try {
-			String chksumA = new String(new byte[] { (byte) checksum_A },
-					"UTF-8");
-
-			String chksumB = new String(new byte[] { (byte) checksum_B },
-					"UTF-8");
-			String msgOut = msg + chksumA + chksumB;
-			return msgOut;
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("No UTF-8", e);
-		}
-
+		String chksum = new String(new char[] { (char) (checksum_A),
+				(char) (checksum_B) });
+		return msg + chksum;
 	}
 
 	@Override
@@ -180,6 +178,13 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 		log.trace("Simulate event '" + message + "'.");
 		message = generateChecksum(message);
 
+		addToQueue(new SerialPackage(message));
+	}
+
+	public void setVoltage(float voltage) {
+		String message = "$g" + voltage + "*";
+		message = generateChecksum(message);
+		log.trace("Simulate event '" + message + "'.");
 		addToQueue(new SerialPackage(message));
 	}
 
@@ -340,13 +345,6 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 			log.trace("Simulate event '" + message + "'.");
 			addToQueue(new SerialPackage(message));
 		}
-	}
-
-	public void setVoltage(float voltage) {
-		String message = "$g" + voltage + "*";
-		message = generateChecksum(message);
-		log.trace("Simulate event '" + message + "'.");
-		addToQueue(new SerialPackage(message));
 	}
 
 }

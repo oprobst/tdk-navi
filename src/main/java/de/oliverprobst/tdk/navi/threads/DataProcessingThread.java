@@ -50,8 +50,13 @@ public class DataProcessingThread extends AbstractCollectThread {
 
 	private void handle(SerialPackage message) {
 
-		String payload = message.getPayload();
+		if (!message.isValid()) {
+			// Usually filtered by SerialCollector Thread.
+			log.info("Invalid message " + message);
+			return;
+		}
 
+		String payload = message.getPayload();
 		try {
 
 			switch (message.getType()) {
