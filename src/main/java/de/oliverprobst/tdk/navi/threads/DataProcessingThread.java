@@ -15,39 +15,78 @@ import de.oliverprobst.tdk.navi.serial.SerialPackage;
  * convert them to {@link SerialPackage}.
  * 
  * Then they will be handed over to the main Controller.
+ * 
+ * @author <b></b>www.tief-dunkel-kalt.org</b><br>
+ *         Oliver Probst <a
+ *         href="mailto:oliverprobst@gmx.de">oliverprobst@gmx.de</a>
  */
 public class DataProcessingThread extends AbstractCollectThread {
 
+	/** The log. */
 	static Logger log = LoggerFactory.getLogger(DataProcessingThread.class);
 
+	/**
+	 * The Constant MAX_BUFFER_SIZE defines how many events are stored in the
+	 * queue at maximum.
+	 */
 	public final static int MAX_BUFFER_SIZE = 25;
 
+	/** The ui controller */
 	private final DefaultController dc;
 
+	/** This variables triggers the thread to end. */
 	private boolean end = false;
 
+	/** The incoming queue for all events. */
 	private final AbstractQueue<SerialPackage> incoming;
 
+	/**
+	 * Instantiates a new data processing thread.
+	 *
+	 * @param incoming
+	 *            the incoming queue
+	 * @param dc
+	 *            the ui controller
+	 */
 	public DataProcessingThread(AbstractQueue<SerialPackage> incoming,
 			DefaultController dc) {
 		this.incoming = incoming;
 		this.dc = dc;
 	}
 
+	/**
+	 * Will end the thread.
+	 */
 	public void end() {
 		end = true;
 	}
 
+	/**
+	 * Gets the default ui controller.
+	 *
+	 * @return the default controller
+	 */
 	public DefaultController getDefaultController() {
 		return dc;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.oliverprobst.tdk.navi.threads.AbstractCollectThread#getLog()
+	 */
 	@Override
 	protected Logger getLog() {
 
 		return log;
 	}
 
+	/**
+	 * Take a message from the queue, check it's type and parse it.
+	 *
+	 * @param message
+	 *            the message
+	 */
 	private void handle(SerialPackage message) {
 
 		if (!message.isValid()) {
@@ -108,6 +147,12 @@ public class DataProcessingThread extends AbstractCollectThread {
 		}
 	}
 
+	/**
+	 * Parses the course.
+	 *
+	 * @param payload
+	 *            the payload
+	 */
 	private void parseCourse(String payload) {
 		PitchAndCourse pAc = PitchAndCourse.construct(payload);
 		if (pAc != null) {
@@ -115,12 +160,24 @@ public class DataProcessingThread extends AbstractCollectThread {
 		}
 	}
 
+	/**
+	 * Parses the depth.
+	 *
+	 * @param payload
+	 *            the payload
+	 */
 	private void parseDepth(String payload) {
 		float depth = Float.parseFloat(payload);
 		depth = depth / 100;
 		dc.setDepth(depth);
 	}
 
+	/**
+	 * Parses the gga.
+	 *
+	 * @param payload
+	 *            the payload
+	 */
 	private void parseGga(String payload) {
 		NmeaParser nmea = new NmeaParser(payload);
 		if (nmea.isValid()) {
@@ -128,15 +185,33 @@ public class DataProcessingThread extends AbstractCollectThread {
 		}
 	}
 
+	/**
+	 * Parses the humidity.
+	 *
+	 * @param payload
+	 *            the payload
+	 */
 	private void parseHumidity(String payload) {
 		int humidity = Integer.parseInt(payload);
 		dc.setHumidity(humidity);
 	}
 
+	/**
+	 * Parses the leak.
+	 *
+	 * @param payload
+	 *            the payload
+	 */
 	private void parseLeak(String payload) {
 		dc.setIntegrityCode(payload);
 	}
 
+	/**
+	 * Parses the speed.
+	 *
+	 * @param payload
+	 *            the payload
+	 */
 	private void parseSpeed(String payload) {
 		try {
 			dc.setGear(Integer.parseInt(payload));
@@ -145,11 +220,23 @@ public class DataProcessingThread extends AbstractCollectThread {
 		}
 	}
 
+	/**
+	 * Parses the temperature.
+	 *
+	 * @param payload
+	 *            the payload
+	 */
 	private void parseTemperature(String payload) {
 		float temperature = Float.parseFloat(payload);
 		dc.setTemperature(temperature);
 	}
 
+	/**
+	 * Parses the voltage.
+	 *
+	 * @param payload
+	 *            the payload
+	 */
 	private void parseVoltage(String payload) {
 		float voltage = Float.parseFloat(payload);
 		dc.setVoltage(voltage);

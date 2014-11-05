@@ -18,27 +18,46 @@ import de.oliverprobst.tdk.navi.serial.SerialPackage;
 /**
  * The Class simulate some demo data to test functionality without having
  * sensors connected.
+ * 
+ * @author <b></b>www.tief-dunkel-kalt.org</b><br>
+ *         Oliver Probst <a
+ *         href="mailto:oliverprobst@gmx.de">oliverprobst@gmx.de</a>
  */
 public class DemoDataCollectThread extends AbstractCollectThread {
 
+	/** The logger */
 	private static Logger log = LoggerFactory
 			.getLogger(DemoDataCollectThread.class);
 
+	/** The ui default controller. */
 	private final DefaultController dc;
 
+	/** Shall gps events generated? */
 	private boolean gpsActive = true;
 
+	/** The incoming event queue to fill. */
 	private final AbstractQueue<SerialPackage> incoming;
 
+	/** Count the iteration to trigger some events every n loop. */
 	private int iteration = 0;
 
-	// jura
+	/** The last gps latitude. */
 	double lastGPSLat = 4738.554; // = 47.642586
 
+	/** The last gps longitude. */
 	double lastGPSLong = 912.825; // = 009.213739
 
+	/** The simulated vibration of dpv */
 	private int simulatedVibration = 130;
 
+	/**
+	 * Instantiates a new demo data collect thread.
+	 *
+	 * @param dc
+	 *            the ui default controller
+	 * @param incoming2
+	 *            the incoming event queue
+	 */
 	public DemoDataCollectThread(DefaultController dc,
 			AbstractQueue<SerialPackage> incoming2) {
 		this.dc = dc;
@@ -93,20 +112,29 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 		return msg + chksum;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.oliverprobst.tdk.navi.threads.AbstractCollectThread#getLog()
+	 */
 	@Override
 	protected Logger getLog() {
 		return log;
 	}
 
 	/**
-	 * @return the simulatedVibration
+	 * Gets the simulated vibration of dpv.
+	 *
+	 * @return the simulated vibration of dpv
 	 */
 	public int getSimulatedVibration() {
 		return simulatedVibration;
 	}
 
 	/**
-	 * @return the gpsActive
+	 * Checks if is shall gps events generated?.
+	 *
+	 * @return the shall gps events generated?
 	 */
 	public boolean isGpsActive() {
 		return gpsActive;
@@ -142,6 +170,16 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 		}
 	}
 
+	/**
+	 * Sets the course.
+	 *
+	 * @param course
+	 *            the course
+	 * @param frPitch
+	 *            the front-rear pitch
+	 * @param lrPitxh
+	 *            the left-right pitxh
+	 */
 	public void setCourse(int course, int frPitch, int lrPitxh) {
 		String msg = "$b"
 				+ ((int) course - PitchAndCourse.getMagneticDeclination())
@@ -151,26 +189,42 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 	}
 
 	/**
+	 * Sets the shall gps events generated?.
+	 *
 	 * @param gpsActive
-	 *            the gpsActive to set
+	 *            the new shall gps events generated?
 	 */
 	public void setGpsActive(boolean gpsActive) {
 		this.gpsActive = gpsActive;
 	}
 
+	/**
+	 * Sets the leak message.
+	 *
+	 * @param string
+	 *            the new leak message
+	 */
 	public void setLeakMessage(String string) {
 		string = generateChecksum(string);
 		addToQueue(new SerialPackage(string));
 	}
 
+	/**
+	 * Sets the shutdown received.
+	 *
+	 * @param string
+	 *            the new shutdown received
+	 */
 	public void setShutdownReceived(String string) {
 		string = generateChecksum(string);
 		addToQueue(new SerialPackage(string));
 	}
 
 	/**
+	 * Sets the simulated vibration of dpv.
+	 *
 	 * @param simulatedVibration
-	 *            the simulatedVibration to set
+	 *            the new simulated vibration of dpv
 	 */
 	public void setSimulatedVibration(int simulatedVibration) {
 		this.simulatedVibration = simulatedVibration;
@@ -181,6 +235,12 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 		addToQueue(new SerialPackage(message));
 	}
 
+	/**
+	 * Sets the voltage.
+	 *
+	 * @param voltage
+	 *            the new voltage
+	 */
 	public void setVoltage(float voltage) {
 		String message = "$g" + voltage + "*";
 		message = generateChecksum(message);
@@ -188,6 +248,9 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 		addToQueue(new SerialPackage(message));
 	}
 
+	/**
+	 * Write course.
+	 */
 	private void writeCourse() {
 
 		DiveData record = dc.getCurrentRecord();
@@ -231,6 +294,9 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 
 	}
 
+	/**
+	 * Write depth.
+	 */
 	private void writeDepth() {
 
 		float depth = dc.getCurrentRecordClone().getDepth();
@@ -322,6 +388,9 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 		}
 	}
 
+	/**
+	 * Write humidity.
+	 */
 	private void writeHumidity() {
 		if (iteration % 50 == 0) {
 			int c = (int) ((Math.random()) * 40) + 30;
@@ -329,6 +398,9 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 		}
 	}
 
+	/**
+	 * Write temp.
+	 */
 	private void writeTemp() {
 		float depth = dc.getCurrentRecordClone().getDepth();
 		if (iteration % 20 == 0) {
