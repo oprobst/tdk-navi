@@ -4,11 +4,11 @@
 
 	<groupId>de.oliverprobst.tdk</groupId>
 	<artifactId>navi</artifactId>
-	<version>0.0.5-SNAPSHOT</version>
+	<version>0.0.6</version>
 	<packaging>jar</packaging>
 
 	<name>navi</name>
-	<url>http://maven.apache.org</url>
+	<url>http://tief-dunkel-kalt.org</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -91,7 +91,7 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 
 		int discardedCount = 0;
 		long lastDiscardedTimestamp = System.currentTimeMillis();
-		while (!end) {
+		while (true) {
 			// collect some debug information
 			if (log.isDebugEnabled()) {
 				logState();
@@ -150,8 +150,11 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 					serial.write((byte) 0x70);
 					log.trace("Send 0x70.");
 					iteration = 0;
+				} else if (end) {
+					serial.write("TERMINATE");
+					break;
 				} else {
-					serial.write((byte) 0x00);
+					// serial.write((byte) 0x00);
 				}
 				if (discardedCount > LOG_WARN_DISCARDED) {
 					long duration = (System.currentTimeMillis() - lastDiscardedTimestamp) / 1000;

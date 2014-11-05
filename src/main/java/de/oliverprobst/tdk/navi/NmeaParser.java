@@ -15,6 +15,7 @@ public class NmeaParser {
 
 	/** A preformatted default for latitude string. */
 	private String formattedLatitude = "No position";
+	
 	/** A preformatted default for longitude string. */
 	private String formattedLongitude = "";
 

@@ -50,6 +50,9 @@ public class App {
 
 	private static Configuration config;
 
+	private static AbstractCollectThread dataProcessingThread = null;
+	private static SerialDataCollectThread collectorThread = null;
+
 	/**
 	 * @return the config
 	 */
@@ -134,8 +137,14 @@ public class App {
 		return config;
 	}
 
-	private static AbstractCollectThread dataProcessingThread = null;
-	private static SerialDataCollectThread collectorThread = null;
+	/**
+	 * Shutdown of the system initiated
+	 */
+	public static void shutdown() {
+		if (collectorThread != null) {
+			collectorThread.end();
+		}
+	}
 
 	private static void startDataCollect(final DefaultController dc,
 			final Configuration config) throws Exception {

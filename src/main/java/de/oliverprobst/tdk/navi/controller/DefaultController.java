@@ -380,6 +380,7 @@ public class DefaultController {
 
 		Thread shutdownThread = new ShutdownThread(waitForUser);
 		shutdownThread.start();
+		App.shutdown();
 
 	}
 }
