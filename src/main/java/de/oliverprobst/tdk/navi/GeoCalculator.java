@@ -11,15 +11,23 @@ import de.oliverprobst.tdk.navi.gui.MapPoint;
 
 /**
  * The Class GeoCalculator does all geo related calculation.
+ * 
+ * @author <b></b>www.tief-dunkel-kalt.org</b><br>
+ *         Oliver Probst <a
+ *         href="mailto:oliverprobst@gmx.de">oliverprobst@gmx.de</a>
  */
-public class GeoCalculator {
+public final class GeoCalculator {
 
+	/** The AVERAGE RADIUS OF EARTH - Change when diving on Mars! */
 	public final static double AVERAGE_RADIUS_OF_EARTH = 6371.0;
 
+	/** Highlander */
 	private static GeoCalculator instance = new GeoCalculator();
 
 	/**
-	 * @return the averageRadiusOfEarth
+	 * Gets the average radius of earth.
+	 *
+	 * @return the average radius of earth
 	 */
 	public static double getAverageRadiusOfEarth() {
 		return AVERAGE_RADIUS_OF_EARTH;
@@ -34,21 +42,30 @@ public class GeoCalculator {
 		return instance;
 	}
 
+	/** The displayed maps distance between east and west */
 	private int distanceEW = 0;
 
+	/** The displayed maps distance between north and south */
 	private int distanceNS = 0;
 
 	/** The log. */
 	private Logger log = LoggerFactory.getLogger(GeoCalculator.class);
 
+	/** The displayed maps NW corners Latitude */
 	private double nwCornerLat = 0;
 
+	/** The displayed maps NW corners Longitude */
 	private double nwCornerLng = 0;
 
+	/** The displayed maps SE corners Latitude */
 	private double seCornerLat = 0;
 
+	/** The displayed maps SE corners Longitude */
 	private double seCornerLng = 0;
 
+	/**
+	 * Singleton lib only - private
+	 */
 	private GeoCalculator() {
 
 	}
@@ -57,14 +74,14 @@ public class GeoCalculator {
 	 * Calculate bearing between to geo coordinates
 	 *
 	 * @param fromLat
-	 *            the from lat
+	 *            the starting latitude
 	 * @param fromLng
-	 *            the from lng
+	 *            the starting longitude
 	 * @param toLat
-	 *            the to lat
+	 *            the target latitude
 	 * @param toLng
-	 *            the to lng
-	 * @return the int
+	 *            the target longitude
+	 * @return The bearing between these two points
 	 */
 	public int calculateBearing(double fromLat, double fromLng, double toLat,
 			double toLng) {
@@ -102,9 +119,13 @@ public class GeoCalculator {
 	 * Calculate a distance between two geo coordinates
 	 * 
 	 * @param fromLat
+	 *            the starting latitude
 	 * @param fromLng
+	 *            the starting longitude
 	 * @param toLat
+	 *            the target latitude
 	 * @param toLng
+	 *            the target longitude
 	 * @return distance in meter
 	 */
 	public int calculateDistance(double fromLat, double fromLng, double toLat,
@@ -128,14 +149,14 @@ public class GeoCalculator {
 	 * Calculate new location based on current speed and bearing
 	 *
 	 * @param fromLat
-	 *            the from lat
+	 *            the starting latitude
 	 * @param fromLng
-	 *            the from lng
+	 *            the starting longitude
 	 * @param bearing
 	 *            the bearing
 	 * @param distance
 	 *            the distance
-	 * @return the location
+	 * @return the Location to be reached.
 	 */
 	public Location calculateNewLocation(double fromLat, double fromLng,
 			double bearing, double distance) {
@@ -164,36 +185,48 @@ public class GeoCalculator {
 	}
 
 	/**
-	 * @return the nwCornerLat
+	 * Gets the displayed maps NW corners Latitude.
+	 *
+	 * @return the displayed maps NW corners Latitude
 	 */
 	public double getNwCornerLat() {
 		return nwCornerLat;
 	}
 
 	/**
-	 * @return the nwCornerLng
+	 * Gets the displayed maps NW corners Longitude.
+	 *
+	 * @return the displayed maps NW corners Longitude
 	 */
 	public double getNwCornerLng() {
 		return nwCornerLng;
 	}
 
 	/**
-	 * @return the seCornerLat
+	 * Gets the displayed maps SE corners Latitude.
+	 *
+	 * @return the displayed maps SE corners Latitude
 	 */
 	public double getSeCornerLat() {
 		return seCornerLat;
 	}
 
 	/**
-	 * @return the seCornerLng
+	 * Gets the displayed maps SE corners Longitude.
+	 *
+	 * @return the displayed maps SE corners Longitude
 	 */
 	public double getSeCornerLng() {
 		return seCornerLng;
 	}
 
 	/**
-	 * @param nwCorner
-	 *            the nwCorner to set
+	 * Sets the nw corner of the displayed map
+	 *
+	 * @param nwCornerLat
+	 *            the NW corners latitude
+	 * @param nwCornerLng
+	 *            the NW corners longitude
 	 */
 	public void setNwCorner(double nwCornerLat, double nwCornerLng) {
 		this.nwCornerLat = nwCornerLat;
@@ -201,8 +234,12 @@ public class GeoCalculator {
 	}
 
 	/**
-	 * @param nwCorner
-	 *            the nwCorner to set
+	 * Sets the se corner of the displayed map
+	 *
+	 * @param seCornerLat
+	 *            the SE corners latitude
+	 * @param seCornerLng
+	 *            the SE corners longitude
 	 */
 	public void setSeCorner(double seCornerLat, double seCornerLng) {
 		this.seCornerLat = seCornerLat;
@@ -210,15 +247,16 @@ public class GeoCalculator {
 	}
 
 	/**
-	 * Geo coordinates projection on a map image
+	 * Geo coordinates projection on a map image. Recalculate the current geo
+	 * location on a x/y map. Based on the provided corner geo coordinates.
 	 *
 	 * @param size
-	 *            the size
+	 *            the size of the map panel to paint on
 	 * @param longitude
-	 *            the longitude
+	 *            the longitude to calculate a point for
 	 * @param latitude
-	 *            the latitude
-	 * @return the map point
+	 *            the latitude to calculate the point for
+	 * @return The point on the map corresponds to the provided location.
 	 */
 	public MapPoint xyProjection(Dimension size, double longitude,
 			double latitude) {
