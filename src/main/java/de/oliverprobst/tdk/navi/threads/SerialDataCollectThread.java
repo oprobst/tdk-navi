@@ -143,10 +143,10 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 				}
 
 				iteration++;
-				if (iteration == 50) {
+				if (iteration == 10) {
 					log.trace("Send 0x6F.");
 					serial.write((byte) 0x6F);
-				} else if (iteration == 100) {
+				} else if (iteration == 20) {
 					serial.write((byte) 0x70);
 					log.trace("Send 0x70.");
 					iteration = 0;
