@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -66,6 +67,13 @@ public class MapPanel extends AbstractNaviJPanel implements
 
 	AffineTransform tx = new AffineTransform();
 
+	/**
+	 * Will be set to true when a new location was provided. And set to false,
+	 * if waypoints were updated. This prevents unnecessary updates of the WPs.
+	 */
+	private boolean updateWPs = false;
+
+	/** A warning displayed on top of the map. */
 	private String warning = null;
 
 	/**
@@ -74,11 +82,31 @@ public class MapPanel extends AbstractNaviJPanel implements
 	 */
 	private int warnPrio = 0;
 
+	/**
+	 * Cache all calculated bearings and refresh list only on location change.
+	 * #Performance
+	 */
+	private final List<Integer> wpBearingCache;
+
+	/**
+	 * Cache all calculated distances and refresh list only on location change.
+	 * #Performance
+	 */
+	private final List<Integer> wpDistanceCache;
+
+	/** All waypoints on the map. */
 	private final Collection<Waypoint> wps;
 
 	public MapPanel(Collection<Waypoint> wps, String imageLocation,
 			boolean brightColorRoute) {
 		this.wps = wps;
+		wpBearingCache = new ArrayList<>(wps.size());
+		wpDistanceCache = new ArrayList<>(wps.size());
+		// fill with initial undefined values
+		for (int i = 0; i < wps.size(); i++) {
+			wpDistanceCache.add(-1);
+			wpBearingCache.add(-1);
+		}
 		panelColorScheme = new MapPanelColors(brightColorRoute);
 		final String internPrefix = "${intern}";
 		InputStream is = null;
@@ -151,7 +179,6 @@ public class MapPanel extends AbstractNaviJPanel implements
 			lastLocation = locations.get(locations.size() - 1);
 			paintNavArrow(g2d, lastLocation.x, lastLocation.y);
 		}
-
 		paintWPs(g2d);
 
 		if (warning != null) {
@@ -245,19 +272,11 @@ public class MapPanel extends AbstractNaviJPanel implements
 	private void paintWPs(Graphics2D g) {
 		Dimension d = new Dimension(image.getWidth(), image.getHeight());
 		GeoCalculator hc = GeoCalculator.getInstance();
-
+		int iterC = -1;
 		for (Waypoint wp : wps) {
+			iterC++;
 			MapPoint loc = hc.xyProjection(d, wp.getLongitude(),
 					wp.getLatitude());
-
-			int distance = -1;
-			int bearing = -1;
-			if (lastLongitude != 0) {
-				distance = hc.calculateDistance(lastLatitude, lastLongitude,
-						wp.getLatitude(), wp.getLongitude());
-				bearing = hc.calculateBearing(lastLatitude, lastLongitude,
-						wp.getLatitude(), wp.getLongitude());
-			}
 
 			g.setColor(new Color(180, 180, 255));
 			g.drawArc(loc.x, loc.y, 4, 4, 0, 360);
@@ -269,6 +288,25 @@ public class MapPanel extends AbstractNaviJPanel implements
 			g.setColor(new Color(0, 0, 255));
 			g.setFont(new Font("Arial", Font.BOLD, 12));
 			g.drawString(wp.getId(), loc.x + 8, loc.y);
+
+			int distance = -1;
+			int bearing = -1;
+			if (updateWPs) {
+
+				if (lastLongitude != 0) {
+					distance = hc.calculateDistance(lastLatitude,
+							lastLongitude, wp.getLatitude(), wp.getLongitude());
+					bearing = hc.calculateBearing(lastLatitude, lastLongitude,
+							wp.getLatitude(), wp.getLongitude());
+				}
+
+				wpBearingCache.set(iterC, bearing);
+				wpDistanceCache.set(iterC, distance);
+			} else {
+				bearing = wpBearingCache.get(iterC);
+				distance = wpDistanceCache.get(iterC);
+			}
+
 			if (bearing >= 0) {
 				g.drawString(bearing + " °", loc.x + 8, loc.y + 12);
 			}
@@ -276,6 +314,7 @@ public class MapPanel extends AbstractNaviJPanel implements
 				g.drawString(distance + " m", loc.x + 8, loc.y + 24);
 			}
 		}
+		updateWPs = false;
 	}
 
 	/*
@@ -363,6 +402,7 @@ public class MapPanel extends AbstractNaviJPanel implements
 					&& location.x > 0 && location.y > 0 && location.x < 480
 					&& location.y < 360) {
 				locations.add(location);
+				updateWPs = true;
 			}
 		}
 
@@ -384,6 +424,7 @@ public class MapPanel extends AbstractNaviJPanel implements
 						|| !locations.get(locations.size() - 1)
 								.equals(location)) {
 					locations.add(location);
+					updateWPs = true;
 				}
 			}
 		}
