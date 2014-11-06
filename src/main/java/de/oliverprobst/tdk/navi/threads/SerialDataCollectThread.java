@@ -135,7 +135,7 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 						incoming.clear();
 					}
 				} else {
-					log.trace("Discarded invalid Serial Event: '" + message
+					log.debug("Discarded invalid Serial Event: '" + message
 							+ "'. Checksum is "
 							+ received.getReceivedChecksum() + "; expected "
 							+ received.getCalculatedCheckSum());
