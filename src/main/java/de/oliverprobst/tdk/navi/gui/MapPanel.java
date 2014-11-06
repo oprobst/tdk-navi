@@ -394,7 +394,9 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			lastLongitude = newValue.getLongitude();
 			MapPoint location = hc.xyProjection(d, lastLongitude, lastLatitude);
 			location.setEstimated(true);
-			if (!locations.get(locations.size() - 1).equals(location)) {
+			if (!locations.get(locations.size() - 1).equals(location)
+					&& location.x > 0 && location.y > 0 && location.x < 480
+					&& location.y < 360) {
 				locations.add(location);
 			}
 		}
