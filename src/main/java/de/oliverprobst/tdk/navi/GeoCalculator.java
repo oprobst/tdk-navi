@@ -72,7 +72,7 @@ public final class GeoCalculator {
 
 	/**
 	 * Calculate bearing between to geo coordinates
-	 *
+	 * 
 	 * @param fromLat
 	 *            the starting latitude
 	 * @param fromLng
@@ -82,16 +82,21 @@ public final class GeoCalculator {
 	 * @param toLng
 	 *            the target longitude
 	 * @return The bearing between these two points
+	 * 
+	 * 
 	 */
 	public int calculateBearing(double fromLat, double fromLng, double toLat,
 			double toLng) {
 
-		double longDiff = fromLng - toLng;
-		double y = Math.sin(longDiff) * Math.cos(toLat);
-		double x = Math.cos(fromLat) * Math.sin(toLat) - Math.sin(fromLat)
-				* Math.cos(toLat) * Math.cos(longDiff);
-		return (int) (((Math.toDegrees(Math.atan2(y, x)) + 360) % 360) + 0.5);
+	 		double latitude1 = Math.toRadians(fromLat);
+		double latitude2 = Math.toRadians(toLat);
+		double longDiff = Math.toRadians(toLng - fromLng);
+		double y = Math.sin(longDiff) * Math.cos(latitude2);
+		double x = Math.cos(latitude1) * Math.sin(latitude2)
+				- Math.sin(latitude1) * Math.cos(latitude2)
+				* Math.cos(longDiff);
 
+		return (int) (Math.toDegrees(Math.atan2(y, x)) + 360) % 360;	
 	}
 
 	/**

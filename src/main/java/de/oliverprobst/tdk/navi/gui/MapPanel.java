@@ -19,9 +19,9 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.imageio.ImageIO;
-import javax.swing.JPanel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,31 +45,17 @@ import de.oliverprobst.tdk.navi.dto.StructuralIntegrity.Status;
  * 
  * Maybe this should be considered within the next reengineering tasks.
  */
-public class MapPanel extends JPanel implements PropertyChangeListener {
+public class MapPanel extends AbstractNaviJPanel implements
+		PropertyChangeListener {
 
 	private static Logger log = LoggerFactory.getLogger(MapPanel.class);
 	private static final long serialVersionUID = -1775948240481194745L;
 
-	Polygon arrowHead = new Polygon();
-	private final boolean brightColorRoute;
-	private final Color brightNewEstimated = new Color(90, 90, 255);
-	private final Color brightNewReal = new Color(255, 90, 90);
-
-	private final Color brightOldEstimated = new Color(90, 255, 90);
-
-	private final Color brightOldReal = new Color(255, 90, 255);
-
-	private final Color darkNewEstimated = new Color(0, 0, 255);
-
-	private final Color darkNewReal = new Color(255, 0, 0);
-
-	private final Color darkOldEstimated = new Color(150, 50, 255);
-
-	private final Color darkOldReal = new Color(255, 100, 50);
+	private Polygon arrowHead = new Polygon();
 
 	private BufferedImage image;
 
-	int lastCourse = 0;
+	private int lastCourse = 0;
 
 	private double lastLatitude = 0;
 
@@ -77,8 +63,17 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 	ArrayList<MapPoint> locations = new ArrayList<MapPoint>();
 
 	private double minDop = 2.5;
+	private final MapPanelColors panelColorScheme;
+
 	AffineTransform tx = new AffineTransform();
 
+	/**
+	 * Will be set to true when a new location was provided. And set to false,
+	 * if waypoints were updated. This prevents unnecessary updates of the WPs.
+	 */
+	private boolean updateWPs = false;
+
+	/** A warning displayed on top of the map. */
 	private String warning = null;
 
 	/**
@@ -87,12 +82,32 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 	 */
 	private int warnPrio = 0;
 
+	/**
+	 * Cache all calculated bearings and refresh list only on location change.
+	 * #Performance
+	 */
+	private final List<Integer> wpBearingCache;
+
+	/**
+	 * Cache all calculated distances and refresh list only on location change.
+	 * #Performance
+	 */
+	private final List<Integer> wpDistanceCache;
+
+	/** All waypoints on the map. */
 	private final Collection<Waypoint> wps;
 
 	public MapPanel(Collection<Waypoint> wps, String imageLocation,
 			boolean brightColorRoute) {
 		this.wps = wps;
-		this.brightColorRoute = brightColorRoute;
+		wpBearingCache = new ArrayList<>(wps.size());
+		wpDistanceCache = new ArrayList<>(wps.size());
+		// fill with initial undefined values
+		for (int i = 0; i < wps.size(); i++) {
+			wpDistanceCache.add(-1);
+			wpBearingCache.add(-1);
+		}
+		panelColorScheme = new MapPanelColors(brightColorRoute);
 		final String internPrefix = "${intern}";
 		InputStream is = null;
 
@@ -147,45 +162,12 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		g.dispose();
 	}
 
-	private Color getRouteColor(boolean estimated, boolean isNew) {
-		if (this.brightColorRoute) {
-			if (estimated) {
-				if (isNew) {
-					return brightNewEstimated;
-				} else {
-					return brightOldEstimated;
-				}
-			} else {
-				if (isNew) {
-					return brightNewReal;
-				} else {
-					return brightOldReal;
-				}
-			}
-
-		} else {
-			if (estimated) {
-				if (isNew) {
-					return darkNewEstimated;
-				} else {
-					return darkOldEstimated;
-				}
-			} else {
-				if (isNew) {
-					return darkNewReal;
-				} else {
-					return darkOldReal;
-				}
-			}
-		}
-	}
-
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 
 		Graphics2D g2d = (Graphics2D) g;
-		// g2d.addRenderingHints(defineRenderingHints());
+		g2d.addRenderingHints(defineRenderingHints());
 
 		g2d.drawImage(image, 0, 0, null);
 
@@ -197,7 +179,6 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			lastLocation = locations.get(locations.size() - 1);
 			paintNavArrow(g2d, lastLocation.x, lastLocation.y);
 		}
-
 		paintWPs(g2d);
 
 		if (warning != null) {
@@ -272,7 +253,8 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			// last 10 records in red:
 			boolean newerOne = (i > locations.size() - 11 * stepSize);
 
-			g2d.setColor(getRouteColor(location.isEstimated(), newerOne));
+			g2d.setColor(panelColorScheme.getRouteColor(location.isEstimated(),
+					newerOne));
 
 			if (lastLocation != null) {
 				g2d.drawLine(lastLocation.x, lastLocation.y, location.x,
@@ -290,19 +272,11 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 	private void paintWPs(Graphics2D g) {
 		Dimension d = new Dimension(image.getWidth(), image.getHeight());
 		GeoCalculator hc = GeoCalculator.getInstance();
-
+		int iterC = -1;
 		for (Waypoint wp : wps) {
+			iterC++;
 			MapPoint loc = hc.xyProjection(d, wp.getLongitude(),
 					wp.getLatitude());
-
-			int distance = -1;
-			int bearing = -1;
-			if (lastLongitude != 0) {
-				distance = hc.calculateDistance(lastLatitude, lastLongitude,
-						wp.getLatitude(), wp.getLongitude());
-				bearing = hc.calculateBearing(lastLatitude, lastLongitude,
-						wp.getLatitude(), wp.getLongitude());
-			}
 
 			g.setColor(new Color(180, 180, 255));
 			g.drawArc(loc.x, loc.y, 4, 4, 0, 360);
@@ -314,6 +288,25 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			g.setColor(new Color(0, 0, 255));
 			g.setFont(new Font("Arial", Font.BOLD, 12));
 			g.drawString(wp.getId(), loc.x + 8, loc.y);
+
+			int distance = -1;
+			int bearing = -1;
+			if (updateWPs) {
+
+				if (lastLongitude != 0) {
+					distance = hc.calculateDistance(lastLatitude,
+							lastLongitude, wp.getLatitude(), wp.getLongitude());
+					bearing = hc.calculateBearing(lastLatitude, lastLongitude,
+							wp.getLatitude(), wp.getLongitude());
+				}
+
+				wpBearingCache.set(iterC, bearing);
+				wpDistanceCache.set(iterC, distance);
+			} else {
+				bearing = wpBearingCache.get(iterC);
+				distance = wpDistanceCache.get(iterC);
+			}
+
 			if (bearing >= 0) {
 				g.drawString(bearing + " °", loc.x + 8, loc.y + 12);
 			}
@@ -321,8 +314,16 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 				g.drawString(distance + " m", loc.x + 8, loc.y + 24);
 			}
 		}
+		updateWPs = false;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.
+	 * PropertyChangeEvent)
+	 */
+	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_GPSFIX)) {
@@ -333,8 +334,12 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			setEstimatedLocation((Location) evt.getNewValue());
 			this.update();
 		} else if (evt.getPropertyName().equals(DiveDataProperties.PROP_COURSE)) {
-			lastCourse = (Integer) evt.getNewValue();
-
+			int newCourse = (Integer) evt.getNewValue();
+			if (lastCourse == newCourse) {
+				// only if new bearing is different!
+				return;
+			}
+			lastCourse = newCourse;
 			this.update();
 		} else if (evt.getPropertyName()
 				.equals(DiveDataProperties.PROP_VOLTAGE)) {
@@ -361,9 +366,8 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 					|| si.getBow() == Status.BROKEN) {
 				warning = "LEAK WARNING: Shutdown initiated.";
 				warnPrio = 3;
+				this.update();
 			}
-
-			this.update();
 
 		} else if (evt.getPropertyName().equals(
 				DiveDataProperties.PROP_SHUTDOWN)) {
@@ -398,6 +402,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 					&& location.x > 0 && location.y > 0 && location.x < 480
 					&& location.y < 360) {
 				locations.add(location);
+				updateWPs = true;
 			}
 		}
 
@@ -422,6 +427,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 						&& location.x < 480
 						&& location.y < 360) {
 					locations.add(location);
+					updateWPs = true;
 				}
 			}
 		}

@@ -3,6 +3,7 @@ package de.oliverprobst.tdk.navi.gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -15,15 +16,133 @@ import javax.swing.JPanel;
 import de.oliverprobst.tdk.navi.controller.DiveDataProperties;
 import de.oliverprobst.tdk.navi.dto.PitchAndCourse;
 
+/**
+ * Draws the pitch panel.
+ *  
+ * @author <b></b>www.tief-dunkel-kalt.org</b><br>
+ *         Oliver Probst <a
+ *         href="mailto:oliverprobst@gmx.de">oliverprobst@gmx.de</a>
+ * 
+ * 
+ */
 public class PitchPanel extends JPanel implements PropertyChangeListener {
+
+	class HorizonPanel extends AbstractNaviJPanel {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -7121296781027383584L;
+		private int pitchFrontRear = 0;
+		private int pitchLeftRight = 0;
+
+		private int calculatePitchOffset(int height) {
+			if (pitchFrontRear < height / 2 * -1) {
+				return height / 2 * -1;
+			}
+			if (pitchFrontRear > height / 2) {
+				return height / 2;
+			}
+			return pitchFrontRear;
+		}
+
+		@Override
+		protected void paintComponent(Graphics g) {
+			super.paintComponent(g);
+
+			Graphics2D g2d = (Graphics2D) g;
+			g2d.addRenderingHints(super.defineRenderingHints());
+
+			int comWidth = g2d.getClipBounds().width;
+			int comHeight = g2d.getClipBounds().height;
+
+			final int offsetX = 10;
+			final int offsetY = 1;
+
+			g2d.setColor(new Color(100, 150, 255));
+
+			int drawingHeight = comHeight - (offsetY * 2 - 2);
+			int horizon = drawingHeight / 2;
+			int offset = calculatePitchOffset(drawingHeight) * -1;
+
+			int ypitchoffset = pitchLeftRight / 5;
+			if (ypitchoffset > 15) {
+				ypitchoffset = 15;
+			} else if (ypitchoffset < -15) {
+				ypitchoffset = -15;
+			}
+
+			// air
+			g2d.fillPolygon(new int[] { offsetX + 1, offsetX + 1,
+					comWidth - offsetX, comWidth - offsetX }, new int[] {
+					offsetY + 1, horizon - offset + 2 - ypitchoffset,
+					horizon - offset + 2 + ypitchoffset, offsetY + 1 }, 4
+
+			);
+
+			// ground
+			g2d.setColor(new Color(10, 200, 10));
+			g2d.fillPolygon(new int[] { offsetX + 1, offsetX + 1,
+					comWidth - offsetX, comWidth - offsetX
+
+			}, new int[] { drawingHeight, horizon - offset + 2 - ypitchoffset,
+					horizon - offset + 2 + ypitchoffset, drawingHeight }, 4
+
+			);
+
+			// helper tick lines
+
+			g2d.setColor(new Color(10, 155, 10));// ground
+			for (int i = horizon - pitchFrontRear * -1 + offsetY + 1; i < comHeight
+					- offsetY * 2; i += 10) {
+				g2d.drawLine(offsetX + 1, i - ypitchoffset, comWidth - offsetX
+						- 1, i + ypitchoffset);
+			}
+			g2d.setColor(new Color(10, 10, 200));// air
+			for (int i = horizon - pitchFrontRear * -1 + offsetY + 1; i > offsetY + 1; i -= 10) {
+				g2d.drawLine(offsetX + 1, i - ypitchoffset, comWidth - offsetX
+						- 1, i + ypitchoffset);
+			}
+
+			// border and middle line
+			g2d.setColor(new Color(255, 255, 255));
+
+			g2d.drawRect(offsetX, offsetY, comWidth - offsetX * 2, comHeight
+					- offsetY * 2);
+
+			// middle line
+			g2d.fillRect(offsetX - 3, offsetY + comHeight / 2, comWidth / 2
+					- (6 + offsetX), 3);
+			g2d.fillRect(comWidth / 2 + 1 + offsetX, offsetY + comHeight / 2,
+					comWidth / 2 - (5 + offsetX), 3);
+			g2d.setColor(new Color(250, 100, 100));
+			g2d.fillRect(offsetX - 3, offsetY + comHeight / 2 + 1, comWidth / 2
+					- (6 + offsetX), 1);
+			g2d.fillRect(comWidth / 2 + 1 + offsetX, offsetY + 1 + comHeight
+					/ 2, comWidth / 2 - (5 + offsetX), 1);
+		}
+
+		/**
+		 * @param pitch
+		 *            the pitch to set
+		 */
+		public void setPitch(int pitchFrontRear, int pitchLeftRight) {
+			this.pitchFrontRear = pitchFrontRear;
+			this.pitchLeftRight = pitchLeftRight;
+			this.updateUI();
+			this.repaint();
+
+		}
+
+	}
 
 	/**
 	 * sid
 	 */
 	private static final long serialVersionUID = -5013078238389083700L;
-
 	private HorizonPanel hpanel = new HorizonPanel();
 	private JLabel lblPitchFrontRear = new JLabel("");
+
 	private JLabel lblPitchLeftRight = new JLabel("");
 
 	/**
@@ -67,112 +186,6 @@ public class PitchPanel extends JPanel implements PropertyChangeListener {
 					newVal.getLeftRightPitch());
 			lblPitchFrontRear.setText("↕ " + newVal.getFrontRearPitch() + "");
 			lblPitchLeftRight.setText("↔ " + newVal.getLeftRightPitch() + "");
-		}
-
-	}
-
-	class HorizonPanel extends JPanel {
-
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -7121296781027383584L;
-		private int pitchFrontRear = 0;
-		private int pitchLeftRight = 0;
-
-		/**
-		 * @param pitch
-		 *            the pitch to set
-		 */
-		public void setPitch(int pitchFrontRear, int pitchLeftRight) {
-			this.pitchFrontRear = pitchFrontRear;
-			this.pitchLeftRight = pitchLeftRight;
-			this.updateUI();
-			this.repaint();
-
-		}
-
-		@Override
-		protected void paintComponent(Graphics g) {
-			super.paintComponent(g);
-
-			int comWidth = g.getClipBounds().width;
-			int comHeight = g.getClipBounds().height;
-
-			final int offsetX = 10;
-			final int offsetY = 1;
-
-			g.setColor(new Color(100, 150, 255));
-
-			int drawingHeight = comHeight - (offsetY * 2 - 2);
-			int horizon = drawingHeight / 2;
-			int offset = calculatePitchOffset(drawingHeight) * -1;
-
-			int ypitchoffset = pitchLeftRight / 5;
-			if (ypitchoffset > 15) {
-				ypitchoffset = 15;
-			} else if (ypitchoffset < -15) {
-				ypitchoffset = -15;
-			}
-
-			// air
-			g.fillPolygon(new int[] { offsetX + 1, offsetX + 1,
-					comWidth - offsetX, comWidth - offsetX }, new int[] {
-					offsetY + 1, horizon - offset + 2 - ypitchoffset,
-					horizon - offset + 2 + ypitchoffset, offsetY + 1 }, 4
-
-			);
-
-			// ground
-			g.setColor(new Color(10, 200, 10));
-			g.fillPolygon(new int[] { offsetX + 1, offsetX + 1,
-					comWidth - offsetX, comWidth - offsetX
-
-			}, new int[] { drawingHeight, horizon - offset + 2 - ypitchoffset,
-					horizon - offset + 2 + ypitchoffset, drawingHeight }, 4
-
-			);
-
-			// helper tick lines
-
-			g.setColor(new Color(10, 155, 10));// ground
-			for (int i = horizon - pitchFrontRear * -1 + offsetY + 1; i < comHeight
-					- offsetY * 2; i += 10) {
-				g.drawLine(offsetX + 1, i - ypitchoffset, comWidth - offsetX
-						- 1, i + ypitchoffset);
-			}
-			g.setColor(new Color(10, 10, 200));// air
-			for (int i = horizon - pitchFrontRear * -1 + offsetY + 1; i > offsetY + 1; i -= 10) {
-				g.drawLine(offsetX + 1, i - ypitchoffset, comWidth - offsetX
-						- 1, i + ypitchoffset);
-			}
-
-			// border and middle line
-			g.setColor(new Color(255, 255, 255));
-
-			g.drawRect(offsetX, offsetY, comWidth - offsetX * 2, comHeight
-					- offsetY * 2);
-
-			// middle line
-			g.fillRect(offsetX - 3, offsetY + comHeight / 2, comWidth / 2
-					- (6 + offsetX), 3);
-			g.fillRect(comWidth / 2 + 1 + offsetX, offsetY + comHeight / 2,
-					comWidth / 2 - (5 + offsetX), 3);
-			g.setColor(new Color(250, 100, 100));
-			g.fillRect(offsetX - 3, offsetY + comHeight / 2 + 1, comWidth / 2
-					- (6 + offsetX), 1);
-			g.fillRect(comWidth / 2 + 1 + offsetX, offsetY + 1 + comHeight / 2,
-					comWidth / 2 - (5 + offsetX), 1);
-		}
-
-		private int calculatePitchOffset(int height) {
-			if (pitchFrontRear < height / 2 * -1) {
-				return height / 2 * -1;
-			}
-			if (pitchFrontRear > height / 2) {
-				return height / 2;
-			}
-			return pitchFrontRear;
 		}
 
 	}
