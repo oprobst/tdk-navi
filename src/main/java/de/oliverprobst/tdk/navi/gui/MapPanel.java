@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.imageio.ImageIO;
-import javax.swing.JPanel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,31 +44,17 @@ import de.oliverprobst.tdk.navi.dto.StructuralIntegrity.Status;
  * 
  * Maybe this should be considered within the next reengineering tasks.
  */
-public class MapPanel extends JPanel implements PropertyChangeListener {
+public class MapPanel extends AbstractNaviJPanel implements
+		PropertyChangeListener {
 
 	private static Logger log = LoggerFactory.getLogger(MapPanel.class);
 	private static final long serialVersionUID = -1775948240481194745L;
 
-	Polygon arrowHead = new Polygon();
-	private final boolean brightColorRoute;
-	private final Color brightNewEstimated = new Color(90, 90, 255);
-	private final Color brightNewReal = new Color(255, 90, 90);
-
-	private final Color brightOldEstimated = new Color(90, 255, 90);
-
-	private final Color brightOldReal = new Color(255, 90, 255);
-
-	private final Color darkNewEstimated = new Color(0, 0, 255);
-
-	private final Color darkNewReal = new Color(255, 0, 0);
-
-	private final Color darkOldEstimated = new Color(150, 50, 255);
-
-	private final Color darkOldReal = new Color(255, 100, 50);
+	private Polygon arrowHead = new Polygon();
 
 	private BufferedImage image;
 
-	int lastCourse = 0;
+	private int lastCourse = 0;
 
 	private double lastLatitude = 0;
 
@@ -77,6 +62,8 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 	ArrayList<MapPoint> locations = new ArrayList<MapPoint>();
 
 	private double minDop = 2.5;
+	private final MapPanelColors panelColorScheme;
+
 	AffineTransform tx = new AffineTransform();
 
 	private String warning = null;
@@ -92,7 +79,7 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 	public MapPanel(Collection<Waypoint> wps, String imageLocation,
 			boolean brightColorRoute) {
 		this.wps = wps;
-		this.brightColorRoute = brightColorRoute;
+		panelColorScheme = new MapPanelColors(brightColorRoute);
 		final String internPrefix = "${intern}";
 		InputStream is = null;
 
@@ -147,45 +134,12 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		g.dispose();
 	}
 
-	private Color getRouteColor(boolean estimated, boolean isNew) {
-		if (this.brightColorRoute) {
-			if (estimated) {
-				if (isNew) {
-					return brightNewEstimated;
-				} else {
-					return brightOldEstimated;
-				}
-			} else {
-				if (isNew) {
-					return brightNewReal;
-				} else {
-					return brightOldReal;
-				}
-			}
-
-		} else {
-			if (estimated) {
-				if (isNew) {
-					return darkNewEstimated;
-				} else {
-					return darkOldEstimated;
-				}
-			} else {
-				if (isNew) {
-					return darkNewReal;
-				} else {
-					return darkOldReal;
-				}
-			}
-		}
-	}
-
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 
 		Graphics2D g2d = (Graphics2D) g;
-		// g2d.addRenderingHints(defineRenderingHints());
+		g2d.addRenderingHints(defineRenderingHints());
 
 		g2d.drawImage(image, 0, 0, null);
 
@@ -272,7 +226,8 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			// last 10 records in red:
 			boolean newerOne = (i > locations.size() - 11 * stepSize);
 
-			g2d.setColor(getRouteColor(location.isEstimated(), newerOne));
+			g2d.setColor(panelColorScheme.getRouteColor(location.isEstimated(),
+					newerOne));
 
 			if (lastLocation != null) {
 				g2d.drawLine(lastLocation.x, lastLocation.y, location.x,
@@ -323,6 +278,13 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.
+	 * PropertyChangeEvent)
+	 */
+	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_GPSFIX)) {
@@ -333,8 +295,12 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 			setEstimatedLocation((Location) evt.getNewValue());
 			this.update();
 		} else if (evt.getPropertyName().equals(DiveDataProperties.PROP_COURSE)) {
-			lastCourse = (Integer) evt.getNewValue();
-
+			int newCourse = (Integer) evt.getNewValue();
+			if (lastCourse == newCourse) {
+				// only if new bearing is different!
+				return;
+			}
+			lastCourse = newCourse;
 			this.update();
 		} else if (evt.getPropertyName()
 				.equals(DiveDataProperties.PROP_VOLTAGE)) {
@@ -361,9 +327,8 @@ public class MapPanel extends JPanel implements PropertyChangeListener {
 					|| si.getBow() == Status.BROKEN) {
 				warning = "LEAK WARNING: Shutdown initiated.";
 				warnPrio = 3;
+				this.update();
 			}
-
-			this.update();
 
 		} else if (evt.getPropertyName().equals(
 				DiveDataProperties.PROP_SHUTDOWN)) {
