@@ -31,6 +31,7 @@ import de.oliverprobst.tdk.navi.serial.SerialPackage;
 import de.oliverprobst.tdk.navi.threads.AbstractCollectThread;
 import de.oliverprobst.tdk.navi.threads.DataProcessingThread;
 import de.oliverprobst.tdk.navi.threads.DemoDataCollectThread;
+import de.oliverprobst.tdk.navi.threads.LogDiveDataThread;
 import de.oliverprobst.tdk.navi.threads.SerialDataCollectThread;
 
 /**
@@ -52,6 +53,7 @@ public class App {
 
 	private static AbstractCollectThread dataProcessingThread = null;
 	private static SerialDataCollectThread collectorThread = null;
+	private static LogDiveDataThread lddThread = null;
 
 	/**
 	 * @return the config
@@ -151,12 +153,16 @@ public class App {
 
 		collectorThread = new SerialDataCollectThread(incoming);
 		dataProcessingThread = new DataProcessingThread(incoming, dc);
+		lddThread = new LogDiveDataThread(dc, storeLogInterval);
+		lddThread.setPriority(3);
 
 		dataProcessingThread.setUncaughtExceptionHandler(uch);
 		collectorThread.setUncaughtExceptionHandler(uch);
+		lddThread.setUncaughtExceptionHandler(uch);
 
 		collectorThread.start();
 		dataProcessingThread.start();
+		lddThread.start();
 	}
 
 	private static void runInDemoMode(DefaultController dc, Configuration config) {
@@ -187,12 +193,16 @@ public class App {
 				incoming);
 
 		dataProcessingThread = new DataProcessingThread(incoming, dc);
+		lddThread = new LogDiveDataThread(dc, storeLogInterval);
+		lddThread.setPriority(3);
 
 		dataProcessingThread.setUncaughtExceptionHandler(uch);
 		collectorThread.setUncaughtExceptionHandler(uch);
+		lddThread.setUncaughtExceptionHandler(uch);
 
 		dataProcessingThread.start();
 		collectorThread.start();
+		lddThread.start();
 
 		md.addKeyListener(new DemoKeyListener(dc, collectorThread));
 
@@ -224,9 +234,15 @@ public class App {
 				collectorThread.setUncaughtExceptionHandler(uch);
 				collectorThread.start();
 
+			} else if (t instanceof LogDiveDataThread) {
+				log.error("Log Dive Data Thread " + t.getName()
+						+ " died. No log data will be stored any more.", e);
+
 			}
 		}
 	};
+
+	private static int storeLogInterval = 60000;
 
 	/**
 	 * @param dc
@@ -251,6 +267,11 @@ public class App {
 		dc.setBrightTheme(map.isBrightTheme());
 
 		PitchAndCourse.setMagneticDeclination(map.getDeclination());
+
+		if (config.getSettings().getLogInterval() != null) {
+			storeLogInterval = config.getSettings().getStoreLogInterval()
+					.intValue();
+		}
 	}
 
 }
