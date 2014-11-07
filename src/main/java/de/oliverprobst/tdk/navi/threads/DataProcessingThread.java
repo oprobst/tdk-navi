@@ -33,10 +33,7 @@ public class DataProcessingThread extends AbstractCollectThread {
 
 	/** The ui controller */
 	private final DefaultController dc;
-
-	/** This variables triggers the thread to end. */
-	private boolean end = false;
-
+	
 	/** The incoming queue for all events. */
 	private final AbstractQueue<SerialPackage> incoming;
 
@@ -54,12 +51,7 @@ public class DataProcessingThread extends AbstractCollectThread {
 		this.dc = dc;
 	}
 
-	/**
-	 * Will end the thread.
-	 */
-	public void end() {
-		end = true;
-	}
+
 
 	/**
 	 * Gets the default ui controller.
@@ -251,7 +243,7 @@ public class DataProcessingThread extends AbstractCollectThread {
 	public void run() {
 		log.info("Starting Data Processing Thread");
 
-		while (!end) {
+		while (!isEnd()) {
 			if (!incoming.isEmpty()) {
 				SerialPackage sp = incoming.remove();
 				try {

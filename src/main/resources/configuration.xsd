@@ -40,7 +40,6 @@
 			<element name="notes" type="string" />
 			<element name="forcemap" type="IDREF" minOccurs="0" />
 			<element name="log-interval" type="integer" default="1000" minOccurs="0" />
-			<element name="store-log-interval" type="integer" default="60000" minOccurs="0" />
 			<element name="shutdown-voltage" type="double" minOccurs="0"
 				maxOccurs="1" default="8.5" />
 			<element name="warning-voltage" type="double" minOccurs="0"

@@ -19,6 +19,9 @@ public abstract class AbstractCollectThread extends Thread {
 	 */
 	public final static int COLLECT_INTERVALL = 30;
 
+	/** This variables triggers the thread to end. */
+	private boolean end = false;
+
 	/** The last log timestamp. */
 	private long lastLogTimestamp = System.currentTimeMillis();
 
@@ -33,11 +36,27 @@ public abstract class AbstractCollectThread extends Thread {
 	}
 
 	/**
+	 * Will end the thread.
+	 */
+	public void end() {
+		end = true;
+	}
+
+	/**
 	 * Must be implemented to give super class access to the logger.
 	 *
 	 * @return the log
 	 */
 	protected abstract Logger getLog();
+
+	/**
+	 * Checks if is this variables triggers the thread to end.
+	 *
+	 * @return the this variables triggers the thread to end
+	 */
+	protected boolean isEnd() {
+		return end;
+	}
 
 	/**
 	 * Log helper to log current process state if debug is enabled..

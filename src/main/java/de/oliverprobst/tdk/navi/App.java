@@ -146,6 +146,9 @@ public class App {
 		if (collectorThread != null) {
 			collectorThread.end();
 		}
+		if (lddThread != null) {
+			lddThread.end();
+		}
 	}
 
 	private static void startDataCollect(final DefaultController dc,
@@ -153,7 +156,7 @@ public class App {
 
 		collectorThread = new SerialDataCollectThread(incoming);
 		dataProcessingThread = new DataProcessingThread(incoming, dc);
-		lddThread = new LogDiveDataThread(dc, storeLogInterval);
+		lddThread = new LogDiveDataThread(dc);
 		lddThread.setPriority(3);
 
 		dataProcessingThread.setUncaughtExceptionHandler(uch);
@@ -193,7 +196,7 @@ public class App {
 				incoming);
 
 		dataProcessingThread = new DataProcessingThread(incoming, dc);
-		lddThread = new LogDiveDataThread(dc, storeLogInterval);
+		lddThread = new LogDiveDataThread(dc);
 		lddThread.setPriority(3);
 
 		dataProcessingThread.setUncaughtExceptionHandler(uch);
@@ -242,8 +245,6 @@ public class App {
 		}
 	};
 
-	private static int storeLogInterval = 60000;
-
 	/**
 	 * @param dc
 	 * @param config
@@ -268,10 +269,6 @@ public class App {
 
 		PitchAndCourse.setMagneticDeclination(map.getDeclination());
 
-		if (config.getSettings().getLogInterval() != null) {
-			storeLogInterval = config.getSettings().getStoreLogInterval()
-					.intValue();
-		}
 	}
 
 }

@@ -406,10 +406,11 @@ public class DefaultController {
 				&& App.getConfig().getSettings().isFastLeakShutdown()) {
 			waitForUser = 100;
 		}
-
+		
+		App.shutdown();
 		Thread shutdownThread = new ShutdownThread(waitForUser);
 		shutdownThread.start();
-		App.shutdown();
+		
 
 	}
 

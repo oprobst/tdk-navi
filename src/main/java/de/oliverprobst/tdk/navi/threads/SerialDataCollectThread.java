@@ -24,18 +24,15 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 	/** The Constant COM_SPEED defines the serial connection speed. */
 	public static final int COM_SPEED = 115200;
 
+	/** The log. */
+	private static Logger log = LoggerFactory
+			.getLogger(SerialDataCollectThread.class);
+
 	/**
 	 * Every LOG_WARN_DISCARDED discarded message will trigger a log output.
 	 * Messages are discarded if the checksum is wrong.
 	 */
 	public static final short LOG_WARN_DISCARDED = 25;
-
-	/** The log. */
-	private static Logger log = LoggerFactory
-			.getLogger(SerialDataCollectThread.class);
-
-	/** Setting this flag to true will cause the thread to end. */
-	private boolean end = false;
 
 	/** The queue for all incomming events. */
 	private final AbstractQueue<SerialPackage> incoming;
@@ -57,13 +54,6 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 	 */
 	public SerialDataCollectThread(AbstractQueue<SerialPackage> incoming) {
 		this.incoming = incoming;
-	}
-
-	/**
-	 * Cause the thread to end execution
-	 */
-	public void end() {
-		end = true;
 	}
 
 	/*
@@ -150,7 +140,7 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 					serial.write((byte) 0x70);
 					log.trace("Send 0x70.");
 					iteration = 0;
-				} else if (end) {
+				} else if (isEnd()) {
 					serial.write("TERMINATE");
 					break;
 				} else {

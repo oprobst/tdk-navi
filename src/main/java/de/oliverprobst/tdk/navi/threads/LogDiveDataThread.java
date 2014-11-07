@@ -1,12 +1,16 @@
 package de.oliverprobst.tdk.navi.threads;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.micromata.opengis.kml.v_2_2_0.AbstractObject;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
+import de.micromata.opengis.kml.v_2_2_0.LineString;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.dto.DiveData;
 
@@ -17,42 +21,47 @@ import de.oliverprobst.tdk.navi.dto.DiveData;
  *         Oliver Probst <a
  *         href="mailto:oliverprobst@gmx.de">oliverprobst@gmx.de</a>
  */
-public class LogDiveDataThread extends Thread {
-	
+public class LogDiveDataThread extends AbstractCollectThread {
+
 	/** The logger */
 	private static Logger log = LoggerFactory
 			.getLogger(LogDiveDataThread.class);
 
 	/** Reference to the list of all dive data recorded by controller */
 	private final List<DiveData> recordedData;
-	
+
 	/** Pointer to the last record stored. */
 	int storedRecords = 0;
 
-	/** The store intervall to write data to disk*/
+	/** The store intervall to write data to disk */
 	private final int storeInterval;
 
 	/**
 	 * Instantiates a new log dive data thread.
 	 *
-	 * @param defaultController the default controller holding the list of all records.
-	 * @param storeIntervall the store intervall to write the data to disk in msec.
+	 * @param defaultController
+	 *            the default controller holding the list of all records.
+	 * @param storeIntervall
+	 *            the store intervall to write the data to disk in msec.
 	 */
-	public LogDiveDataThread(DefaultController defaultController,
-			int storeIntervall) {
-		this.storeInterval = storeIntervall;
+	public LogDiveDataThread(DefaultController defaultController) {
+		this.storeInterval = 10000;
 		this.recordedData = defaultController.getRecord();
 
+		route = kml.createAndSetPlacemark().withName("Navi")
+				.withOpen(Boolean.TRUE).createAndSetLineString();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Thread#run()
 	 */
 	@Override
 	public void run() {
 		super.run();
 		log.info("Starting Log Dive Data Thread");
-		while (true) {
+		while (!end) {
 
 			for (int i = storedRecords; i < recordedData.size(); i++) {
 				DiveData dd = recordedData.get(i);
@@ -62,26 +71,55 @@ public class LogDiveDataThread extends Thread {
 			try {
 				Thread.sleep(storeInterval);
 			} catch (InterruptedException e) {
-				log.error("Thread sleep interrupted!", e);				
+				if (!end) {
+					log.error("Thread sleep interrupted!", e);
+				}
 			}
 		}
 
 	}
 
+	@Override
+	public void end() {
+		super.end();
+		saveLogToDisk();
+	}
+
+	private void saveLogToDisk() {
+		String filename = "target/navi-" + new Date().toString() + ".kml";
+		try {
+			kml.marshal(new File("target/navi-" + new Date().toString()
+					+ ".kml"));
+			log.info("Stored " + filename);
+		} catch (FileNotFoundException e) {
+			log.error("Could not write dive log file.", e);
+		}
+	}
+
+	/** This variables triggers the thread to end. */
+	private boolean end = false;
+
+	final Kml kml = new Kml();
+	private LineString route;
+
 	/**
-	 * Store the recorded dive data to disk.
+	 * Convert currend records to kml.
 	 *
 	 * @param dd
 	 *            the dive data to record.
 	 */
 	private void store(DiveData dd) {
-		// System.out.println("Storing " + dd);
-		// TODO!
-		/*final Kml kml = new Kml();
-		
-		kml.createAndSetPlacemark()
-		   .withName("London, UK").withOpen(Boolean.TRUE)
-		   .createAndSetPoint().addToCoordinates(-0.126236, 51.500152);
-		//kml.marshal(new File("HelloKml.kml"));
-*/	}
+		route.addToCoordinates(dd.getGga().getLongitude(), dd.getGga()
+				.getLatitude());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.oliverprobst.tdk.navi.threads.AbstractCollectThread#getLog()
+	 */
+	@Override
+	protected Logger getLog() {
+		return log;
+	}
 }

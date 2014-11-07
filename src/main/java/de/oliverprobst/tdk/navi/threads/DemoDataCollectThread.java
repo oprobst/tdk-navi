@@ -148,7 +148,7 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 	@Override
 	public void run() {
 		log.info("Starting Data Collector in Demo Mode");
-		while (true) {
+		while (!isEnd()) {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
