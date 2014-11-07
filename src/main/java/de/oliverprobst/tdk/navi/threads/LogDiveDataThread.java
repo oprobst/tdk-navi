@@ -2,13 +2,17 @@ package de.oliverprobst.tdk.navi.threads;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.micromata.opengis.kml.v_2_2_0.AbstractObject;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.LineString;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
@@ -82,10 +86,30 @@ public class LogDiveDataThread extends AbstractCollectThread {
 	@Override
 	public void end() {
 		super.end();
-		saveLogToDisk();
+		saveKmlToDisk();
+		saveCsvToDisk();
 	}
 
-	private void saveLogToDisk() {
+	private void saveCsvToDisk() {
+		String filename = "target/navi-" + new Date().toString() + ".csv";
+		Path target = Paths.get(filename);
+		try {
+			Path file = Files.createFile(target);
+			StringBuffer filecontent = new StringBuffer();
+			for (DiveData dd : recordedData) {
+				filecontent.append(dd.toCommaSeparatedString());
+
+			}
+			Files.write(file, filecontent.toString().getBytes(),
+					StandardOpenOption.WRITE);
+			log.info("Stored " + filename);
+		} catch (IOException ex) {
+			log.error("Failed to write log data at " + filename, ex);
+		}
+
+	}
+
+	private void saveKmlToDisk() {
 		String filename = "target/navi-" + new Date().toString() + ".kml";
 		try {
 			kml.marshal(new File("target/navi-" + new Date().toString()

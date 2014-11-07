@@ -287,4 +287,61 @@ public class DiveData extends AbstractModel implements Cloneable {
 				DiveDataProperties.PROP_SHUTDOWN, "", payload);
 	}
 
+	/**
+	 * Return all values as comma separated String.
+	 *
+	 * @return All values of the Dive Data.
+	 */
+	public String toCommaSeparatedString() {
+		StringBuilder sb = new StringBuilder();
+
+		sb.append(getTimestamp());
+		sb.append(",");
+		sb.append(depth);
+		sb.append(",");
+		sb.append(divetime);
+		sb.append(",");
+		sb.append(surfacetime);
+		sb.append(",");
+		sb.append(gga.getLatitude());
+		sb.append(",");
+		sb.append(gga.getLongitude());
+		sb.append(",");
+		sb.append(gga.getSatelliteCount());
+		sb.append(",");
+		sb.append(gga.getSignalQuality());
+		sb.append(",");
+		sb.append(gga.getClock());
+		sb.append(",");
+		sb.append(runtimeScooter);
+		sb.append(",");
+		sb.append(timeSinceLastGPS);
+		sb.append(",");
+		sb.append(temperature);
+		sb.append(",");
+		sb.append(humidity);
+		sb.append(",");
+		sb.append(voltage);
+		sb.append(",");
+		sb.append(gear);
+		sb.append(",");
+		sb.append(pitchAndCourse.getCourse());
+		sb.append(",");
+		sb.append(pitchAndCourse.getFrontRearPitch());
+		sb.append(",");
+		sb.append(pitchAndCourse.getLeftRightPitch());
+		sb.append(",");
+		sb.append(integrity.getSternSensorValue());
+		sb.append(",");
+		sb.append(integrity.getBowSensorValue());
+		sb.append(",");
+		sb.append(integrity.getPressure());
+		sb.append(",");
+		sb.append(estimatedLocation.getLatitude());
+		sb.append(",");
+		sb.append(estimatedLocation.getLongitude());
+		sb.append("\n");
+		return sb.toString();
+
+	}
 }
