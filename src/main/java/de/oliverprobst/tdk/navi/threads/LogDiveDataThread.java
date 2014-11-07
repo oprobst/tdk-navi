@@ -75,5 +75,10 @@ public class LogDiveDataThread extends Thread {
 	private void store(DiveData dd) {
 		// System.out.println("Storing " + dd);
 		// TODO!
+		final Kml kml = new Kml();
+		kml.createAndSetPlacemark()
+		   .withName("London, UK").withOpen(Boolean.TRUE)
+		   .createAndSetPoint().addToCoordinates(-0.126236, 51.500152);
+		kml.marshal(new File("HelloKml.kml"));
 	}
 }

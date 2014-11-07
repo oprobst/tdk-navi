@@ -34,8 +34,9 @@ public class DefaultController {
 	 * Update the dive profile only every DIVE_PROFILE_UPDATE_INTERVALL depth
 	 * measurement for performance reasons.
 	 */
+ 
 	public static int DIVE_PROFILE_UPDATE_INTERVAL = 10;
-
+ 
 	/** Use the bright theme for dark map data */
 	private boolean brightTheme = false;
 
@@ -417,8 +418,9 @@ public class DefaultController {
 	 * DIVE_PROFILE_UPDATE_INTERVALL count for #Performance reasons.
 	 */
 	private void updateDiveProfile() {
+ 
 		if (updateDiveProfileCounter++ > DIVE_PROFILE_UPDATE_INTERVAL) {
-			firePropertyChange(DiveDataProperties.PROP_UPDATEPROFILE, null,
+  			firePropertyChange(DiveDataProperties.PROP_UPDATEPROFILE, null,
 					record);
 			updateDiveProfileCounter = 0;
 		}
