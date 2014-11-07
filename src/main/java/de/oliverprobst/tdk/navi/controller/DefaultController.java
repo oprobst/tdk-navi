@@ -20,70 +20,45 @@ import de.oliverprobst.tdk.navi.dto.PitchAndCourse;
 import de.oliverprobst.tdk.navi.dto.StructuralIntegrity;
 import de.oliverprobst.tdk.navi.dto.StructuralIntegrity.Status;
 
+/**
+ * The Class DefaultController is responsible for hand over dive data from the
+ * data processing threads to the user interface.
+ * 
+ * @author <b></b>www.tief-dunkel-kalt.org</b><br>
+ *         Oliver Probst <a
+ *         href="mailto:oliverprobst@gmx.de">oliverprobst@gmx.de</a>
+ */
 public class DefaultController {
 
-	private final List<DiveData> record = new LinkedList<DiveData>();
-
 	/**
-	 * @return the currentRecord
+	 * Update the dive profile only every DIVE_PROFILE_UPDATE_INTERVALL depth
+	 * measurement for performance reasons.
 	 */
-	public DiveData getCurrentRecord() {
-		return currentRecord;
-	}
+	public static int DIVE_PROFILE_UPDATE_INTERVAL = 10;
 
-	private final Collection<Waypoint> wps = new LinkedList<Waypoint>();
-
-	private String notes = "";
-
-	private String mapImage = "";
+	/** Use the bright theme for dark map data */
 	private boolean brightTheme = false;
 
-	/**
-	 * @return the brightTheme
-	 */
-	public boolean isBrightTheme() {
-		return brightTheme;
-	}
-
-	/**
-	 * @param brightTheme
-	 *            the brightTheme to set
-	 */
-	public void setBrightTheme(boolean brightTheme) {
-		this.brightTheme = brightTheme;
-	}
-
-	private long lastGPSfix = 0;
-	private long lastPosEstimation = -1;
-
-	/**
-	 * @return the mapImage
-	 */
-	public String getMapImage() {
-		return mapImage;
-	}
-
-	/**
-	 * @param mapImage
-	 *            the mapImage to set
-	 */
-	public void setMapImage(String mapImage) {
-		this.mapImage = mapImage;
-	}
-
+	/** The current dive data record. */
 	private DiveData currentRecord = new DiveData();
-
-	private Logger log = LoggerFactory.getLogger(DefaultController.class);
-
-	/**
-	 * Set to true when the first time below 1.5m
-	 */
-	private boolean isDiving = false;
 
 	/**
 	 * Timestamp of first time below 1.5m
 	 */
 	private long diveStartTimestamp = 0;
+
+	/**
+	 * Set to true when the first time below 1.5m
+	 */
+	private boolean isDiving = false;
+	private long lastGPSfix = 0;
+
+	private long lastPosEstimation = -1;
+
+	private Logger log = LoggerFactory.getLogger(DefaultController.class);
+
+	private String mapImage = "";
+	private String notes = "";
 
 	/**
 	 * Timer if diver is up again: First timestamp above 1m depth.
@@ -95,14 +70,31 @@ public class DefaultController {
 	 */
 	private long overallSurfaceTime = 0;
 
-	private final StructuralIntegrityController structuralIntegrityController = new StructuralIntegrityController();
-
+	/** Support class for property event listening */
 	protected PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(
 			this);
 
-	public DefaultController(final int logIntervall) {
+	/** A list of all records done during the dive. */
+	private final List<DiveData> record = new LinkedList<DiveData>();
 
-		// used also to set the divetime and clock!
+	/** a special controller for leak detection */
+	private final StructuralIntegrityController structuralIntegrityController = new StructuralIntegrityController();
+
+	/** Count how often the dive profile update method was called.. */
+	private int updateDiveProfileCounter = 0;
+
+	/** All waypoints on the map to provide navigation informations for */
+	private final Collection<Waypoint> wps = new LinkedList<Waypoint>();
+
+	/**
+	 * Instantiates a new default controller.
+	 *
+	 * @param logInterval
+	 *            This interval defines how often a record is made during
+	 *            navigation.
+	 */
+	public DefaultController(final int logInterval) {
+
 		Thread recordThread = new Thread() {
 
 			int count = 0;
@@ -120,7 +112,7 @@ public class DefaultController {
 						}
 					}
 					try {
-						Thread.sleep(logIntervall);
+						Thread.sleep(logInterval);
 					} catch (InterruptedException e) {
 						log.error("Thread sleep interrupted!", e);
 						if (errcount++ > 50) {
@@ -134,157 +126,6 @@ public class DefaultController {
 
 		};
 		recordThread.start();
-	}
-
-	protected void firePropertyChange(String propertyName, Object oldValue,
-			Object newValue) {
-		propertyChangeSupport.firePropertyChange(propertyName, oldValue,
-				newValue);
-	}
-
-	/**
-	 * @return the currentRecord
-	 */
-	public DiveData getCurrentRecordClone() {
-		return currentRecord.clone();
-	}
-
-	/**
-	 * @return the notes
-	 */
-	public String getNotes() {
-		return notes;
-	}
-
-	/**
-	 * O
-	 * 
-	 * @return the record
-	 */
-	public List<DiveData> getRecord() {
-		return record;
-	}
-
-	public Collection<Waypoint> getWPs() {
-		return wps;
-	}
-
-	public void registerControllerPropertyChangeListener(
-			PropertyChangeListener listener) {
-		propertyChangeSupport.addPropertyChangeListener(listener);
-	}
-
-	public void registerModelPropertyListener(PropertyChangeListener pcl) {
-		currentRecord.addPropertyChangeListener(pcl);
-	}
-
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		propertyChangeSupport.removePropertyChangeListener(listener);
-	}
-
-	/**
-	 * @param depth
-	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setDepth(float)
-	 */
-	public void setDepth(float depth) {
-		// set dive timer:
-		if (depth > 1.5f && !isDiving) {
-			// first time below 1.5m
-			isDiving = true;
-			diveStartTimestamp = System.currentTimeMillis();
-
-		} else if (depth <= 1.0f && isDiving && onSurfaceSinceTimestamp == 0) {
-			// first time below 1m after a decent
-			onSurfaceSinceTimestamp = System.currentTimeMillis();
-
-		} else if (depth <= 1.0f && isDiving && onSurfaceSinceTimestamp != 0) {
-			// being on surface after a decent for a while
-			currentRecord.setSurfacetime(overallSurfaceTime
-					+ (System.currentTimeMillis() - onSurfaceSinceTimestamp));
-
-		} else if (depth > 1.5f && isDiving && onSurfaceSinceTimestamp != 0) {
-			// first time below 1m after a surface interval
-			overallSurfaceTime += System.currentTimeMillis()
-					- onSurfaceSinceTimestamp;
-			onSurfaceSinceTimestamp = 0;
-
-		} else if (isDiving) {
-			// diver down
-			currentRecord
-					.setDivetime((System.currentTimeMillis() - diveStartTimestamp)
-							- overallSurfaceTime);
-		}
-
-		currentRecord.setDepth(depth);
-	}
-
-	public void setGGA(NmeaParser nmeaMsg) {
-		lastPosEstimation = -1;
-		lastGPSfix = System.currentTimeMillis();
-		currentRecord.setGga(nmeaMsg);
-	}
-
-	/**
-	 * @param humidity
-	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setHumidity(float)
-	 */
-	public void setHumidity(int humidity) {
-		currentRecord.setHumidity(humidity);
-	}
-
-	/**
-	 * @param integrity
-	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setIntegrity(de.oliverprobst.tdk.navi.dto.StructuralIntegrity)
-	 */
-	public void setIntegrityCode(String integrityCode) {
-		StructuralIntegrity si = structuralIntegrityController.construct(
-				integrityCode, currentRecord.getDepth());
-		if (si != null) {
-			currentRecord.setIntegrity(si);
-			if (si.getBow() == Status.BROKEN || si.getStern() == Status.BROKEN) {
-				this.shutdown("leak");
-			}
-		}
-	}
-
-	/**
-	 * @param notes
-	 *            the notes to set
-	 */
-	public void setNotes(String notes) {
-		firePropertyChange(DiveDataProperties.PROP_NOTES, this.notes, notes);
-		this.notes = notes;
-	}
-
-	public void setGear(int speedByVibration) {
-		double gear = LocationEstimator.getInstance().calcScooterGear(
-				speedByVibration);
-		estimateLocation();
-		currentRecord.setGear(gear);
-	}
-
-	/**
-	 * @param temperature
-	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setTemperature(float)
-	 */
-	public void setTemperature(float temperature) {
-		currentRecord.setTemperature(temperature);
-
-	}
-
-	/**
-	 * @param f
-	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setVoltage(int)
-	 */
-	public void setVoltage(float f) {
-		currentRecord.setVoltage(f);
-		if (f < App.getConfig().getSettings().getShutdownVoltage()) {
-			this.shutdown("low voltage");
-		}
-	}
-
-	private void updateDiveProfile() {
-		firePropertyChange(DiveDataProperties.PROP_UPDATEPROFILE, null, record);
 	}
 
 	public void estimateLocation() {
@@ -347,6 +188,173 @@ public class DefaultController {
 
 	}
 
+	protected void firePropertyChange(String propertyName, Object oldValue,
+			Object newValue) {
+		propertyChangeSupport.firePropertyChange(propertyName, oldValue,
+				newValue);
+	}
+
+	/**
+	 * @return the currentRecord
+	 */
+	public DiveData getCurrentRecord() {
+		return currentRecord;
+	}
+
+	/**
+	 * @return the currentRecord
+	 */
+	public DiveData getCurrentRecordClone() {
+		return currentRecord.clone();
+	}
+
+	/**
+	 * @return the mapImage
+	 */
+	public String getMapImage() {
+		return mapImage;
+	}
+
+	/**
+	 * @return the notes
+	 */
+	public String getNotes() {
+		return notes;
+	}
+
+	/**
+	 * O
+	 * 
+	 * @return the record
+	 */
+	public List<DiveData> getRecord() {
+		return record;
+	}
+
+	public Collection<Waypoint> getWPs() {
+		return wps;
+	}
+
+	/**
+	 * @return the brightTheme
+	 */
+	public boolean isBrightTheme() {
+		return brightTheme;
+	}
+
+	public void registerControllerPropertyChangeListener(
+			PropertyChangeListener listener) {
+		propertyChangeSupport.addPropertyChangeListener(listener);
+	}
+
+	public void registerModelPropertyListener(PropertyChangeListener pcl) {
+		currentRecord.addPropertyChangeListener(pcl);
+	}
+
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		propertyChangeSupport.removePropertyChangeListener(listener);
+	}
+
+	/**
+	 * @param brightTheme
+	 *            the brightTheme to set
+	 */
+	public void setBrightTheme(boolean brightTheme) {
+		this.brightTheme = brightTheme;
+	}
+
+	/**
+	 * @param depth
+	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setDepth(float)
+	 */
+	public void setDepth(float depth) {
+		// set dive timer:
+		if (depth > 1.5f && !isDiving) {
+			// first time below 1.5m
+			isDiving = true;
+			diveStartTimestamp = System.currentTimeMillis();
+
+		} else if (depth <= 1.0f && isDiving && onSurfaceSinceTimestamp == 0) {
+			// first time below 1m after a decent
+			onSurfaceSinceTimestamp = System.currentTimeMillis();
+
+		} else if (depth <= 1.0f && isDiving && onSurfaceSinceTimestamp != 0) {
+			// being on surface after a decent for a while
+			currentRecord.setSurfacetime(overallSurfaceTime
+					+ (System.currentTimeMillis() - onSurfaceSinceTimestamp));
+
+		} else if (depth > 1.5f && isDiving && onSurfaceSinceTimestamp != 0) {
+			// first time below 1m after a surface interval
+			overallSurfaceTime += System.currentTimeMillis()
+					- onSurfaceSinceTimestamp;
+			onSurfaceSinceTimestamp = 0;
+
+		} else if (isDiving) {
+			// diver down
+			currentRecord
+					.setDivetime((System.currentTimeMillis() - diveStartTimestamp)
+							- overallSurfaceTime);
+		}
+
+		currentRecord.setDepth(depth);
+
+		updateDiveProfile();
+
+	}
+
+	public void setGear(int speedByVibration) {
+		double gear = LocationEstimator.getInstance().calcScooterGear(
+				speedByVibration);
+		estimateLocation();
+		currentRecord.setGear(gear);
+	}
+
+	public void setGGA(NmeaParser nmeaMsg) {
+		lastPosEstimation = -1;
+		lastGPSfix = System.currentTimeMillis();
+		currentRecord.setGga(nmeaMsg);
+	}
+
+	/**
+	 * @param humidity
+	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setHumidity(float)
+	 */
+	public void setHumidity(int humidity) {
+		currentRecord.setHumidity(humidity);
+	}
+
+	/**
+	 * @param integrity
+	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setIntegrity(de.oliverprobst.tdk.navi.dto.StructuralIntegrity)
+	 */
+	public void setIntegrityCode(String integrityCode) {
+		StructuralIntegrity si = structuralIntegrityController.construct(
+				integrityCode, currentRecord.getDepth());
+		if (si != null) {
+			currentRecord.setIntegrity(si);
+			if (si.getBow() == Status.BROKEN || si.getStern() == Status.BROKEN) {
+				this.shutdown("leak");
+			}
+		}
+	}
+
+	/**
+	 * @param mapImage
+	 *            the mapImage to set
+	 */
+	public void setMapImage(String mapImage) {
+		this.mapImage = mapImage;
+	}
+
+	/**
+	 * @param notes
+	 *            the notes to set
+	 */
+	public void setNotes(String notes) {
+		firePropertyChange(DiveDataProperties.PROP_NOTES, this.notes, notes);
+		this.notes = notes;
+	}
+
 	/**
 	 * Send a new pitch and course measurement to the current data set.
 	 * 
@@ -356,6 +364,26 @@ public class DefaultController {
 	public void setPitchAndCourse(PitchAndCourse pAc) {
 		estimateLocation();
 		currentRecord.setPitchAndCourse(pAc);
+	}
+
+	/**
+	 * @param temperature
+	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setTemperature(float)
+	 */
+	public void setTemperature(float temperature) {
+		currentRecord.setTemperature(temperature);
+
+	}
+
+	/**
+	 * @param f
+	 * @see de.oliverprobst.tdk.navi.dto.DiveData#setVoltage(int)
+	 */
+	public void setVoltage(float f) {
+		currentRecord.setVoltage(f);
+		if (f < App.getConfig().getSettings().getShutdownVoltage()) {
+			this.shutdown("low voltage");
+		}
 	}
 
 	/**
@@ -382,5 +410,17 @@ public class DefaultController {
 		shutdownThread.start();
 		App.shutdown();
 
+	}
+
+	/**
+	 * Send event to update the dive profile. This will only be done on every
+	 * DIVE_PROFILE_UPDATE_INTERVALL count for #Performance reasons.
+	 */
+	private void updateDiveProfile() {
+		if (updateDiveProfileCounter++ > DIVE_PROFILE_UPDATE_INTERVAL) {
+			firePropertyChange(DiveDataProperties.PROP_UPDATEPROFILE, null,
+					record);
+			updateDiveProfileCounter = 0;
+		}
 	}
 }
