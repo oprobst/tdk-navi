@@ -1,10 +1,12 @@
 package de.oliverprobst.tdk.navi.threads;
 
+import java.io.File;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.oliverprobst.tdk.navi.controller.DefaultController;
 import de.oliverprobst.tdk.navi.dto.DiveData;
 
@@ -75,10 +77,11 @@ public class LogDiveDataThread extends Thread {
 	private void store(DiveData dd) {
 		// System.out.println("Storing " + dd);
 		// TODO!
-		final Kml kml = new Kml();
+		/*final Kml kml = new Kml();
+		
 		kml.createAndSetPlacemark()
 		   .withName("London, UK").withOpen(Boolean.TRUE)
 		   .createAndSetPoint().addToCoordinates(-0.126236, 51.500152);
-		kml.marshal(new File("HelloKml.kml"));
-	}
+		//kml.marshal(new File("HelloKml.kml"));
+*/	}
 }
