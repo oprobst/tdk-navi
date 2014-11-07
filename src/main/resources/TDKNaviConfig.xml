@@ -11,7 +11,7 @@
 		  Es ist dunkel da unten.
 		  </html>]]>     
 		</notes>
-		<forcemap>tsvmalsch</forcemap> <!-- This map will be used -->
+		<forcemap>demo</forcemap> <!-- This map will be used -->
 		<shutdown-voltage>8.1</shutdown-voltage>
 		<warning-voltage>8.6</warning-voltage>
 		<fast-leak-shutdown>false</fast-leak-shutdown>
@@ -53,6 +53,18 @@
 		<waypoint id="Becken" latitude="48.869595" longitude="8.337767" />
 		<waypoint id="Vereinsheim" latitude="48.869130" longitude="8.338841" />
 		<waypoint id="Schießplatz" latitude="48.870389" longitude="8.340045" />
+	</map>
+
+	<map id="ka-ma" image="${intern}/Ka-Ma.png" declination="1.5">
+		<northwest longitude="7.709000" latitude="49.493100" />
+		<southeast latitude="48.762000" longitude="9.188000" />
+		<waypoint id="Pforzhem" latitude="48.888000" longitude="8.703000" />
+		<waypoint id="Karlsruhe" latitude="49.012000" longitude="8.399400" />
+		<waypoint id="Heidelberg" latitude="49.404000" longitude="8.680800" />
+		<waypoint id="Mannheim" latitude="49.482500" longitude="8.457000" />
+		<waypoint id="Dürkheim" latitude="49.465900" longitude="8.169000" />
+		<waypoint id="Landau" latitude="49.194100" longitude="8.112100" />
+		<waypoint id="Bruchsal" latitude="49.121600" longitude="8.593100" />
 	</map>
 
 </config> 
