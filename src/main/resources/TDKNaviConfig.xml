@@ -11,7 +11,7 @@
 		  Es ist dunkel da unten.
 		  </html>]]>     
 		</notes>
-		<forcemap>demo</forcemap> <!-- This map will be used -->
+		<forcemap>tsvmalsch</forcemap> <!-- This map will be used -->
 		<shutdown-voltage>8.1</shutdown-voltage>
 		<warning-voltage>8.6</warning-voltage>
 		<fast-leak-shutdown>false</fast-leak-shutdown>
@@ -43,6 +43,16 @@
 		<waypoint id="Jura" latitude="47.647479" longitude="9.224010" />
 		<waypoint id="Entry" latitude="47.642586" longitude="9.213739" />
 		<waypoint id="WP-1" latitude="47.642816" longitude="9.216398" />
+	</map>
+
+
+	<map id="tsvmalsch" image="${intern}/TSV-Malsch.png" declination="1.5">
+		<northwest longitude="8.335480" latitude="48.871080" />
+		<southeast latitude="48.868287" longitude="8.341297" />
+		<waypoint id="Wanderheim" latitude="48.870398" longitude="8.337312" />
+		<waypoint id="Becken" latitude="48.869595" longitude="8.337767" />
+		<waypoint id="Vereinsheim" latitude="48.869130" longitude="8.338841" />
+		<waypoint id="Schießplatz" latitude="48.870389" longitude="8.340045" />
 	</map>
 
 </config> 
