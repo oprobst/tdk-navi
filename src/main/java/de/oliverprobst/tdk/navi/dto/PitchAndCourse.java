@@ -51,6 +51,7 @@ public class PitchAndCourse implements Cloneable {
 			int frontRearPitch = (int) Math.round(Double.parseDouble(split[1]));
 			int leftRightPitch = (int) Math.round(Double.parseDouble(split[2]));
 			course += magneticDeclination;
+			course = (course + 180) % 360;
 			return new PitchAndCourse(course, frontRearPitch, leftRightPitch);
 		} catch (Exception e) {
 			log.warn(
