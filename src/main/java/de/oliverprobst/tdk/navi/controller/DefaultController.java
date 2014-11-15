@@ -105,13 +105,13 @@ public class DefaultController {
 			public void run() {
 				super.run();
 				while (true) {
-					if (isDiving) {
+					 
 						record.add(getCurrentRecordClone());
 						if (count++ > 1) {
 							count = 0;
 							updateDiveProfile();
 						}
-					}
+					
 					try {
 						Thread.sleep(logInterval);
 					} catch (InterruptedException e) {
@@ -401,7 +401,7 @@ public class DefaultController {
 		}
 		log.info("Shutdown initiated. Reason: " + payload);
 
-		int waitForUser = 5000;
+		int waitForUser = 15000;
 		if (payload.equals("leak")
 				&& App.getConfig().getSettings().isFastLeakShutdown()) {
 			waitForUser = 100;
