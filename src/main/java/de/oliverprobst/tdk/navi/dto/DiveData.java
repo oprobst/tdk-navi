@@ -303,16 +303,21 @@ public class DiveData extends AbstractModel implements Cloneable {
 		sb.append(",");
 		sb.append(surfacetime);
 		sb.append(",");
-		sb.append(gga.getLatitude());
-		sb.append(",");
-		sb.append(gga.getLongitude());
-		sb.append(",");
-		sb.append(gga.getSatelliteCount());
-		sb.append(",");
-		sb.append(gga.getSignalQuality());
-		sb.append(",");
-		sb.append(gga.getClock());
-		sb.append(",");
+		if (gga != null) {
+			sb.append(gga.getLatitude());
+			sb.append(",");
+			sb.append(gga.getLongitude());
+			sb.append(",");
+			sb.append(gga.getSatelliteCount());
+			sb.append(",");
+			sb.append(gga.getSignalQuality());
+			sb.append(",");
+			sb.append(gga.getClock());
+			sb.append(",");
+		} else {
+			sb.append("0,0,0,0,0,");
+		}
+
 		sb.append(runtimeScooter);
 		sb.append(",");
 		sb.append(timeSinceLastGPS);
@@ -325,21 +330,33 @@ public class DiveData extends AbstractModel implements Cloneable {
 		sb.append(",");
 		sb.append(gear);
 		sb.append(",");
-		sb.append(pitchAndCourse.getCourse());
-		sb.append(",");
-		sb.append(pitchAndCourse.getFrontRearPitch());
-		sb.append(",");
-		sb.append(pitchAndCourse.getLeftRightPitch());
-		sb.append(",");
-		sb.append(integrity.getSternSensorValue());
-		sb.append(",");
-		sb.append(integrity.getBowSensorValue());
-		sb.append(",");
-		sb.append(integrity.getPressure());
-		sb.append(",");
-		sb.append(estimatedLocation.getLatitude());
-		sb.append(",");
-		sb.append(estimatedLocation.getLongitude());
+		if (pitchAndCourse != null) {
+			sb.append(pitchAndCourse.getCourse());
+			sb.append(",");
+			sb.append(pitchAndCourse.getFrontRearPitch());
+			sb.append(",");
+			sb.append(pitchAndCourse.getLeftRightPitch());
+			sb.append(",");
+		} else {
+			sb.append("0,0,0,");
+		}
+		if (integrity != null) {
+			sb.append(integrity.getSternSensorValue());
+			sb.append(",");
+			sb.append(integrity.getBowSensorValue());
+			sb.append(",");
+			sb.append(integrity.getPressure());
+			sb.append(",");
+		} else {
+			sb.append("0,0,0,");
+		}
+		if (estimatedLocation != null) {
+			sb.append(estimatedLocation.getLatitude());
+			sb.append(",");
+			sb.append(estimatedLocation.getLongitude());
+		} else {
+			sb.append("0,0");
+		}
 		sb.append("\n");
 		return sb.toString();
 
