@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -91,7 +92,9 @@ public class LogDiveDataThread extends AbstractCollectThread {
 	}
 
 	private void saveCsvToDisk() {
-		String filename = "target/navi-" + new Date().toString() + ".csv";
+		String date = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss-SSS")
+				.format(new Date());
+		String filename = "target/navi-" + date + ".csv";
 		Path target = Paths.get(filename);
 		try {
 			Path file = Files.createFile(target);
@@ -112,8 +115,9 @@ public class LogDiveDataThread extends AbstractCollectThread {
 	private void saveKmlToDisk() {
 		String filename = "target/navi-" + new Date().toString() + ".kml";
 		try {
-			kml.marshal(new File("target/navi-" + new Date().toString()
-					+ ".kml"));
+			String date = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss-SSS")
+					.format(new Date());
+			kml.marshal(new File("target/navi-" + date + ".kml"));
 			log.info("Stored " + filename);
 		} catch (FileNotFoundException e) {
 			log.error("Could not write dive log file.", e);
