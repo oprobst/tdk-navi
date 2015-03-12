@@ -96,6 +96,8 @@ void setup() {
   // LED indicating Serial connectivity between arduino and pi
   pinMode(12, OUTPUT);
 
+  pinMode(13, OUTPUT);
+
   //GPS standby
   pinMode(10, OUTPUT);
   digitalWrite(10, LOW);
@@ -130,6 +132,12 @@ void loop() {
   delay (1);
   //GPS data
   currGpsBufferSize = collectGPSData(gpsSensorBuffer, currGpsBufferSize);
+
+  if (loopCounter % 127 == 0) {
+    digitalWrite(13, HIGH);
+  } else if (loopCounter % 277 == 0) {
+    digitalWrite (13, LOW);
+  }
 
   if (gpsReceivedCompleteMsg) {
     calcChecksum(&gpsSensorBuffer[1], currGpsBufferSize - 1);
@@ -576,57 +584,34 @@ String printDouble(double val, byte precision) {
 }
 
 
+double isInRange (float rangeMin, float rangeMax, short measureMin, short measureMax, short measurement) {
+  if (measurement < measureMax && measurement >= measureMin) {
+    return rangeMin + ((rangeMax - rangeMin) / (measureMax - measureMin) * (measurement - measureMin));
+  }
+  return -1;
+}
 
 /*
-This function reads the input from the power module. Unfortunately, this input isn't linear,
-I don't know why...
-So all results between 6V and 14V are usually fine, while more extrem values are vague estimated.
+The input is not exactly linear, so we measured the value and estimate as best as possible around 0.2V fixpoints.
 */
-double calculateVoltage () {
-  double inputVoltage = analogRead(A0);
+float calculateVoltage () {
+  short inputVoltage = analogRead(A0);
 
-  Serial.print (inputVoltage);
-  Serial.print (" -> ");
-  //  if (true){
-  //  return inputVoltage;
-  // }
-  if (inputVoltage >= 580) { // > 15V
-    inputVoltage =  15 + ((1.0 / (600.0 - 580.0)) *  (inputVoltage - 580.0));
-  } else if (inputVoltage < 300) { // 0-4.5V
-    inputVoltage =  (4.50 / (300.0) *  (inputVoltage));
-  } else if (inputVoltage >= 300 && inputVoltage < 372) { //4.5-5.6
-    inputVoltage =  4.5 + (1.1 / (372.0 - 300.0) * (inputVoltage - 300.0));
-  } else if (inputVoltage >= 372 && inputVoltage < 400) { //5.6-6.0
-    inputVoltage =  5.6 + (0.4 / (400.0 - 372.0) * (inputVoltage - 372.0));
-  } else if (inputVoltage >= 400 && inputVoltage < 418) { //6.0-6.4
-    inputVoltage =  6.0 + (0.4 / (416.0 - 400.0) * (inputVoltage - 400.0));
-  } else if (inputVoltage >= 416 && inputVoltage < 438) { //6.4-7,4
-    inputVoltage =  6.8;   
-  } else if (inputVoltage >= 438 && inputVoltage < 455) { //7.4-8.0
-    inputVoltage =  7.4 + (0.6 / (455.0 - 438.0) * (inputVoltage - 438.0));
-  } else if (inputVoltage >= 455 && inputVoltage < 465) { //8.0-8.2
-    inputVoltage =  8.0 + ((0.2 / (465.0 - 455.0)) *  (inputVoltage - 455.0));
-  } else if (inputVoltage >= 465 && inputVoltage < 472) { //8.2-8.4
-    inputVoltage =  8.2 + ((0.2 / (472.0 - 465.0)) *  (inputVoltage -  465.0));
-  } else if (inputVoltage > 473 && inputVoltage < 483) { //8.4-9
-    inputVoltage =  8.4 + ((0.6 / (483.0 - 473.0)) *  (inputVoltage - 473.0));
-  } else if (inputVoltage >= 483 && inputVoltage < 508) { // 9-10
-    inputVoltage =  9.0 + ((1.0 / (508.0 - 483.0)) *  (inputVoltage - 490.0));
-  } else if (inputVoltage >= 507 && inputVoltage < 526) { // 10-11
-    inputVoltage =  10.0 + ((1.0 / (526.0 -  507.0)) *  (inputVoltage - 512.0));
-  } else if (inputVoltage > 525 && inputVoltage < 542) { // 11-12
-    inputVoltage =  11.0 + ((1.0 / (550.0 - 525.0)) *  (inputVoltage - 530.0));
-  } else if (inputVoltage > 541 && inputVoltage < 555) { // 12-13
-    inputVoltage =  12.0 + ((1.0 / (555.0 - 541.0)) *  (inputVoltage - 550.0));
-  } else if (inputVoltage > 554 && inputVoltage < 570) { // 12-13
-    inputVoltage =  13.0 + ((1.0 / (570.0 - 554.0)) *  (inputVoltage - 550.0));
-  } else if (inputVoltage > 569 && inputVoltage < 580) { // 12-13
-    inputVoltage =  14.0 + ((1.0 / (580.0 - 569.0)) *  (inputVoltage - 550.0));
+ // Serial.print (inputVoltage);
+ // Serial.print (" -> ");
 
-  } else {
-    inputVoltage = 0.0;
+  float  range [] = {0.0, 5.6, 5.8, 6.0, 6.2, 6.4, 6.6, 6.8, 7.0, 7.2, 7.4, 7.6, 7.8, 8.0, 8.2, 8.4, 8.6, 8.8, 9.0, 20.0};
+  static short  measureBoundaries [] = {0, 470, 478, 484, 490, 495, 500, 508, 514, 517, 521, 526, 530, 535, 538, 542, 546, 548, 552, 1024};
+
+  float returnValue = -1.0;
+  for (int i = 0; i < sizeof(range) - 2; i++) {
+    returnValue = isInRange(range[i], range[i + 1], measureBoundaries[i], measureBoundaries[i + 1], inputVoltage);
+    if (returnValue > -1) {
+ //     Serial.println (returnValue);
+      return returnValue;
+    }
   }
-  Serial.println (inputVoltage);
-  return inputVoltage;
+
+  return 20.0;
 }
 
