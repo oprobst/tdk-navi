@@ -81,7 +81,7 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 
 		int discardedCount = 0;
 		long lastDiscardedTimestamp = System.currentTimeMillis();
-		while (true) {
+		while (!super.isEnd()) {
 			// collect some debug information
 			if (log.isDebugEnabled()) {
 				logState();
@@ -162,9 +162,13 @@ public class SerialDataCollectThread extends AbstractCollectThread {
 					serial.open(Serial.DEFAULT_COM_PORT, 115200);
 				}
 			}
+		}		
+		if (super.isEnd()) {
+			log.info("Ended Data Collector for Serial Bus due to application shutdown.");
+		} else {
+			log.info("Ended Data Collector for Serial Bus for unknown reasons.");
 		}
 		serial.close();
-		log.info("Ended Data Collector for Serial Bus");
 
 	}
 

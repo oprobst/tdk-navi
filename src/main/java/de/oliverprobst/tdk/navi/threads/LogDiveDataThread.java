@@ -101,7 +101,6 @@ public class LogDiveDataThread extends AbstractCollectThread {
 			StringBuffer filecontent = new StringBuffer();
 			for (DiveData dd : recordedData) {
 				filecontent.append(dd.toCommaSeparatedString());
-
 			}
 			Files.write(file, filecontent.toString().getBytes(),
 					StandardOpenOption.WRITE);

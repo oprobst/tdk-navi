@@ -1,6 +1,7 @@
 package de.oliverprobst.tdk.navi.controller;
 
 import java.io.IOException;
+import java.io.PrintStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,9 @@ public class ShutdownThread extends Thread {
 				log.info("Shutdown not executed in demo mode. Exiting application instead.");
 				System.exit(0);
 			} else {
-				Runtime.getRuntime().exec("sudo shutdown -h now");
+				log.info("Shutdown initiated!");
+				Process p  = Runtime.getRuntime().exec("sudo shutdown -h now");
+				System.setOut(new PrintStream(p.getOutputStream()));			 
 			}
 		} catch (IOException e) {
 			log.error("Failed to shutdown system!", e);

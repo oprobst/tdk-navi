@@ -146,6 +146,9 @@ public class App {
 		if (collectorThread != null) {
 			collectorThread.end();
 		}
+		if (dataProcessingThread != null) {
+			dataProcessingThread.end();
+		}
 		if (lddThread != null) {
 			lddThread.end();
 		}
