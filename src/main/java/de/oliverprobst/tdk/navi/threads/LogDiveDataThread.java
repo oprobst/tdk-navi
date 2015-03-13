@@ -137,7 +137,7 @@ public class LogDiveDataThread extends AbstractCollectThread {
 	 *            the dive data to record.
 	 */
 	private void store(DiveData dd) {
-		if (dd != null && dd.getGga() != null) {
+		if (dd != null && dd.getGga() != null && route != null) {
 			route.addToCoordinates(dd.getGga().getLongitude(), dd.getGga()
 					.getLatitude());
 		}
