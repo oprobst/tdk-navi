@@ -1,5 +1,6 @@
 package de.oliverprobst.tdk.navi.gui;
 
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -51,8 +52,15 @@ public class VoltagePanel extends JPanel implements PropertyChangeListener {
 
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(DiveDataProperties.PROP_VOLTAGE)) {
-			lblVoltage.setText(voltageFormatter.format((Float) evt
-					.getNewValue()) + " V");
+			float value = (Float) evt.getNewValue();
+			lblVoltage.setText(voltageFormatter.format(value) + " V");
+			if (value > 7.0) {
+				lblVoltage.setForeground(Color.GREEN);
+			} else if (value <= 7.0 && value >= 6.5) {
+				lblVoltage.setForeground(Color.YELLOW);
+			} else if (value < 6.5) {
+				lblVoltage.setForeground(Color.RED);
+			}
 
 		}
 	}
