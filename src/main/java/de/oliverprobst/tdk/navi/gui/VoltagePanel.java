@@ -59,7 +59,7 @@ public class VoltagePanel extends JPanel implements PropertyChangeListener {
 			} else if (value <= 7.0 && value >= 6.5) {
 				lblVoltage.setForeground(Color.YELLOW);
 			} else if (value < 6.5) {
-				lblVoltage.setForeground(Color.RED);
+				lblVoltage.setForeground(Color.ORANGE);
 			}
 
 		}
