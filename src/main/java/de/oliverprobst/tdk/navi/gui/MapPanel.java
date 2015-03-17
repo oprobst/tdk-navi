@@ -9,6 +9,7 @@ import java.awt.Polygon;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -168,9 +169,9 @@ public class MapPanel extends AbstractNaviJPanel implements
 
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.addRenderingHints(defineRenderingHints());
-
-		g2d.drawImage(image, 0, 0, null);
-
+		
+	    g2d.drawImage(image, 0, 0, null);
+				
 		MapPoint lastLocation = null;
 
 		paintRoute(g2d, lastLocation);
@@ -347,13 +348,13 @@ public class MapPanel extends AbstractNaviJPanel implements
 			String voltString = new DecimalFormat("0.0").format(voltage);
 			if (voltage < App.getConfig().getSettings().getWarningVoltage()
 					&& warnPrio <= 1) {
-				warning = "WARNING: Voltage " + voltString + "V - shutdown at "
+				warning = "Voltage " + voltString + "V - shutdown at "
 						+ App.getConfig().getSettings().getShutdownVoltage()
 						+ "V.";
 				warnPrio = 1;
 			}
 			if (voltage < App.getConfig().getSettings().getShutdownVoltage()) {
-				warning = "WARNING: Low Voltage (" + voltString
+				warning = "Low Voltage (" + voltString
 						+ "V) - system shutdown!";
 			}
 			this.update();
