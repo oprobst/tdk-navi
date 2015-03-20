@@ -94,7 +94,7 @@ public class LogDiveDataThread extends AbstractCollectThread {
 	private void saveCsvToDisk() {
 		String date = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss-SSS")
 				.format(new Date());
-		String filename = "target/navi-" + date + ".csv";
+		String filename = "/home/pi/navi-" + date + ".csv"; //TODO make configurable
 		Path target = Paths.get(filename);
 		try {
 			Path file = Files.createFile(target);
@@ -112,7 +112,7 @@ public class LogDiveDataThread extends AbstractCollectThread {
 	}
 
 	private void saveKmlToDisk() {
-		String filename = "target/navi-" + new Date().toString() + ".kml";
+		String filename = "/home/pi/navi-" + new Date().toString() + ".kml";
 		try {
 			String date = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss-SSS")
 					.format(new Date());
