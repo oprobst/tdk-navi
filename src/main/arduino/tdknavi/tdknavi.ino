@@ -317,6 +317,11 @@ short collectCompassData (byte sensorBuffer  []) {
   result = printDouble (event.magnetic.z, 6);
   result.getBytes(&sensorBuffer[16], 5) ;
   sensorBuffer[20] = '*';
+  
+  // for (unsigned short b = 0; b < 17 + 3; b++) {
+   // Serial.write(sensorBuffer[b]);
+  //}
+  //Serial.println();
   return 20;
 }
 
