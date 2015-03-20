@@ -11,9 +11,9 @@
 		  Es ist dunkel da unten.
 		  </html>]]>     
 		</notes>
-		<forcemap>demo</forcemap> <!-- This map will be used -->
-		<shutdown-voltage>6.5</shutdown-voltage>
-		<warning-voltage>6.1</warning-voltage>
+		<forcemap>Gernsbach-big</forcemap> <!-- This map will be used -->
+		<shutdown-voltage>6.6</shutdown-voltage>
+		<warning-voltage>6.3</warning-voltage>
 		<fast-leak-shutdown>false</fast-leak-shutdown>
 		<speed> <!-- Scooter gear and corresponding speed -->
 			<gear sensor="200" speed="10" /> <!-- 1 -->
@@ -35,6 +35,17 @@
 		<waypoint longitude="8.334448" latitude="48.769217" id="F.H.-Brücke" />
 		<waypoint longitude="8.333186" latitude="48.766862" id="Spielplatz" />
 		<waypoint longitude="8.330950" latitude="48.769010" id="Sitzbank" />
+	</map>
+	
+   <map id="Gernsbach-big" image="${intern}/Gernsbach-big.png"
+		declination="1.75">
+		<northwest longitude="8.328152" latitude="48.769443" />
+		<southeast longitude="8.343100" latitude="48.762025" />
+		<waypoint longitude="8.334448" latitude="48.769217" id="F.H.-Brücke" />
+		<waypoint longitude="8.333186" latitude="48.766862" id="Spielplatz" />
+		<waypoint longitude="8.330950" latitude="48.769010" id="Sitzbank" /> 
+		<waypoint longitude="8.336992" latitude="48.763526" id="Eisdiele" />
+		<waypoint longitude="8.330261" latitude="48.763516" id="Friedhof" />
 	</map>
 
 	<map id="demo" image="${intern}/demoMap.png" declination="2.0">
