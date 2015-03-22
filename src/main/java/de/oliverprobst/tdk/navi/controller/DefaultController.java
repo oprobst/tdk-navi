@@ -426,23 +426,15 @@ public class DefaultController {
 		}
 	}
 
-	private boolean entertainmentRunning = false;
-
-	/**
-	 * @return true if currently entertainment is running.
-	 */
-	public boolean isEntertainmentRunning() {
-		return entertainmentRunning;
-	}
-
+ 
 	/**
 	 * Set the entertainment enabled.
 	 * 
 	 * @param entertainmentRunning
 	 */
 	public void setEntertainmentRunning(boolean entertainmentRunning) {
-		this.entertainmentRunning = entertainmentRunning;
-		firePropertyChange(DiveDataProperties.PROP_ENTERTAINMENTSTARTED,
-				this.entertainmentRunning, entertainmentRunning);
+		
+		currentRecord.entertainment(entertainmentRunning);
+		
 	}
 }

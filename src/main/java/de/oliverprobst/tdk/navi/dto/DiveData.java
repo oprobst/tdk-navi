@@ -23,6 +23,8 @@ public class DiveData extends AbstractModel implements Cloneable {
 	private int timeSinceLastGPS;
 	private float voltage;
 
+	private boolean entertainmentMode = false;
+
 	public DiveData() {
 		super();
 	}
@@ -330,6 +332,8 @@ public class DiveData extends AbstractModel implements Cloneable {
 		sb.append(",");
 		sb.append(gear);
 		sb.append(",");
+		sb.append(entertainmentMode);
+		sb.append(",");
 		if (pitchAndCourse != null) {
 			sb.append(pitchAndCourse.getCourse());
 			sb.append(",");
@@ -350,6 +354,7 @@ public class DiveData extends AbstractModel implements Cloneable {
 		} else {
 			sb.append("0,0,0,");
 		}
+
 		if (estimatedLocation != null) {
 			sb.append(estimatedLocation.getLatitude());
 			sb.append(",");
@@ -360,5 +365,11 @@ public class DiveData extends AbstractModel implements Cloneable {
 		sb.append("\n");
 		return sb.toString();
 
+	}
+
+	public void entertainment(boolean payload) {
+		super.propertyChangeSupport.firePropertyChange(
+				DiveDataProperties.PROP_ENTERTAINMENTSTARTED, "", payload);
+		this.entertainmentMode = payload;
 	}
 }
