@@ -127,7 +127,7 @@ public class EntertainmentThread extends AbstractCollectThread implements
 				} catch (InterruptedException e) {
 					log.warn("Thread interrupted...", e);
 				}
-				while (shallEntertainmentRun()) {
+				while (shallEntertainmentRun() && p.isAlive()) {
 					// do nothing as long as there is no reason to interrupt the
 					// video.
 					// check that every 10 sec.
