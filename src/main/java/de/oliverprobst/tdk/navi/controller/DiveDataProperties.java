@@ -19,5 +19,6 @@ public final class DiveDataProperties {
 	public static final String PROP_HULL = "hull";
 	public static final String PROP_NOTES = "notes";
 	public static final String PROP_ESTIMATED = "estimatedLocation";
-	public static final String PROP_SHUTDOWN  = "shutdownt";
+	public static final String PROP_SHUTDOWN = "shutdown";
+	public static final String PROP_ENTERTAINMENTSTARTED = "entertainment";
 }

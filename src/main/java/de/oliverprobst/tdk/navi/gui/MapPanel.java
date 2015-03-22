@@ -169,9 +169,9 @@ public class MapPanel extends AbstractNaviJPanel implements
 
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.addRenderingHints(defineRenderingHints());
-		
-	    g2d.drawImage(image, 0, 0, null);
-				
+
+		g2d.drawImage(image, 0, 0, null);
+
 		MapPoint lastLocation = null;
 
 		paintRoute(g2d, lastLocation);
@@ -183,9 +183,14 @@ public class MapPanel extends AbstractNaviJPanel implements
 		paintWPs(g2d);
 
 		if (warning != null) {
-			g.setColor(new Color(255, 1, 1));
-			g.setFont(new Font("Dialog", Font.BOLD, 18));
-			g.drawString(warning, 15, 35);
+			g2d.setColor(new Color(255, 1, 1));
+			g2d.setFont(new Font("Dialog", Font.BOLD, 18));
+			g2d.drawString(warning, 15, 35);
+		} 
+		if (entertainmentRunning) {
+			g2d.setColor(new Color(20, 200, 20));
+			g2d.setFont(new Font("Dialog", Font.BOLD, 18));
+			g2d.drawString("Starting Entertainment Mode. Enjoy deco!", 15, 300);
 		}
 	}
 
@@ -318,6 +323,8 @@ public class MapPanel extends AbstractNaviJPanel implements
 		updateWPs = false;
 	}
 
+	boolean entertainmentRunning = false;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -333,6 +340,10 @@ public class MapPanel extends AbstractNaviJPanel implements
 		} else if (evt.getPropertyName().equals(
 				DiveDataProperties.PROP_ESTIMATED)) {
 			setEstimatedLocation((Location) evt.getNewValue());
+			this.update();
+		} else if (evt.getPropertyName().equals(
+				DiveDataProperties.PROP_ENTERTAINMENTSTARTED)) {
+			entertainmentRunning = (boolean) evt.getNewValue();
 			this.update();
 		} else if (evt.getPropertyName().equals(DiveDataProperties.PROP_COURSE)) {
 			int newCourse = (Integer) evt.getNewValue();

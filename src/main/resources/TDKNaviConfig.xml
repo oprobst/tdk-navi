@@ -9,7 +9,7 @@
 		  <p><b>Notizen</b></p>
 		  Hafen im Osten! <br/>
 		  Es ist dunkel da unten.
-		  </html>]]>     
+		  </html>]]>
 		</notes>
 		<forcemap>Gernsbach-big</forcemap> <!-- This map will be used -->
 		<shutdown-voltage>6.6</shutdown-voltage>
@@ -26,6 +26,11 @@
 			<gear sensor="50" speed="52" /> <!-- 8 -->
 			<gear sensor="30" speed="56" /> <!-- 9 -->
 		</speed>
+		<entertainment enabled="true" depth-activate="6" depth-min="1"
+			depth-max="10" minimum-time-since-startup="0" last-gps="3">
+			<video file="/home/pi/video/Chaplin_512kb.mp4" />
+			<video file="/home/pi/video/wallace_and_grommit.avi" />			
+		</entertainment>
 	</settings>
 
 	<map id="Gernsbach" image="${user.home}/tdk-navi/Gernsbach.png"
@@ -36,14 +41,14 @@
 		<waypoint longitude="8.333186" latitude="48.766862" id="Spielplatz" />
 		<waypoint longitude="8.330950" latitude="48.769010" id="Sitzbank" />
 	</map>
-	
-   <map id="Gernsbach-big" image="${intern}/Gernsbach-big.png"
+
+	<map id="Gernsbach-big" image="${intern}/Gernsbach-big.png"
 		declination="1.75">
 		<northwest longitude="8.328152" latitude="48.769443" />
 		<southeast longitude="8.343100" latitude="48.762025" />
 		<waypoint longitude="8.334448" latitude="48.769217" id="F.H.-Brücke" />
 		<waypoint longitude="8.333186" latitude="48.766862" id="Spielplatz" />
-		<waypoint longitude="8.330950" latitude="48.769010" id="Sitzbank" /> 
+		<waypoint longitude="8.330950" latitude="48.769010" id="Sitzbank" />
 		<waypoint longitude="8.336992" latitude="48.763526" id="Eisdiele" />
 		<waypoint longitude="8.330261" latitude="48.763516" id="Friedhof" />
 	</map>

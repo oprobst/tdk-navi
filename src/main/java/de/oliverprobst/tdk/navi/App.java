@@ -31,6 +31,7 @@ import de.oliverprobst.tdk.navi.serial.SerialPackage;
 import de.oliverprobst.tdk.navi.threads.AbstractCollectThread;
 import de.oliverprobst.tdk.navi.threads.DataProcessingThread;
 import de.oliverprobst.tdk.navi.threads.DemoDataCollectThread;
+import de.oliverprobst.tdk.navi.threads.EntertainmentThread;
 import de.oliverprobst.tdk.navi.threads.LogDiveDataThread;
 import de.oliverprobst.tdk.navi.threads.SerialDataCollectThread;
 
@@ -54,6 +55,7 @@ public class App {
 	private static AbstractCollectThread dataProcessingThread = null;
 	private static SerialDataCollectThread collectorThread = null;
 	private static LogDiveDataThread lddThread = null;
+	private static EntertainmentThread entertainmentThread = null;
 
 	/**
 	 * @return the config
@@ -160,6 +162,7 @@ public class App {
 		collectorThread = new SerialDataCollectThread(incoming);
 		dataProcessingThread = new DataProcessingThread(incoming, dc);
 		lddThread = new LogDiveDataThread(dc);
+		entertainmentThread = new EntertainmentThread(dc);
 		lddThread.setPriority(3);
 
 		dataProcessingThread.setUncaughtExceptionHandler(uch);
@@ -169,6 +172,7 @@ public class App {
 		collectorThread.start();
 		dataProcessingThread.start();
 		lddThread.start();
+		entertainmentThread.start();
 	}
 
 	private static void runInDemoMode(DefaultController dc, Configuration config) {

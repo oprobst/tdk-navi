@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:de:oliverprobst:tdk:navi:configuration:1.0"
-	xmlns:tns="urn:de:oliverprobst:tdk:navi:configuration:1.0" elementFormDefault="qualified"
-	xmlns:jxb="http://java.sun.com/xml/ns/jaxb" jxb:version="2.0">
+	xmlns:tns="urn:de:oliverprobst:tdk:navi:configuration:1.0"
+	elementFormDefault="qualified" xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+	jxb:version="2.0">
 
 	<!-- -->
 	<!-- Parent configuration element -->
@@ -11,7 +12,8 @@
 			<appinfo>
 				<jxb:class name="Configuration" />
 			</appinfo>
-			<documentation>This is the configuration for the TDK Navigation System.
+			<documentation>This is the configuration for the TDK Navigation
+				System.
 			</documentation>
 		</annotation>
 		<complexType>
@@ -24,7 +26,8 @@
 					</annotation>
 				</element>
 
-				<element name="map" type="tns:naviMap" minOccurs="0" maxOccurs="unbounded">
+				<element name="map" type="tns:naviMap" minOccurs="0"
+					maxOccurs="unbounded">
 					<annotation>
 						<documentation>List of all maps available for navigation.
 						</documentation>
@@ -36,10 +39,12 @@
 
 	<complexType name="Settings">
 		<sequence>
-			<element name="demomode" type="boolean" default="false" minOccurs="0" />
+			<element name="demomode" type="boolean" default="false"
+				minOccurs="0" />
 			<element name="notes" type="string" />
 			<element name="forcemap" type="IDREF" minOccurs="0" />
-			<element name="log-interval" type="integer" default="1000" minOccurs="0" />
+			<element name="log-interval" type="integer" default="1000"
+				minOccurs="0" />
 			<element name="shutdown-voltage" type="double" minOccurs="0"
 				maxOccurs="1" default="8.5" />
 			<element name="warning-voltage" type="double" minOccurs="0"
@@ -48,13 +53,89 @@
 				minOccurs="0" />
 			<element name="min-gps-quality" type="double" default="2.5"
 				minOccurs="0" />
-			<element name="speed" type="tns:speed" minOccurs="1" maxOccurs="1">
+			<element name="speed" type="tns:speed" minOccurs="1"
+				maxOccurs="1">
 				<annotation>
 					<documentation>Definition of the scooter speed in meter per minute
 					</documentation>
 				</annotation>
 			</element>
+			<element name="entertainment" type="tns:entertainment"
+				minOccurs="1" maxOccurs="1">
+				<annotation>
+					<documentation>Enable and configure entertainment progamm during
+						deco
+					</documentation>
+				</annotation>
+			</element>
 		</sequence>
+	</complexType>
+
+	<complexType name="entertainment">
+		<sequence>
+			<element name="video" type="tns:video" minOccurs="1"
+				maxOccurs="unbounded">
+			</element>
+		</sequence>
+		<attribute name="enabled" type="boolean" use="optional"
+			default="false">
+			<annotation>
+				<documentation>Enable the entertainment
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="depth-activate" type="integer" use="optional"
+			default="6">
+			<annotation>
+				<documentation>System will be activated when reaching that depth.
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="depth-max" type="integer" use="optional"
+			default="10">
+			<annotation>
+				<documentation>System will be deactivated when below that level.
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="depth-min" type="integer" use="optional"
+			default="0">
+			<annotation>
+				<documentation>System will be deactivated when above that level.
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="minimum-time-since-startup" type="integer"
+			use="optional" default="30">
+			<annotation>
+				<documentation>System will not start before that dive minute.
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="last-gps" type="integer" use="optional"
+			default="3">
+			<annotation>
+				<documentation>System will not start at least this amount of
+					minutes
+					after the last GPS signal.
+				</documentation>
+			</annotation>
+		</attribute>
+	</complexType>
+
+	<complexType name="video">
+		<attribute name="speed" type="integer">
+			<annotation>
+				<documentation>The sensor value to identify the gear level
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="file" type="string" use="required">
+			<annotation>
+				<documentation>Complete path to the video to play.
+				</documentation>
+			</annotation>
+		</attribute>
 	</complexType>
 
 	<complexType name="speed">
@@ -94,7 +175,8 @@
 					</documentation>
 				</annotation>
 			</element>
-			<element name="waypoint" type="tns:waypoint" minOccurs="0" maxOccurs="unbounded">
+			<element name="waypoint" type="tns:waypoint" minOccurs="0"
+				maxOccurs="unbounded">
 				<annotation>
 					<documentation>A waypoint in the map.
 					</documentation>
@@ -110,12 +192,14 @@
 		<attribute name="bright-theme" type="boolean" use="optional"
 			default="false">
 			<annotation>
-				<documentation>If the map is of very dark colors, like satellite images, the
+				<documentation>If the map is of very dark colors, like satellite
+					images, the
 					route will be rendered with bright colors.
 				</documentation>
 			</annotation>
 		</attribute>
-		<attribute name="declination" type="float" use="optional" default="2">
+		<attribute name="declination" type="float" use="optional"
+			default="2">
 			<annotation>
 				<documentation>Magnetic declination for the map, eg. from
 					http://magnetic-declination.com/

@@ -34,9 +34,9 @@ public class DefaultController {
 	 * Update the dive profile only every DIVE_PROFILE_UPDATE_INTERVALL depth
 	 * measurement for performance reasons.
 	 */
- 
+
 	public static int DIVE_PROFILE_UPDATE_INTERVAL = 10;
- 
+
 	/** Use the bright theme for dark map data */
 	private boolean brightTheme = false;
 
@@ -105,13 +105,13 @@ public class DefaultController {
 			public void run() {
 				super.run();
 				while (true) {
-					 
-						record.add(getCurrentRecordClone());
-						if (count++ > 1) {
-							count = 0;
-							updateDiveProfile();
-						}
-					
+
+					record.add(getCurrentRecordClone());
+					if (count++ > 1) {
+						count = 0;
+						updateDiveProfile();
+					}
+
 					try {
 						Thread.sleep(logInterval);
 					} catch (InterruptedException e) {
@@ -406,11 +406,10 @@ public class DefaultController {
 				&& App.getConfig().getSettings().isFastLeakShutdown()) {
 			waitForUser = 100;
 		}
-		
+
 		App.shutdown();
 		Thread shutdownThread = new ShutdownThread(waitForUser);
 		shutdownThread.start();
-		
 
 	}
 
@@ -419,11 +418,31 @@ public class DefaultController {
 	 * DIVE_PROFILE_UPDATE_INTERVALL count for #Performance reasons.
 	 */
 	private void updateDiveProfile() {
- 
+
 		if (updateDiveProfileCounter++ > DIVE_PROFILE_UPDATE_INTERVAL) {
-  			firePropertyChange(DiveDataProperties.PROP_UPDATEPROFILE, null,
+			firePropertyChange(DiveDataProperties.PROP_UPDATEPROFILE, null,
 					record);
 			updateDiveProfileCounter = 0;
 		}
+	}
+
+	private boolean entertainmentRunning = false;
+
+	/**
+	 * @return true if currently entertainment is running.
+	 */
+	public boolean isEntertainmentRunning() {
+		return entertainmentRunning;
+	}
+
+	/**
+	 * Set the entertainment enabled.
+	 * 
+	 * @param entertainmentRunning
+	 */
+	public void setEntertainmentRunning(boolean entertainmentRunning) {
+		this.entertainmentRunning = entertainmentRunning;
+		firePropertyChange(DiveDataProperties.PROP_ENTERTAINMENTSTARTED,
+				this.entertainmentRunning, entertainmentRunning);
 	}
 }
