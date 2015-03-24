@@ -22,7 +22,7 @@ import de.oliverprobst.tdk.navi.serial.SerialPackage;
 public class SerialDataCollectThread extends AbstractCollectThread {
 
 	/** The Constant COM_SPEED defines the serial connection speed. */
-	public static final int COM_SPEED = 115200;
+	public static final int COM_SPEED = 19200;
 
 	/** The log. */
 	private static Logger log = LoggerFactory
