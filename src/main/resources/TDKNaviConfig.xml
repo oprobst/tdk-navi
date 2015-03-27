@@ -15,6 +15,7 @@
 		<shutdown-voltage>6.6</shutdown-voltage>
 		<warning-voltage>6.3</warning-voltage>
 		<fast-leak-shutdown>false</fast-leak-shutdown>
+		<timezone>2</timezone>
 		<speed> <!-- Scooter gear and corresponding speed -->
 			<gear sensor="200" speed="10" /> <!-- 1 -->
 			<gear sensor="180" speed="16" /> <!-- 2 -->
@@ -26,10 +27,11 @@
 			<gear sensor="50" speed="52" /> <!-- 8 -->
 			<gear sensor="30" speed="56" /> <!-- 9 -->
 		</speed>
-		<entertainment enabled="true" depth-activate="6" depth-min="1"
-			depth-max="10" minimum-time-since-startup="0" last-gps="3">
+
+		<entertainment enabled="true" depth-activate="6"
+			depth-min="1" depth-max="10" minimum-time-since-startup="0" last-gps="3">
 			<video file="/home/pi/video/Chaplin_512kb.mp4" />
-			<video file="/home/pi/video/wallace_and_grommit.avi" />			
+			<video file="/home/pi/video/wallace_and_grommit.avi" />
 		</entertainment>
 	</settings>
 

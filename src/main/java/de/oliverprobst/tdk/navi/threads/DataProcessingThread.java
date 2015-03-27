@@ -160,7 +160,6 @@ public class DataProcessingThread extends AbstractCollectThread {
 	 */
 	private void parseDepth(String payload) {
 		float depth = Float.parseFloat(payload);
-		depth = depth / 100;
 		dc.setDepth(depth);
 	}
 

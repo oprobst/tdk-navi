@@ -2,7 +2,12 @@ package de.oliverprobst.tdk.navi.controller;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,6 +35,8 @@ import de.oliverprobst.tdk.navi.dto.StructuralIntegrity.Status;
  */
 public class DefaultController {
 
+	public Date startedAt = new Date();
+
 	/**
 	 * Update the dive profile only every DIVE_PROFILE_UPDATE_INTERVALL depth
 	 * measurement for performance reasons.
@@ -47,6 +54,39 @@ public class DefaultController {
 	 * Timestamp of first time below 1.5m
 	 */
 	private long diveStartTimestamp = 0;
+
+	/**
+	 * Timestamp when system was started. Might be adjusted on first GPS signal.
+	 */
+	private long startupTimestamp = 0;
+
+	/**
+	 * This method shall be called the first time when gps signal was received.
+	 * The date of the signal will be modified by a the current runtime and the
+	 * startup date will be calculated again.
+	 * 
+	 * Additionally the time will be set for the system.
+	 * 
+	 * @param newDate
+	 *            The date received by GPS
+	 */
+	public void setTime(Date newDate) {
+
+		// do this only once (for performance reasons)
+		if (startupTimestamp != 0) {
+
+			long runtimeSinceLastTimeUpdate = startupTimestamp = System
+					.currentTimeMillis();
+
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(newDate);
+			long newMillis = calendar.getTimeInMillis();
+
+			this.startupTimestamp = newMillis - runtimeSinceLastTimeUpdate;
+			this.startedAt = new Date(startupTimestamp);
+		}
+
+	}
 
 	/**
 	 * Set to true when the first time below 1.5m
@@ -314,6 +354,38 @@ public class DefaultController {
 		lastPosEstimation = -1;
 		lastGPSfix = System.currentTimeMillis();
 		currentRecord.setGga(nmeaMsg);
+		if (this.diveStartTimestamp == 0) {
+			try {
+				String ggaClock = nmeaMsg.getClock();
+				int timezone = App.getConfig().getSettings().getTimezone()
+						.intValue();
+				SimpleDateFormat format = new SimpleDateFormat("HHmmss.SS");
+
+				Date date = format.parse(ggaClock);
+
+				Calendar cal = Calendar.getInstance(); // creates calendar
+				cal.setTime(date); // sets calendar time/date
+				cal.add(Calendar.HOUR_OF_DAY, timezone); // adds one hour
+				this.startedAt = cal.getTime(); // returns new date object, one
+												// hour in the future
+				log.info("Received time from gps: " + startedAt);
+				if (!App.getConfig().getSettings().isDemomode()) {
+					SimpleDateFormat dt = new SimpleDateFormat("mmddHHMM");
+					try {
+						 Runtime.getRuntime().exec(
+								"date -s " + dt.format(cal.getTime()));// MMddhhmm[[yy]yy]
+						log.info("Set system time to : "
+								+ dt.format(cal.getTime()));
+
+					} catch (IOException e) {
+						log.warn("Could not set time as received from gps.", e);
+					}
+				}
+			} catch (ParseException e) {
+				log.warn("Could not parse time as received from gps.", e);
+			}
+		}
+
 	}
 
 	/**
@@ -426,15 +498,14 @@ public class DefaultController {
 		}
 	}
 
- 
 	/**
 	 * Set the entertainment enabled.
 	 * 
 	 * @param entertainmentRunning
 	 */
 	public void setEntertainmentRunning(boolean entertainmentRunning) {
-		
+
 		currentRecord.entertainment(entertainmentRunning);
-		
+
 	}
 }

@@ -80,9 +80,9 @@ long shutdownTimeout = 0;
 * Stores the checksum of the last send message for each
 * message type. Prevents sending same measurement twice.
 */
-byte lastSend [8][2];
+byte lastSend [9][2];
 
-
+byte ambientPressureOnStartup = 0;
 
 /*
  * Main setup routine
@@ -91,7 +91,12 @@ void setup() {
 
   Serial.begin(SERIAL_SPEED);
 
-  configureGPS();
+   
+   
+  
+ configureGPS();
+  
+  
 
   // LED indicating Serial connectivity between arduino and pi
   pinMode(12, OUTPUT);
@@ -121,6 +126,8 @@ void setup() {
 
   gpsSerial.listen();
 
+  ambientPressureOnStartup = analogRead (A3);
+
 }
 
 
@@ -129,7 +136,7 @@ void setup() {
  */
 void loop() {
   short lastWritePos = 0;
-  delay (1);
+  delay (2);
   //GPS data
   currGpsBufferSize = collectGPSData(gpsSensorBuffer, currGpsBufferSize);
 
@@ -139,9 +146,26 @@ void loop() {
     digitalWrite (13, LOW);
   }
 
-  if (gpsReceivedCompleteMsg) {
+
+//if (loopCounter % 500 == 0) {
+ // byte req[] = { 0xB5, 0x62 , 0x06 , 0x24 };
+  //calcChecksum(&req[2], sizeof(req) - 4);
+  //sendUBX(&req[0], sizeof(req));
+ // Serial.println ("SENDED REQ");
+
+//}
+if (gpsReceivedCompleteMsg) {
     calcChecksum(&gpsSensorBuffer[1], currGpsBufferSize - 1);
-    sendLastBuffer (gpsSensorBuffer, currGpsBufferSize);
+    
+    //Serial.print("GPS: ");
+    //for (unsigned short b = 0; b < currGpsBufferSize; b++) {
+    //   Serial.write(gpsSensorBuffer[b]);
+    //}
+    // Serial.println("");
+     
+    if (currGpsBufferSize > 8 && gpsSensorBuffer[6] == 'A' && gpsSensorBuffer[5] == 'G'){
+      sendLastBuffer (gpsSensorBuffer, currGpsBufferSize);
+    }
     gpsReceivedCompleteMsg = false;
     currGpsBufferSize = 1;
     gpsStringStarted = false;
@@ -152,6 +176,13 @@ void loop() {
   calcChecksum(&sensorBuffer[1], lastWritePos);
   sendLastBuffer (sensorBuffer, lastWritePos);
 
+  //Depth
+  if (loopCounter % 50 == 0) {
+    lastWritePos = collectDepthData(sensorBuffer);
+    calcChecksum(&sensorBuffer[1], lastWritePos);
+    sendLastBuffer (sensorBuffer, lastWritePos);
+  }
+  
   //Leak detection
   if (loopCounter % 500 == 0) {
     lastWritePos = collectLeakData(sensorBuffer);
@@ -173,10 +204,11 @@ void loop() {
     calcChecksum(&sensorBuffer[1], lastWritePos);
     sendLastBuffer (sensorBuffer, lastWritePos);
   }
-
-  //Off Button
+  
+   //Off Button
   lastWritePos = checkOffButton(sensorBuffer);
   if (lastWritePos > 0) {
+  
     calcChecksum(&sensorBuffer[1], lastWritePos );
     sendLastBuffer (sensorBuffer, lastWritePos);
     // set timeout, if no shutdown received.
@@ -193,13 +225,14 @@ void loop() {
     } else if (incoming == 0x70) {
       digitalWrite(12, LOW);
     } else if (incoming == 0x21) {
-      //shutdownTimeout = millis() + 60000;
+      shutdownTimeout = millis() + 60000;
     }
   }
 
   if (loopCounter++ > 10000) {
     loopCounter = 0;
   }
+  
 
   // Shutdown if shutdownTimeout is reached.
   if (shutdownTimeout != 0 && shutdownTimeout < millis()) {
@@ -210,7 +243,7 @@ void loop() {
 
 // Here, the last buffer shall be send via ttl
 void sendLastBuffer (byte  bufferToSend [], unsigned short lastWritePos) {
-  
+
   //check if last message of this type has the same chk sum. Discard then:
   unsigned char lastMsgType = bufferToSend [1] - 97;
 
@@ -221,7 +254,7 @@ void sendLastBuffer (byte  bufferToSend [], unsigned short lastWritePos) {
 
   // and send:
   for (unsigned short b = 0; b < lastWritePos + 3; b++) {
-    Serial.write(bufferToSend[b]);
+   Serial.write(bufferToSend[b]);
   }
 
   lastSend [lastMsgType][0] = bufferToSend [lastWritePos + 1];
@@ -266,7 +299,7 @@ short collectTemperatureData (byte sensorBuffer  []) {
 short collectLeakData (byte sensorBuffer  []) {
   sensorBuffer[1] = 'c';
 
-  int sensorValue = analogRead(A1);  // Bow sensor
+  int sensorValue = analogRead(A0);  // Bow sensor
   String result = printDouble (sensorValue, 5);
   result.getBytes(&sensorBuffer[2], 5) ;
 
@@ -283,6 +316,20 @@ short collectLeakData (byte sensorBuffer  []) {
   sensorBuffer[16] = '*';
   return 16;
 }
+
+
+short collectDepthData (byte sensorBuffer  []) {
+
+  int value = analogRead(A3);
+  float depth = (value - ambientPressureOnStartup) / 70.0f; // 70=calibration value, to be determined...
+
+  sensorBuffer[1] = 'i';
+  String result = printDouble (depth, 5);
+  result.getBytes(&sensorBuffer[2], 5) ;
+  sensorBuffer[6] = '*';
+  return 6;
+}
+
 
 short collectCompassData (byte sensorBuffer  []) {
 
@@ -600,10 +647,10 @@ double isInRange (float rangeMin, float rangeMax, short measureMin, short measur
 The input is not exactly linear, so we measured the value and estimate as best as possible around 0.2V fixpoints.
 */
 float calculateVoltage () {
-  short inputVoltage = analogRead(A0);
+  short inputVoltage = analogRead(A2);
 
- // Serial.print (inputVoltage);
- // Serial.print (" -> ");
+  // Serial.print (inputVoltage);
+  // Serial.print (" -> ");
 
   float  range [] = {0.0, 5.6, 5.8, 6.0, 6.2, 6.4, 6.6, 6.8, 7.0, 7.2, 7.4, 7.6, 7.8, 8.0, 8.2, 8.4, 8.6, 8.8, 9.0, 20.0};
   static short  measureBoundaries [] = {0, 470, 478, 484, 490, 495, 500, 508, 514, 517, 521, 526, 530, 535, 538, 542, 546, 548, 552, 1024};
@@ -612,11 +659,14 @@ float calculateVoltage () {
   for (int i = 0; i < sizeof(range) - 2; i++) {
     returnValue = isInRange(range[i], range[i + 1], measureBoundaries[i], measureBoundaries[i + 1], inputVoltage);
     if (returnValue > -1) {
- //     Serial.println (returnValue);
+      //     Serial.println (returnValue);
       return returnValue;
     }
   }
 
   return 20.0;
 }
+
+
+
 

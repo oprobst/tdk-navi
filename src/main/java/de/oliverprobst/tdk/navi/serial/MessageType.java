@@ -33,7 +33,9 @@ public enum MessageType {
 			return MessageType.SPEED;
 		case 0x67:
 			return MessageType.VOLTAGE;
-		case 0x7A:
+		case 0x69:
+			return MessageType.DEPTH;
+		case 0x7A: 
 			return MessageType.SHUTDOWN;
 		default:
 			return UNKNOWN;

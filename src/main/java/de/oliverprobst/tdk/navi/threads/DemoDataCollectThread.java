@@ -301,13 +301,19 @@ public class DemoDataCollectThread extends AbstractCollectThread {
 
 		float depth = dc.getCurrentRecordClone().getDepth();
 
-		float c = (float) ((Math.random() * 10) / 200);
+		float c = (float) ((Math.random() / 10 ) );
 		depth = depth + c;
 
 		if (depth < 0) {
 			depth = 0;
 		}
-		dc.setDepth(depth);
+
+		String message = "$i" + depth + "*";
+
+		message = generateChecksum(message);
+		log.trace("Simulate event '" + message + "'.");
+		addToQueue(new SerialPackage(message));
+
 	}
 
 	/**
