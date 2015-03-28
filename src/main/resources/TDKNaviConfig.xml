@@ -84,5 +84,12 @@
 		<waypoint id="Landau" latitude="49.194100" longitude="8.112100" />
 		<waypoint id="Bruchsal" latitude="49.121600" longitude="8.593100" />
 	</map>
+	
+	<map id="grauelsbaum" image="${intern}/Grauelsbaum.png" declination="1.5">
+		<northwest longitude="7.970258" latitude="48.736533" />
+		<southeast latitude="48.730271" longitude="7.983026" />
+		<waypoint id="Einstieg" latitude="48.731277" longitude="7.972331" />
+		<waypoint id="Fisherman" latitude="48.734760" longitude="7.975653" />		
+	</map>
 
 </config> 

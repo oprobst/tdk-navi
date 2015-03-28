@@ -91,13 +91,8 @@ void setup() {
 
   Serial.begin(SERIAL_SPEED);
 
-   
-   
+  configureGPS();
   
- configureGPS();
-  
-  
-
   // LED indicating Serial connectivity between arduino and pi
   pinMode(12, OUTPUT);
 
@@ -301,7 +296,10 @@ short collectLeakData (byte sensorBuffer  []) {
 
   int sensorValue = analogRead(A0);  // Bow sensor
   String result = printDouble (sensorValue, 5);
-  result.getBytes(&sensorBuffer[2], 5) ;
+  result.getBytes(&sensorBuffer[2], 5);
+  if (sensorValue > 500){
+     shutdownTimeout = millis() + 15000; 
+  }
 
   sensorBuffer[6] = ',';
   sensorValue = 0; //analogRead(A1); // Stern sensor
@@ -321,13 +319,13 @@ short collectLeakData (byte sensorBuffer  []) {
 short collectDepthData (byte sensorBuffer  []) {
 
   int value = analogRead(A3);
-  float depth = (value - ambientPressureOnStartup) / 70.0f; // 70=calibration value, to be determined...
+  double depth = (value - ambientPressureOnStartup) / 71.0d; // 70=calibration value, to be determined...
 
   sensorBuffer[1] = 'i';
-  String result = printDouble (depth, 5);
-  result.getBytes(&sensorBuffer[2], 5) ;
-  sensorBuffer[6] = '*';
-  return 6;
+  String result = printDouble (depth, 6);
+  result.getBytes(&sensorBuffer[2], 6) ;
+  sensorBuffer[7] = '*';
+  return 7;
 }
 
 
